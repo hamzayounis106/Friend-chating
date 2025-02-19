@@ -1,30 +1,29 @@
-import { NextAuthOptions } from 'next-auth'
-import { UpstashRedisAdapter } from '@next-auth/upstash-redis-adapter'
-import { db } from './db'
-import GoogleProvider from 'next-auth/providers/google'
-import { fetchRedis } from '@/helpers/redis'
+import { NextAuthOptions } from 'next-auth';
+import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
+import dbConnect from '@/lib/db'; // Import your MongoDB connection
+import GoogleProvider from 'next-auth/providers/google';
+import User from '@/app/models/User';
 
 function getGoogleCredentials() {
-  const clientId = process.env.GOOGLE_CLIENT_ID
-  const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+  const clientId = process.env.GOOGLE_CLIENT_ID;
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || clientId.length === 0) {
-    throw new Error('Missing GOOGLE_CLIENT_ID')
+    throw new Error('Missing GOOGLE_CLIENT_ID');
   }
 
   if (!clientSecret || clientSecret.length === 0) {
-    throw new Error('Missing GOOGLE_CLIENT_SECRET')
+    throw new Error('Missing GOOGLE_CLIENT_SECRET');
   }
 
-  return { clientId, clientSecret }
+  return { clientId, clientSecret };
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: UpstashRedisAdapter(db),
+  adapter: MongoDBAdapter(dbConnect().then((client) => client.connection.getClient())),
   session: {
     strategy: 'jwt',
   },
-
   pages: {
     signIn: '/login',
   },
@@ -36,39 +35,49 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const dbUserResult = (await fetchRedis('get', `user:${token.id}`)) as
-        | string
-        | null
+      // Fetch user from MongoDB
+      const dbUser = await User.findById(token.id);
 
-      if (!dbUserResult) {
+      if (!dbUser) {
         if (user) {
-          token.id = user!.id
+          token.id = user.id;
         }
-
-        return token
+        return token;
       }
 
-      const dbUser = JSON.parse(dbUserResult) as User
-
       return {
-        id: dbUser.id,
+        id: dbUser._id,
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
-      }
+      };
     },
     async session({ session, token }) {
       if (token) {
-        session.user.id = token.id
-        session.user.name = token.name
-        session.user.email = token.email
-        session.user.image = token.picture
+        session.user.id = token.id;
+        session.user.name = token.name;
+        session.user.email = token.email;
+        session.user.image = token.picture;
       }
 
-      return session
+      return session;
     },
     redirect() {
-      return '/dashboard'
+      return '/dashboard';
     },
   },
-}
+  events: {
+    async createUser(message) {
+      // Perform additional actions when a user is created
+      console.log("User created:", message.user);
+
+      // Ensure the friends field is initialized
+      const user = await User.findById(message.user.id);
+      if (user) {
+        user.friends = user.friends || [];
+        await user.save();
+        console.log("User friends initialized:", user.friends);
+      }
+    },
+  },
+};

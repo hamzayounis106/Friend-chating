@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast'
 import UnseenChatToast from './UnseenChatToast'
 
 interface SidebarChatListProps {
-  friends: User[]
+  friends: { id: string, name: string, email: string }[]
   sessionId: string
 }
 
@@ -21,13 +21,13 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
   const router = useRouter()
   const pathname = usePathname()
   const [unseenMessages, setUnseenMessages] = useState<Message[]>([])
-  const [activeChats, setActiveChats] = useState<User[]>(friends)
+  const [activeChats, setActiveChats] = useState(friends)
 
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`))
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`))
 
-    const newFriendHandler = (newFriend: User) => {
+    const newFriendHandler = (newFriend: { id: string, name: string, email: string }) => {
       console.log("received new user", newFriend)
       setActiveChats((prev) => [...prev, newFriend])
     }
@@ -76,7 +76,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
 
   return (
     <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
-      {activeChats.sort().map((friend) => {
+      {activeChats?.sort().map((friend) => {
         const unseenMessagesCount = unseenMessages.filter((unseenMsg) => {
           return unseenMsg.senderId === friend.id
         }).length

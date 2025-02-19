@@ -1,54 +1,68 @@
-import { fetchRedis } from '@/helpers/redis'
-import { authOptions } from '@/lib/auth'
-import { db } from '@/lib/db'
-import { pusherServer } from '@/lib/pusher'
-import { toPusherKey } from '@/lib/utils'
-import { getServerSession } from 'next-auth'
-import { z } from 'zod'
+import { getServerSession } from 'next-auth';
+import { z } from 'zod';
+import { authOptions } from '@/lib/auth';
+import { pusherServer } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
+import dbConnect from '@/lib/db'; // Import MongoDB connection
+ // Import User model
+import User from '@/app/models/User';
+import FriendRequest from '@/app/models/FriendRequest';
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json()
+    // Connect to MongoDB
+    await dbConnect();
 
-    const { id: idToAdd } = z.object({ id: z.string() }).parse(body)
+    // Parse the request body
+    const body = await req.json();
+    const { id: idToAdd } = z.object({ id: z.string() }).parse(body);
 
-    const session = await getServerSession(authOptions)
-
+    // Get the current session
+    const session = await getServerSession(authOptions);
     if (!session) {
-      return new Response('Unauthorized', { status: 401 })
+      return new Response('Unauthorized', { status: 401 });
     }
 
-    // verify both users are not already friends
-    const isAlreadyFriends = await fetchRedis(
-      'sismember',
-      `user:${session.user.id}:friends`,
-      idToAdd
-    )
+    // Check if the users are already friends
+    const currentUser = await User.findById(session.user.id);
+    const isAlreadyFriends = currentUser.friends.includes(idToAdd);
 
     if (isAlreadyFriends) {
-      return new Response('Already friends', { status: 400 })
+      return new Response('Already friends', { status: 400 });
     }
 
-    const hasFriendRequest = await fetchRedis(
-      'sismember',
-      `user:${session.user.id}:incoming_friend_requests`,
-      idToAdd
-    )
+    // Check if there's a pending friend request
+    const hasFriendRequest = await FriendRequest.findOne({
+      sender: idToAdd,
+      receiver: session.user.id,
+      status: 'pending',
+    });
 
     if (!hasFriendRequest) {
-      return new Response('No friend request', { status: 400 })
+      return new Response('No friend request', { status: 400 });
     }
 
-    const [userRaw, friendRaw] = (await Promise.all([
-      fetchRedis('get', `user:${session.user.id}`),
-      fetchRedis('get', `user:${idToAdd}`),
-    ])) as [string, string]
+    // Fetch both users
+    const user = await User.findById(session.user.id);
+    const friend = await User.findById(idToAdd);
 
-    const user = JSON.parse(userRaw) as User
-    const friend = JSON.parse(friendRaw) as User
+    if (!user || !friend) {
+      return new Response('User not found', { status: 404 });
+    }
 
-    // notify added user
+    // Add each other as friends
+    user.friends.push(idToAdd);
+    friend.friends.push(session.user.id);
 
+    // Save the updated users
+    await user.save();
+    await friend.save();
+
+    // Update the friend request status to 'accepted'
+    hasFriendRequest.status = 'accepted';
+    await hasFriendRequest.save();
+
+    // Notify both users using Pusher
     await Promise.all([
       pusherServer.trigger(
         toPusherKey(`user:${idToAdd}:friends`),
@@ -60,19 +74,16 @@ export async function POST(req: Request) {
         'new_friend',
         friend
       ),
-      db.sadd(`user:${session.user.id}:friends`, idToAdd),
-      db.sadd(`user:${idToAdd}:friends`, session.user.id),
-      db.srem(`user:${session.user.id}:incoming_friend_requests`, idToAdd),
-    ])
+    ]);
 
-    return new Response('OK')
+    return new Response('OK');
   } catch (error) {
-    console.log(error)
+    console.log(error);
 
     if (error instanceof z.ZodError) {
-      return new Response('Invalid request payload', { status: 422 })
+      return new Response('Invalid request payload', { status: 422 });
     }
 
-    return new Response('Invalid request', { status: 400 })
+    return new Response('Invalid request', { status: 400 });
   }
 }

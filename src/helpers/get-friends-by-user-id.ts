@@ -1,21 +1,29 @@
-import { fetchRedis } from './redis'
+import User, { IUser } from '@/app/models/User';
+import dbConnect from '@/lib/db'; // Import MongoDB connection
 
-export const getFriendsByUserId = async (userId: string) => {
-  // retrieve friends for current user
-  console.log("userid", userId)
-  const friendIds = (await fetchRedis(
-    'smembers',
-    `user:${userId}:friends`
-  )) as string[]
-  console.log("friend ids", friendIds)
+export const getFriendsByUserId = async (userId: string): Promise<IUser['friends']> => {
+  try {
+    // Connect to MongoDB
+    console.log('Connecting to MongoDB...');
+    await dbConnect();
 
-  const friends = await Promise.all(
-    friendIds.map(async (friendId) => {
-      const friend = await fetchRedis('get', `user:${friendId}`) as string
-      const parsedFriend = JSON.parse(friend) as User
-      return parsedFriend
-    })
-  )
+    // Find the user by ID and populate the 'friends' field
+    const user = await User.findById(userId).populate({
+      path: 'friends',
+      select: 'name email',
+      options: { strictPopulate: false }
+    }).lean<IUser>();
 
-  return friends
-}
+    console.log('User:', user);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    console.log('User friends', user.friends);
+    // Return the populated friends array
+    return user.friends;
+  } catch (error) {
+    console.error('Error fetching friends:', error);
+    throw error;
+  }
+};

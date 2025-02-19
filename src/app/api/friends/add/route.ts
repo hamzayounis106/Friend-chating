@@ -1,76 +1,68 @@
-import { fetchRedis } from '@/helpers/redis';
+import { getServerSession } from 'next-auth';
+import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
-import { db } from '@/lib/db';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 import { addFriendValidator } from '@/lib/validations/add-friend';
-import { getServerSession } from 'next-auth';
-import { z } from 'zod';
+import dbConnect from '@/lib/db'; // Import MongoDB connection
+import User from '@/app/models/User';
+import FriendRequest from '@/app/models/FriendRequest';
 
 export async function POST(req: Request) {
   try {
+    // Connect to MongoDB
+    await dbConnect();
+
+    // Parse and validate the request body
     const body = await req.json();
-    console.log('Body', body);
-
-    // Validate the entire body object
     const { email: emailToAdd } = addFriendValidator.parse(body);
-    console.log('Validated Email:', emailToAdd);
 
-    const idToAdd = (await fetchRedis(
-      'get',
-      `user:email:${emailToAdd}`
-    )) as string;
-    console.log('ID to Add:', idToAdd);
-
-    if (!idToAdd) {
-      console.log('User does not exist');
+    // Find the user to add by email
+    const userToAdd = await User.findOne({ email: emailToAdd });
+    if (!userToAdd) {
       return new Response('This person does not exist.', { status: 400 });
     }
 
+    // Get the current session
     const session = await getServerSession(authOptions);
     console.log('Session:', session);
-
     if (!session) {
-      console.log('Unauthorized');
       return new Response('Unauthorized', { status: 401 });
     }
 
-    if (idToAdd === session.user.id) {
-      console.log('Cannot add yourself');
-      return new Response('You cannot add yourself as a friend', {
-        status: 400,
-      });
+    // Check if the user is trying to add themselves
+    if (userToAdd._id.toString() === session.user.id) {
+      return new Response('You cannot add yourself as a friend', { status: 400 });
     }
 
-    // Check if user is already added
-    const isAlreadyAdded = (await fetchRedis(
-      'sismember',
-      `user:${idToAdd}:incoming_friend_requests`,
-      session.user.id
-    )) as 0 | 1;
-    console.log('Is Already Added:', isAlreadyAdded);
+    // Check if the friend request already exists
+    const existingRequest = await FriendRequest.findOne({
+      sender: session.user.id,
+      receiver: userToAdd._id,
+    });
 
-    if (isAlreadyAdded) {
-      console.log('Already added this user');
+    if (existingRequest) {
       return new Response('Already added this user', { status: 400 });
     }
 
-    // Check if user is already friends
-    const isAlreadyFriends = (await fetchRedis(
-      'sismember',
-      `user:${session.user.id}:friends`,
-      idToAdd
-    )) as 0 | 1;
-    console.log('Is Already Friends:', isAlreadyFriends);
-
-    if (isAlreadyFriends) {
-      console.log('Already friends with this user');
+    // Check if the users are already friends
+    const currentUser = await User.findById(session.user.id);
+    if (currentUser.friends.includes(userToAdd._id)) {
       return new Response('Already friends with this user', { status: 400 });
     }
 
-    // Valid request, send friend request
+    // Create a new friend request
+    const friendRequest = new FriendRequest({
+      sender: session.user.id,
+      receiver: userToAdd._id,
+      status: 'pending',
+    });
+
+    await friendRequest.save();
+
+    // Notify the user using Pusher
     await pusherServer.trigger(
-      toPusherKey(`user:${idToAdd}:incoming_friend_requests`),
+      toPusherKey(`user:${userToAdd._id}:incoming_friend_requests`),
       'incoming_friend_requests',
       {
         senderId: session.user.id,
@@ -78,12 +70,10 @@ export async function POST(req: Request) {
       }
     );
 
-    await db.sadd(`user:${idToAdd}:incoming_friend_requests`, session.user.id);
-    console.log('Friend request sent');
-
     return new Response('OK');
   } catch (error) {
     console.error('Error:', error);
+
     if (error instanceof z.ZodError) {
       return new Response('Invalid request payload', { status: 422 });
     }
