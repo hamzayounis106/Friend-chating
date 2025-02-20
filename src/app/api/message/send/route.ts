@@ -5,7 +5,25 @@ import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 import User from '@/app/models/User';
 import Message from '@/app/models/Message';
-import { Friend } from '@/components/SidebarChatList';
+import mongoose from 'mongoose';
+
+// Define a lean type for a friend (as stored in the User model)
+interface LeanFriend {
+  _id: mongoose.Types.ObjectId | string;
+  name: string;
+  email: string;
+  image?: string;
+}
+
+// Define a lean type for a user, including the friends property
+interface LeanUser {
+  _id: mongoose.Types.ObjectId | string;
+  name: string;
+  email: string;
+  emailVerified?: Date;
+  image?: string;
+  friends: LeanFriend[];
+}
 
 export async function POST(req: Request) {
   try {
@@ -21,10 +39,12 @@ export async function POST(req: Request) {
 
     const friendId = session.user.id.toString() === userId1 ? userId2 : userId1;
 
-    const sender = await User.findById(session.user.id.toString()).lean();
-    if (!sender) return new Response('Unauthorized', { status: 401 });
+    // Fetch the sender document and cast it as a LeanUser
+    const senderDoc = await User.findById(session.user.id.toString()).lean();
+    if (!senderDoc) return new Response('Unauthorized', { status: 401 });
+    const sender = senderDoc as unknown as LeanUser;
     const isFriend = sender.friends.some(
-      (friend: Friend) => friend._id.toString() === friendId
+      (friend: LeanFriend) => friend._id.toString() === friendId
     );
     if (!isFriend) return new Response('Unauthorized', { status: 401 });
 

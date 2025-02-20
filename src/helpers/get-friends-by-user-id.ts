@@ -4,8 +4,6 @@ import { Friend } from '@/components/SidebarChatList';
 import dbConnect from '@/lib/db';
 import mongoose from 'mongoose';
 
-// Define Friend type that will be returned to the client
-
 interface LeanUser extends Omit<IUser, 'friends'> {
   friends: Friend[];
 }

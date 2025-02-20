@@ -44,7 +44,7 @@ async function getChatMessages(chatId: string) {
       { sender: userId2, receiver: userId1 },
     ],
   })
-    .sort({ timestamp: 1 })
+    .sort({ timestamp: -1 })
     .lean();
 
   // Fully serialize each message to remove non-plain values
@@ -87,7 +87,6 @@ const page = async ({ params }: PageProps) => {
         <div className='relative flex items-center space-x-4'>
           <div className='relative'>
             <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
-              {/* Uncomment and use Next.js Image if needed */}
               <Image
                 fill
                 referrerPolicy='no-referrer'

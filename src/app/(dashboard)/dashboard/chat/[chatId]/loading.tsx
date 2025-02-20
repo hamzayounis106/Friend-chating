@@ -1,13 +1,13 @@
-import { FC } from 'react'
-import Skeleton from "react-loading-skeleton"
+import { FC } from 'react';
+import Skeleton from 'react-loading-skeleton';
 
 interface loadingProps {}
 
 const loading: FC<loadingProps> = ({}) => {
   return (
-<div className='flex flex-col h-full items-center'>
+    <div className='flex flex-col h-full items-center'>
       <Skeleton className='mb-4' height={40} width={400} />
-      {/* chat messages */}
+
       <div className='flex-1 max-h-full overflow-y-scroll w-full'>
         <div className='flex flex-col flex-auto h-full p-6'>
           <div className='flex flex-col flex-auto flex-shrink-0 rounded-2xl bg-gray-50 h-full p-4'>
@@ -81,7 +81,7 @@ const loading: FC<loadingProps> = ({}) => {
         chatId={chatId}
       /> */}
     </div>
-  )
-}
+  );
+};
 
-export default loading
+export default loading;

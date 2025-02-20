@@ -6,20 +6,14 @@ import FriendRequest from '@/app/models/FriendRequest';
 
 export async function POST(req: Request) {
   try {
-    // Connect to MongoDB
     await dbConnect();
-
-    // Parse the request body
     const body = await req.json();
     const { id: idToDeny } = z.object({ id: z.string() }).parse(body);
-
-    // Get the current session
     const session = await getServerSession(authOptions);
     if (!session) {
       return new Response('Unauthorized', { status: 401 });
     }
 
-    // Find and delete the friend request
     const deletedRequest = await FriendRequest.findOneAndDelete({
       sender: idToDeny.toString(),
       receiver: session.user.id.toString(),

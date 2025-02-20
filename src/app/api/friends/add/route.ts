@@ -46,7 +46,6 @@ export async function POST(req: Request) {
       return new Response('Already added this user', { status: 400 });
     }
 
-    // Check if the users are already friends
     const currentUser = await User.findById(session.user.id.toString());
     if (currentUser.friends.includes(userToAdd._id.toString())) {
       return new Response('Already friends with this user', { status: 400 });
@@ -60,8 +59,6 @@ export async function POST(req: Request) {
     });
 
     await friendRequest.save();
-
-    // Notify the user using Pusher
     await pusherServer.trigger(
       toPusherKey(`user:${userToAdd._id.toString()}:incoming_friend_requests`),
       'incoming_friend_requests',
