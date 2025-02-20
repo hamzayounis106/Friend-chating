@@ -9,13 +9,13 @@ import { Icons } from './Icons';
 import SignOutButton from './SignOutButton';
 import Button, { buttonVariants } from './ui/Button';
 import FriendRequestSidebarOptions from './FriendRequestSidebarOptions';
-import SidebarChatList from './SidebarChatList';
+import SidebarChatList, { Friend } from './SidebarChatList';
 import { Session } from 'next-auth';
 import { SidebarOption } from '@/types/typings';
 import { usePathname } from 'next/navigation';
 
 interface MobileChatLayoutProps {
-  friends: FriendData[];
+  friends: Friend[];
   session: Session;
   sidebarOptions: SidebarOption[];
   unseenRequestCount: number;
@@ -143,11 +143,12 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                               <div className='flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900'>
                                 <div className='relative h-8 w-8 bg-gray-50'>
                                   <Image
+                                    src={session.user.image || '/default.png'}
+                                    alt='Your profile picture'
                                     fill
                                     referrerPolicy='no-referrer'
                                     className='rounded-full'
-                                    src={session.user.image || ''}
-                                    alt='Your profile picture'
+                                    sizes='(max-width: 768px) 100vw, 24px'
                                   />
                                 </div>
 
@@ -169,8 +170,6 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                             </li>
                           </ul>
                         </nav>
-
-                        {/* content end */}
                       </div>
                     </div>
                   </Dialog.Panel>

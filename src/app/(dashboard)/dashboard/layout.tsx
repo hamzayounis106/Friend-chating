@@ -12,14 +12,13 @@ import {
   getFriendRequestCount,
   getFriendsByUserId,
 } from '@/helpers/get-friends-by-user-id';
-import SidebarChatList from '@/components/SidebarChatList';
+import SidebarChatList, { Friend } from '@/components/SidebarChatList';
 import MobileChatLayout from '@/components/MobileChatLayout';
 import { SidebarOption } from '@/types/typings';
 
 interface LayoutProps {
   children: ReactNode;
 }
-
 // Done after the video and optional: add page metadata
 export const metadata = {
   title: 'FriendZone | Dashboard',
@@ -39,14 +38,10 @@ const Layout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions);
   if (!session) notFound();
 
-  const friends = await getFriendsByUserId(session.user.id.toString());
+  const friends: Friend[] = await getFriendsByUserId(
+    session.user.id.toString()
+  );
 
-  // const unseenRequestCount = (
-  //   (await fetchRedis(
-  //     'smembers',
-  //     `user:${session.user.id.toString()}:incoming_friend_requests`
-  //   )) as User[]
-  // ).length;
   const unseenRequestCount = await getFriendRequestCount(
     session.user.id.toString()
   );
@@ -123,6 +118,7 @@ const Layout = async ({ children }: LayoutProps) => {
                     className='rounded-full'
                     src={session.user.image || ''}
                     alt='Your profile picture'
+                    sizes='(max-width: 768px) 100vw, 24px'
                   />
                 </div>
 

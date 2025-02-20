@@ -70,14 +70,12 @@ export const authOptions: NextAuthOptions = {
   events: {
     async createUser(message) {
       // Perform additional actions when a user is created
-      console.log('User created:', message.user);
 
       // Ensure the friends field is initialized
       const user = await User.findById(message.user.id);
       if (user) {
         user.friends = user.friends || [];
         await user.save();
-        console.log('User friends initialized:', user.friends);
       }
     },
   },

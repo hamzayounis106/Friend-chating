@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import UnseenChatToast from './UnseenChatToast';
+import Image from 'next/image';
 
 interface SidebarChatListProps {
   friends: Friend[];
@@ -48,14 +49,13 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
         `/dashboard/chat/${chatHrefConstructor(sessionId, message.senderId)}`;
 
       if (!shouldNotify) return;
-
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
           sessionId={sessionId}
-          senderId={message.senderId}
+          senderId={message.sender}
           senderImg={message.senderImg}
-          senderMessage={message.text}
+          senderMessage={message.content}
           senderName={message.senderName}
         />
       ));
@@ -100,10 +100,16 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
               )}`}
               className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
             >
-              <img
-                src={friend.image || '/default.png'}
+              <Image
+                src={friend.image || '/default-profile.png'}
                 alt={`${friend.name}'s profile`}
-                className='w-6 h-6 rounded-full'
+                className='rounded-full'
+                width={24}
+                height={24}
+                sizes='(max-width: 768px) 100vw, 24px'
+                onError={(e) => {
+                  e.currentTarget.src = '/default-profile.png';
+                }}
               />
               {friend.name}
               {unseenMessagesCount > 0 && (

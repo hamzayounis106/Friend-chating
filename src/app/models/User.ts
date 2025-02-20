@@ -6,7 +6,7 @@ export interface IUser extends Document {
   emailVerified?: Date;
   image?: string;
   friends: {
-    id: string;
+    _id: string;
     name: string;
     email: string;
     image?: string;

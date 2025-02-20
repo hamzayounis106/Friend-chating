@@ -25,7 +25,6 @@ export async function POST(req: Request) {
 
     // Get the current session
     const session = await getServerSession(authOptions);
-    console.log('Session:', session);
     if (!session) {
       return new Response('Unauthorized', { status: 401 });
     }

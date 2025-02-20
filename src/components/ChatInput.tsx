@@ -1,35 +1,35 @@
-'use client'
+'use client';
 
-import axios from 'axios'
-import { FC, useRef, useState } from 'react'
-import { toast } from 'react-hot-toast'
-import TextareaAutosize from 'react-textarea-autosize'
-import Button from './ui/Button'
+import axios from 'axios';
+import { FC, useRef, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import TextareaAutosize from 'react-textarea-autosize';
+import Button from './ui/Button';
 
 interface ChatInputProps {
-  chatPartner: User
-  chatId: string
+  chatPartner: User;
+  chatId: string;
 }
 
 const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
-  const textareaRef = useRef<HTMLTextAreaElement | null>(null)
-  const [isLoading, setIsLoading] = useState<boolean>(false)
-  const [input, setInput] = useState<string>('')
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [input, setInput] = useState<string>('');
 
   const sendMessage = async () => {
-    if(!input) return
-    setIsLoading(true)
+    if (!input) return;
+    setIsLoading(true);
 
     try {
-      await axios.post('/api/message/send', { text: input, chatId })
-      setInput('')
-      textareaRef.current?.focus()
+      await axios.post('/api/message/send', { text: input, chatId });
+      setInput('');
+      textareaRef.current?.focus();
     } catch {
-      toast.error('Something went wrong. Please try again later.')
+      toast.error('Something went wrong. Please try again later.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className='border-t border-gray-200 px-4 pt-4 mb-2 sm:mb-0'>
@@ -38,21 +38,22 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
           ref={textareaRef}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault()
-              sendMessage()
+              e.preventDefault();
+              sendMessage();
             }
           }}
           rows={1}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder={`Message ${chatPartner.name}`}
+          placeholder={`Message ${chatPartner?.name}`}
           className='block w-full resize-none border-0 bg-transparent text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:py-1.5 sm:text-sm sm:leading-6'
         />
 
         <div
           onClick={() => textareaRef.current?.focus()}
           className='py-2'
-          aria-hidden='true'>
+          aria-hidden='true'
+        >
           <div className='py-px'>
             <div className='h-9' />
           </div>
@@ -67,7 +68,7 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ChatInput
+export default ChatInput;

@@ -1,80 +1,84 @@
+// src/app/(dashboard)/dashboard/chat/[chatId]/page.tsx
 import ChatInput from '@/components/ChatInput';
 import Messages from '@/components/Messages';
-import { fetchRedis } from '@/helpers/redis';
 import { authOptions } from '@/lib/auth';
-import { messageArrayValidator } from '@/lib/validations/message';
 import { getServerSession } from 'next-auth';
 import { notFound } from 'next/navigation';
-
-// The following generateMetadata functiion was written after the video and is purely optional
-export async function generateMetadata({
-  params,
-}: {
-  params: { chatId: string };
-}) {
-  const session = await getServerSession(authOptions);
-  if (!session) notFound();
-  const [userId1, userId2] = params.chatId.split('--');
-  const { user } = session;
-
-  const chatPartnerId = user.id.toString() === userId1 ? userId2 : userId1;
-  const chatPartnerRaw = (await fetchRedis(
-    'get',
-    `user:${chatPartnerId}`
-  )) as string;
-  const chatPartner = JSON.parse(chatPartnerRaw) as User;
-
-  return { title: `FriendZone | ${chatPartner.name} chat` };
-}
+import User from '@/app/models/User';
+import Message from '@/app/models/Message';
+import Image from 'next/image';
 
 interface PageProps {
-  params: {
-    chatId: string;
-  };
+  params: Promise<{ chatId: string }>;
 }
 
+// Generate metadata (adjusted to await params)
+export async function generateMetadata({ params }: PageProps) {
+  const resolvedParams = await params;
+  const session = await getServerSession(authOptions);
+  if (!session) notFound();
+
+  const [userId1, userId2] = resolvedParams.chatId.split('--');
+  const { user } = session;
+  const chatPartnerId = user.id.toString() === userId1 ? userId2 : userId1;
+
+  // Retrieve chat partner from MongoDB
+  const chatPartnerDoc = await User.findById(chatPartnerId).lean();
+  if (!chatPartnerDoc) notFound();
+
+  // Fully serialize to remove non-plain values (like buffers)
+  const plainChatPartner = JSON.parse(JSON.stringify(chatPartnerDoc));
+  // Optionally, ensure _id is a string (it should be now)
+  plainChatPartner._id = plainChatPartner._id.toString();
+
+  return { title: `FriendZone | ${plainChatPartner.name} chat` };
+}
+
+// Helper function to load chat messages from MongoDB
 async function getChatMessages(chatId: string) {
-  try {
-    const results: string[] = await fetchRedis(
-      'zrange',
-      `chat:${chatId.toString()}:messages`,
-      0,
-      -1
-    );
+  const [userId1, userId2] = chatId.split('--');
+  // Find messages where sender/receiver match the two users
+  const messages = await Message.find({
+    $or: [
+      { sender: userId1, receiver: userId2 },
+      { sender: userId2, receiver: userId1 },
+    ],
+  })
+    .sort({ timestamp: 1 })
+    .lean();
 
-    const dbMessages = results.map((message) => JSON.parse(message) as Message);
+  // Fully serialize each message to remove non-plain values
+  const plainMessages = JSON.parse(JSON.stringify(messages)).map((msg: any) => {
+    msg._id = msg._id.toString();
+    msg.sender = msg.sender.toString();
+    msg.receiver = msg.receiver.toString();
+    msg.timestamp = new Date(msg.timestamp).toISOString();
+    return msg;
+  });
 
-    const reversedDbMessages = dbMessages.reverse();
-
-    const messages = messageArrayValidator.parse(reversedDbMessages);
-
-    return messages;
-  } catch (error) {
-    notFound();
-  }
+  return plainMessages;
 }
 
 const page = async ({ params }: PageProps) => {
-  const { chatId } = params;
+  const resolvedParams = await params;
+  const { chatId } = resolvedParams;
+
   const session = await getServerSession(authOptions);
   if (!session) notFound();
 
   const { user } = session;
-
   const [userId1, userId2] = chatId.split('--');
-
-  if (user.id !== userId1 && user.id !== userId2) {
-    notFound();
-  }
+  if (user.id !== userId1 && user.id !== userId2) notFound();
 
   const chatPartnerId = user.id.toString() === userId1 ? userId2 : userId1;
-  // new
+  // Retrieve chat partner from MongoDB
+  const chatPartnerDoc = await User.findById(chatPartnerId).lean();
+  if (!chatPartnerDoc) notFound();
 
-  const chatPartnerRaw = (await fetchRedis(
-    'get',
-    `user:${chatPartnerId}`
-  )) as string;
-  const chatPartner = JSON.parse(chatPartnerRaw) as User;
+  // Fully serialize the chat partner document to remove non-plain values
+  const plainChatPartner = JSON.parse(JSON.stringify(chatPartnerDoc));
+  plainChatPartner._id = plainChatPartner._id.toString();
+
   const initialMessages = await getChatMessages(chatId);
 
   return (
@@ -83,36 +87,38 @@ const page = async ({ params }: PageProps) => {
         <div className='relative flex items-center space-x-4'>
           <div className='relative'>
             <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
-              {/* <Image
+              {/* Uncomment and use Next.js Image if needed */}
+              <Image
                 fill
                 referrerPolicy='no-referrer'
-                src={chatPartner.image}
-                alt={`${chatPartner.name} profile picture`}
+                src={plainChatPartner.image}
+                alt={`${plainChatPartner.name} profile picture`}
                 className='rounded-full'
-              /> */}
+                sizes='(max-width: 768px) 100vw, 24px'
+              />
             </div>
           </div>
-
           <div className='flex flex-col leading-tight'>
             <div className='text-xl flex items-center'>
               <span className='text-gray-700 mr-3 font-semibold'>
-                {chatPartner.name}
+                {plainChatPartner?.name}
               </span>
             </div>
-
-            <span className='text-sm text-gray-600'>{chatPartner.email}</span>
+            <span className='text-sm text-gray-600'>
+              {plainChatPartner.email}
+            </span>
           </div>
         </div>
       </div>
 
       <Messages
         chatId={chatId}
-        chatPartner={chatPartner}
+        chatPartner={plainChatPartner}
         sessionImg={session.user.image}
         sessionId={session.user.id.toString()}
         initialMessages={initialMessages}
       />
-      <ChatInput chatId={chatId} chatPartner={chatPartner} />
+      <ChatInput chatId={chatId} chatPartner={plainChatPartner} />
     </div>
   );
 };
