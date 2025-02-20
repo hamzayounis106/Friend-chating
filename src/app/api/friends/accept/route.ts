@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 import dbConnect from '@/lib/db'; // Import MongoDB connection
- // Import User model
+// Import User model
 import User from '@/app/models/User';
 import FriendRequest from '@/app/models/FriendRequest';
 
@@ -18,13 +18,14 @@ export async function POST(req: Request) {
     const { id: idToAdd } = z.object({ id: z.string() }).parse(body);
 
     // Get the current session
+
     const session = await getServerSession(authOptions);
     if (!session) {
       return new Response('Unauthorized', { status: 401 });
     }
 
     // Check if the users are already friends
-    const currentUser = await User.findById(session.user.id);
+    const currentUser = await User.findById(session.user.id.toString());
     const isAlreadyFriends = currentUser.friends.includes(idToAdd);
 
     if (isAlreadyFriends) {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
     // Check if there's a pending friend request
     const hasFriendRequest = await FriendRequest.findOne({
       sender: idToAdd,
-      receiver: session.user.id,
+      receiver: session.user.id.toString(),
       status: 'pending',
     });
 
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     }
 
     // Fetch both users
-    const user = await User.findById(session.user.id);
+    const user = await User.findById(session.user.id.toString());
     const friend = await User.findById(idToAdd);
 
     if (!user || !friend) {
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
 
     // Add each other as friends
     user.friends.push(idToAdd);
-    friend.friends.push(session.user.id);
+    friend.friends.push(session.user.id.toString());
 
     // Save the updated users
     await user.save();
@@ -70,7 +71,7 @@ export async function POST(req: Request) {
         user
       ),
       pusherServer.trigger(
-        toPusherKey(`user:${session.user.id}:friends`),
+        toPusherKey(`user:${session.user.id.toString()}:friends`),
         'new_friend',
         friend
       ),

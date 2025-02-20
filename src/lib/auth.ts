@@ -20,7 +20,9 @@ function getGoogleCredentials() {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(dbConnect().then((client) => client.connection.getClient())),
+  adapter: MongoDBAdapter(
+    dbConnect().then((client) => client.connection.getClient())
+  ),
   session: {
     strategy: 'jwt',
   },
@@ -35,18 +37,17 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Fetch user from MongoDB
       const dbUser = await User.findById(token.id);
 
       if (!dbUser) {
         if (user) {
-          token.id = user.id;
+          token.id = user.id.toString();
         }
         return token;
       }
 
       return {
-        id: dbUser._id,
+        id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
@@ -69,14 +70,14 @@ export const authOptions: NextAuthOptions = {
   events: {
     async createUser(message) {
       // Perform additional actions when a user is created
-      console.log("User created:", message.user);
+      console.log('User created:', message.user);
 
       // Ensure the friends field is initialized
       const user = await User.findById(message.user.id);
       if (user) {
         user.friends = user.friends || [];
         await user.save();
-        console.log("User friends initialized:", user.friends);
+        console.log('User friends initialized:', user.friends);
       }
     },
   },

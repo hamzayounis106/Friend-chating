@@ -1,29 +1,53 @@
+import FriendRequest from '@/app/models/FriendRequest';
 import User, { IUser } from '@/app/models/User';
-import dbConnect from '@/lib/db'; // Import MongoDB connection
+import dbConnect from '@/lib/db';
+import mongoose from 'mongoose';
 
-export const getFriendsByUserId = async (userId: string): Promise<IUser['friends']> => {
+// Define Friend type that will be returned to the client
+export interface Friend {
+  id: string;
+  name: string;
+  email: string;
+  image?: string; // Optional
+}
+
+// Get friends of a user by their ID
+export const getFriendsByUserId = async (userId: string): Promise<Friend[]> => {
   try {
     // Connect to MongoDB
-    console.log('Connecting to MongoDB...');
     await dbConnect();
 
     // Find the user by ID and populate the 'friends' field
-    const user = await User.findById(userId).populate({
-      path: 'friends',
-      select: 'name email',
-      options: { strictPopulate: false }
-    }).lean<IUser>();
+    const user = await User.findById(userId).populate('friends').lean<IUser>();
 
-    console.log('User:', user);
     if (!user) {
       throw new Error('User not found');
     }
+    console.log('check the user friend', user);
 
-    console.log('User friends', user.friends);
-    // Return the populated friends array
     return user.friends;
   } catch (error) {
     console.error('Error fetching friends:', error);
     throw error;
+  }
+};
+
+// Get the count of pending friend requests
+export const getFriendRequestCount = async (
+  userId: string
+): Promise<number> => {
+  console.log('User ID from getFriendRequestCount:', userId);
+  try {
+    await dbConnect();
+
+    // Query for pending friend requests
+    const count = await FriendRequest.countDocuments({
+      receiver: new mongoose.Types.ObjectId(userId), // Ensure ID is converted to ObjectId
+      status: 'pending',
+    });
+    return count;
+  } catch (error) {
+    console.error('Error fetching friend request count:', error);
+    return 0;
   }
 };

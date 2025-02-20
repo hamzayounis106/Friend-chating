@@ -31,14 +31,16 @@ export async function POST(req: Request) {
     }
 
     // Check if the user is trying to add themselves
-    if (userToAdd._id.toString() === session.user.id) {
-      return new Response('You cannot add yourself as a friend', { status: 400 });
+    if (userToAdd._id.toString() === session.user.id.toString()) {
+      return new Response('You cannot add yourself as a friend', {
+        status: 400,
+      });
     }
 
     // Check if the friend request already exists
     const existingRequest = await FriendRequest.findOne({
-      sender: session.user.id,
-      receiver: userToAdd._id,
+      sender: session.user.id.toString(),
+      receiver: userToAdd._id.toString(),
     });
 
     if (existingRequest) {
@@ -46,15 +48,15 @@ export async function POST(req: Request) {
     }
 
     // Check if the users are already friends
-    const currentUser = await User.findById(session.user.id);
-    if (currentUser.friends.includes(userToAdd._id)) {
+    const currentUser = await User.findById(session.user.id.toString());
+    if (currentUser.friends.includes(userToAdd._id.toString())) {
       return new Response('Already friends with this user', { status: 400 });
     }
 
     // Create a new friend request
     const friendRequest = new FriendRequest({
-      sender: session.user.id,
-      receiver: userToAdd._id,
+      sender: session.user.id.toString(),
+      receiver: userToAdd._id.toString(),
       status: 'pending',
     });
 
@@ -62,10 +64,10 @@ export async function POST(req: Request) {
 
     // Notify the user using Pusher
     await pusherServer.trigger(
-      toPusherKey(`user:${userToAdd._id}:incoming_friend_requests`),
+      toPusherKey(`user:${userToAdd._id.toString()}:incoming_friend_requests`),
       'incoming_friend_requests',
       {
-        senderId: session.user.id,
+        senderId: session.user.id.toString(),
         senderEmail: session.user.email,
       }
     );

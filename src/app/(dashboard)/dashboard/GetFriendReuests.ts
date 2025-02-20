@@ -1,5 +1,5 @@
-import FriendRequest from "@/app/models/FriendRequest";
-import dbConnect from "@/lib/db";
+import FriendRequest from '@/app/models/FriendRequest';
+import dbConnect from '@/lib/db';
 
 export const getFriendRequests = async (userId: string) => {
   try {
@@ -7,7 +7,11 @@ export const getFriendRequests = async (userId: string) => {
     await dbConnect();
 
     // Find friend requests where the user is the receiver
-    const friendRequests = await FriendRequest.find({ receiver: userId }).populate('sender', 'name email image').lean();
+    const friendRequests = await FriendRequest.find({
+      receiver: userId.toString(),
+    })
+      .populate('sender', 'name email image')
+      .lean();
 
     return friendRequests;
   } catch (error) {

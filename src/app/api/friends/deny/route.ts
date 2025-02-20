@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db'; // Import MongoDB connection
-import FriendRequest from '@/models/FriendRequest'; // Import FriendRequest model
+import FriendRequest from '@/app/models/FriendRequest';
 
 export async function POST(req: Request) {
   try {
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
 
     // Find and delete the friend request
     const deletedRequest = await FriendRequest.findOneAndDelete({
-      sender: idToDeny,
-      receiver: session.user.id,
+      sender: idToDeny.toString(),
+      receiver: session.user.id.toString(),
       status: 'pending',
     });
 
