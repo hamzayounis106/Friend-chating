@@ -9,10 +9,9 @@ import FriendRequest from '@/app/models/FriendRequest';
 import FriendRequests from '@/components/FriendRequests';
 
 const Page = async () => {
+  await dbConnect();
   const session = await getServerSession(authOptions);
   if (!session) notFound();
-
-  await dbConnect();
 
   // Get incoming friend requests with sender details
   const incomingFriendRequests = await FriendRequest.find({

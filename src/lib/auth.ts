@@ -1,8 +1,13 @@
 import { NextAuthOptions } from 'next-auth';
-import { MongoDBAdapter } from '@next-auth/mongodb-adapter';
-import dbConnect from '@/lib/db'; // Import your MongoDB connection
+import dbConnect from '@/lib/db'; // This should be a function that awaits mongoose.connect()
 import GoogleProvider from 'next-auth/providers/google';
 import User from '@/app/models/User';
+import { MongoDBAdapter } from './mongodb-adapter';
+
+async function ensureDB() {
+  // Await the connection; you can also check connection status if needed.
+  return await dbConnect();
+}
 
 function getGoogleCredentials() {
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -19,10 +24,13 @@ function getGoogleCredentials() {
   return { clientId, clientSecret };
 }
 
+const clientPromise = (async () => {
+  const connection = await ensureDB();
+  return connection.connection.getClient();
+})();
+
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(
-    dbConnect().then((client) => client.connection.getClient())
-  ),
+  adapter: MongoDBAdapter(clientPromise),
   session: {
     strategy: 'jwt',
   },
@@ -37,15 +45,16 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      const dbUser = await User.findById(token.id);
+      // Ensure the DB connection is established before any query
+      await ensureDB();
 
+      const dbUser = await User.findById(token.id);
       if (!dbUser) {
         if (user) {
           token.id = user.id.toString();
         }
         return token;
       }
-
       return {
         id: dbUser._id.toString(),
         name: dbUser.name,
@@ -54,13 +63,15 @@ export const authOptions: NextAuthOptions = {
       };
     },
     async session({ session, token }) {
+      // Make sure DB is connected if needed here
+      await ensureDB();
+
       if (token) {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture;
       }
-
       return session;
     },
     redirect() {
@@ -69,7 +80,8 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser(message) {
-      // Perform additional actions when a user is created
+      // Ensure DB is connected before performing any operations
+      await ensureDB();
 
       // Ensure the friends field is initialized
       const user = await User.findById(message.user.id);
