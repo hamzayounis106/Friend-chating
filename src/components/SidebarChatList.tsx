@@ -33,7 +33,6 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
 
     const newFriendHandler = (newFriend: Friend) => {
-      // console.log('Received new user:', newFriend);
       setActiveChats((prev) => [...prev, newFriend]);
     };
 
@@ -43,14 +42,6 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
         `/dashboard/chat/${chatHrefConstructor(sessionId, message.sender)}`;
 
       if (!shouldNotify) return;
-
-      // console.log('Toast data:', {
-      //   sessionId,
-      //   senderId: message.sender,
-      //   senderImg: message.senderImg,
-      //   senderMessage: message.content,
-      //   senderName: message.senderName,
-      // });
 
       toast.custom((t) => (
         <UnseenChatToast
@@ -89,11 +80,9 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
   return (
     <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
       {activeChats?.sort().map((friend) => {
-        // Count messages based on sender id (using message.sender)
         const unseenMessagesCount = unseenMessages.filter(
           (unseenMsg) => unseenMsg.sender === friend._id
         ).length;
-        // console.log('friend check the user datma: ', friend);
 
         return (
           <li key={friend._id}>

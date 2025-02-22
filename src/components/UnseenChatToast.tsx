@@ -20,14 +20,6 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
   senderName,
   senderMessage,
 }) => {
-  // console.log(
-  //   'from inside of seen chat',
-  //   senderId,
-  //   sessionId,
-  //   senderImg,
-  //   senderName,
-  //   senderMessage
-  // );
   return (
     <div
       className={cn(

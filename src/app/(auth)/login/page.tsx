@@ -1,22 +1,23 @@
-'use client'
+'use client';
 
-import Button from '@/components/ui/Button'
-import { FC, useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { toast } from 'react-hot-toast'
+import Button from '@/components/ui/Button';
+import { FC, useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { toast } from 'react-hot-toast';
+import LoginForm from '@/components/login/LoginFrom';
 
 const Page: FC = () => {
-  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   async function loginWithGoogle() {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      await signIn('google')
+      await signIn('google');
     } catch (error) {
       // display error message to user
-      toast.error('Something went wrong with your login.')
+      toast.error('Something went wrong with your login.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -25,17 +26,18 @@ const Page: FC = () => {
       <div className='flex min-h-full items-center justify-center py-12 px-4 sm:px-6 lg:px-8'>
         <div className='w-full flex flex-col items-center max-w-md space-y-8'>
           <div className='flex flex-col items-center gap-8'>
-            logo
+            logo should here
             <h2 className='mt-6 text-center text-3xl font-bold tracking-tight text-gray-900'>
               Sign in to your account
             </h2>
           </div>
-
+          <LoginForm />
           <Button
             isLoading={isLoading}
             type='button'
             className='max-w-sm mx-auto w-full'
-            onClick={loginWithGoogle}>
+            onClick={loginWithGoogle}
+          >
             {isLoading ? null : (
               <svg
                 className='mr-2 h-4 w-4'
@@ -45,7 +47,8 @@ const Page: FC = () => {
                 data-icon='github'
                 role='img'
                 xmlns='http://www.w3.org/2000/svg'
-                viewBox='0 0 24 24'>
+                viewBox='0 0 24 24'
+              >
                 <path
                   d='M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z'
                   fill='#4285F4'
@@ -70,7 +73,7 @@ const Page: FC = () => {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

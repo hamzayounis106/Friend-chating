@@ -24,13 +24,25 @@ const transformSession = (session: any): AdapterSession & { id: string } => ({
 
 export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
   return {
-    async createUser(user: Omit<AdapterUser, 'id'>): Promise<AdapterUser> {
+    async createUser(
+      user: Omit<AdapterUser, 'id'> & {
+        password?: string;
+        role?: string;
+        friends?: any[];
+      }
+    ): Promise<AdapterUser> {
       const client = await clientPromise;
       const db = client.db();
-      const result = await db.collection('users').insertOne(user);
-      return { ...user, id: result.insertedId.toString() } as AdapterUser;
+      const newUser = {
+        ...user,
+        // Provide default values if missing:
+        password: user.password || null,
+        role: user.role || 'pending',
+        friends: user.friends || [],
+      };
+      const result = await db.collection('users').insertOne(newUser);
+      return { ...newUser, id: result.insertedId.toString() } as AdapterUser;
     },
-
     async getUser(id: string): Promise<AdapterUser | null> {
       const client = await clientPromise;
       const db = client.db();

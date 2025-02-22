@@ -1,8 +1,10 @@
 import { NextAuthOptions } from 'next-auth';
 import dbConnect from '@/lib/db'; // A function that awaits mongoose.connect()
 import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
 import User from '@/app/models/User';
 import { MongoDBAdapter } from './mongodb-adapter';
+import { verifyPassword } from '@/lib/verifyPassword'; // Implement your password compare logic
 
 async function ensureDB() {
   // Await the connection; you can also check connection status if needed.
@@ -38,6 +40,40 @@ export const authOptions: NextAuthOptions = {
     signIn: '/login',
   },
   providers: [
+    // Credentials provider for form-based login.
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: {
+          label: 'Email',
+          type: 'email',
+          placeholder: 'jsmith@example.com',
+        },
+        password: { label: 'Password', type: 'password' },
+      },
+      async authorize(credentials) {
+        await ensureDB();
+
+        // Find the user by email
+        const user = await User.findOne({ email: credentials?.email });
+        if (!user) {
+          throw new Error('No user found with this email');
+        }
+
+        // Verify the password (assumes user.password exists and is hashed)
+        const isValid = await verifyPassword(
+          credentials!.password,
+          user.password
+        );
+        if (!isValid) {
+          throw new Error('Invalid password');
+        }
+
+        // If the user is found and the password is correct, return the user object.
+        return user;
+      },
+    }),
+    // Google provider for OAuth login.
     GoogleProvider({
       clientId: getGoogleCredentials().clientId,
       clientSecret: getGoogleCredentials().clientSecret,
@@ -45,22 +81,15 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Ensure the DB connection is established before any query
       await ensureDB();
-
-      console.log('User inside JWT callback:', user);
-
-      // When user signs in, attach user id
       if (user) {
         token.id = user.id.toString();
       }
 
-      // Fetch user from the database using token.id
       const dbUser = await User.findById(token.id);
       if (!dbUser) {
         return token;
       }
-      console.log('dbUser', dbUser);
       return {
         id: dbUser._id.toString(),
         name: dbUser.name,
@@ -70,8 +99,6 @@ export const authOptions: NextAuthOptions = {
       };
     },
     async session({ session, token }) {
-      // Ensure DB is connected if needed here
-      console.log('token ', token);
       await ensureDB();
 
       if (token) {

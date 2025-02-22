@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IUser extends Document {
   name: string;
   email: string;
+  password: string; // make sure to add this field for credentials login
   emailVerified?: Date;
   image?: string;
   role: 'patient' | 'surgeon' | 'pending';
@@ -18,6 +19,7 @@ const userSchema: Schema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, unique: true, required: true },
+    password: { type: String, required: false }, // new field for password
     emailVerified: Date,
     image: String,
     role: {

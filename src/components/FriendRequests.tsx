@@ -50,28 +50,39 @@ const FriendRequests: FC<FriendRequestsProps> = ({
 
   // Handle accepting a friend request
   const acceptFriend = async (senderId: string) => {
-    await axios.post('/api/friends/accept', { id: senderId });
+    try {
+      console.log('senderId', senderId);
+      await axios.post('/api/friends/accept', { id: senderId });
 
-    // Remove the accepted request from the list
-    setFriendRequests((prev) =>
-      prev.filter((request) => request.senderId !== senderId)
-    );
+      // Remove the accepted request from the list
+      setFriendRequests((prev) =>
+        prev.filter((request) => request.senderId !== senderId)
+      );
 
-    // Refresh the page to reflect changes
-    router.refresh();
+      // Refresh the page to reflect changes
+      router.refresh();
+    } catch (error) {
+      console.error('Error accepting friend request:', error);
+      // Optionally display a toast or alert here to notify the user.
+    }
   };
 
   // Handle denying a friend request
   const denyFriend = async (senderId: string) => {
-    await axios.post('/api/friends/deny', { id: senderId });
+    try {
+      await axios.post('/api/friends/deny', { id: senderId });
 
-    // Remove the denied request from the list
-    setFriendRequests((prev) =>
-      prev.filter((request) => request.senderId !== senderId)
-    );
+      // Remove the denied request from the list
+      setFriendRequests((prev) =>
+        prev.filter((request) => request.senderId !== senderId)
+      );
 
-    // Refresh the page to reflect changes
-    router.refresh();
+      // Refresh the page to reflect changes
+      router.refresh();
+    } catch (error) {
+      console.error('Error denying friend request:', error);
+      // Optionally display a toast or alert here to notify the user.
+    }
   };
 
   return (
