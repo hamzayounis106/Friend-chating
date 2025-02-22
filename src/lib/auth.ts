@@ -1,5 +1,5 @@
 import { NextAuthOptions } from 'next-auth';
-import dbConnect from '@/lib/db'; // This should be a function that awaits mongoose.connect()
+import dbConnect from '@/lib/db'; // A function that awaits mongoose.connect()
 import GoogleProvider from 'next-auth/providers/google';
 import User from '@/app/models/User';
 import { MongoDBAdapter } from './mongodb-adapter';
@@ -48,22 +48,30 @@ export const authOptions: NextAuthOptions = {
       // Ensure the DB connection is established before any query
       await ensureDB();
 
+      console.log('User inside JWT callback:', user);
+
+      // When user signs in, attach user id
+      if (user) {
+        token.id = user.id.toString();
+      }
+
+      // Fetch user from the database using token.id
       const dbUser = await User.findById(token.id);
       if (!dbUser) {
-        if (user) {
-          token.id = user.id.toString();
-        }
         return token;
       }
+      console.log('dbUser', dbUser);
       return {
         id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
         picture: dbUser.image,
+        role: dbUser.role, // include the role field
       };
     },
     async session({ session, token }) {
-      // Make sure DB is connected if needed here
+      // Ensure DB is connected if needed here
+      console.log('token ', token);
       await ensureDB();
 
       if (token) {
@@ -71,6 +79,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture;
+        session.user.role = token.role; // pass role to session
       }
       return session;
     },

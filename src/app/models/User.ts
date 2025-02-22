@@ -5,6 +5,7 @@ export interface IUser extends Document {
   email: string;
   emailVerified?: Date;
   image?: string;
+  role: 'patient' | 'surgeon' | 'pending';
   friends: {
     _id: string;
     name: string;
@@ -19,6 +20,11 @@ const userSchema: Schema = new mongoose.Schema(
     email: { type: String, unique: true, required: true },
     emailVerified: Date,
     image: String,
+    role: {
+      type: String,
+      enum: ['patient', 'surgeon', 'pending'],
+      default: 'pending',
+    },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,

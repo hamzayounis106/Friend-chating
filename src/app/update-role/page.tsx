@@ -1,0 +1,76 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+
+const UpdateRolePage = () => {
+  const [role, setRole] = useState<'patient' | 'surgeon'>('patient');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { update } = useSession(); // experimental update method
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      const { data, status } = await axios.post('/api/update-user-role', {
+        role,
+      });
+      console.log('Role updated to:', role, data);
+
+      if (status !== 200) {
+        throw new Error('Failed to update role');
+      }
+
+      // Force a session refresh to update the token with the new role
+      if (update) {
+        await update();
+      } else {
+        // If update() isn't available, refresh the page to trigger a new session fetch.
+        router.refresh();
+      }
+
+      // Redirect based on updated role (for example, to the dashboard)
+      router.push('/dashboard');
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className='container mx-auto p-4'>
+      <h1 className='text-2xl font-bold mb-4'>Update Your Role</h1>
+      <form onSubmit={handleSubmit} className='flex flex-col gap-4 max-w-sm'>
+        <label className='flex flex-col'>
+          Choose your role:
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value as 'patient' | 'surgeon')}
+            className='mt-1 p-2 border rounded'
+          >
+            <option value='patient'>Patient</option>
+            <option value='surgeon'>Surgeon</option>
+          </select>
+        </label>
+        {error && <p className='text-red-500'>{error}</p>}
+        <button
+          type='submit'
+          disabled={loading}
+          className='px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50'
+        >
+          {loading ? 'Updating...' : 'Update Role'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
+export default UpdateRolePage;

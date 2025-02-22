@@ -33,7 +33,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
 
     const newFriendHandler = (newFriend: Friend) => {
-      console.log('Received new user:', newFriend);
+      // console.log('Received new user:', newFriend);
       setActiveChats((prev) => [...prev, newFriend]);
     };
 
@@ -44,13 +44,13 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
 
       if (!shouldNotify) return;
 
-      console.log('Toast data:', {
-        sessionId,
-        senderId: message.sender,
-        senderImg: message.senderImg,
-        senderMessage: message.content,
-        senderName: message.senderName,
-      });
+      // console.log('Toast data:', {
+      //   sessionId,
+      //   senderId: message.sender,
+      //   senderImg: message.senderImg,
+      //   senderMessage: message.content,
+      //   senderName: message.senderName,
+      // });
 
       toast.custom((t) => (
         <UnseenChatToast
@@ -93,7 +93,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
         const unseenMessagesCount = unseenMessages.filter(
           (unseenMsg) => unseenMsg.sender === friend._id
         ).length;
-        console.log('friend check the user data: ', friend);
+        // console.log('friend check the user datma: ', friend);
 
         return (
           <li key={friend._id}>
