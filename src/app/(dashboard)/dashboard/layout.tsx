@@ -116,7 +116,7 @@ const Layout = async ({ children }: LayoutProps) => {
                     fill
                     referrerPolicy='no-referrer'
                     className='rounded-full'
-                    src={session.user.image || ''}
+                    src={session.user.image || '/default.png'}
                     alt='Your profile picture'
                     sizes='(max-width: 768px) 100vw, 24px'
                   />

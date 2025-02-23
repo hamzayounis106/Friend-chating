@@ -90,7 +90,7 @@ const page = async ({ params }: PageProps) => {
               <Image
                 fill
                 referrerPolicy='no-referrer'
-                src={plainChatPartner.image}
+                src={plainChatPartner.image || '/default.png'}
                 alt={`${plainChatPartner.name} profile picture`}
                 className='rounded-full'
                 sizes='(max-width: 768px) 100vw, 24px'

@@ -39,7 +39,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
                 fill
                 referrerPolicy='no-referrer'
                 className='rounded-full'
-                src={senderImg}
+                src={senderImg || '/default.png'}
                 alt={`${senderName} profile picture`}
                 sizes='(max-width: 768px) 100vw, 24px'
               />

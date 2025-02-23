@@ -94,7 +94,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
               className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
             >
               <Image
-                src={friend.image || '/default-profile.png'}
+                src={friend.image || '/default.png'}
                 alt={`${friend.name}'s profile`}
                 className='rounded-full'
                 width={24}

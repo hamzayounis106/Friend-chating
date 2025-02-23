@@ -52,28 +52,33 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
-        await ensureDB();
+        try {
+          console.log('Credentials:', credentials);
+          await ensureDB();
 
-        // Find the user by email
-        const user = await User.findOne({ email: credentials?.email });
-        if (!user) {
-          throw new Error('No user found with this email');
+          const user = await User.findOne({ email: credentials?.email });
+          if (!user) {
+            console.log('No user found with this email');
+            throw new Error('No user found with this email');
+          }
+
+          const isValid = await verifyPassword(
+            credentials!.password,
+            user.password
+          );
+          if (!isValid) {
+            console.log('Invalid password');
+            throw new Error('Invalid password');
+          }
+
+          console.log('User authenticated:', user);
+          return user;
+        } catch (error) {
+          console.error('Authorize error:', error);
+          throw new Error('Authentication failed');
         }
-
-        // Verify the password (assumes user.password exists and is hashed)
-        const isValid = await verifyPassword(
-          credentials!.password,
-          user.password
-        );
-        if (!isValid) {
-          throw new Error('Invalid password');
-        }
-
-        // If the user is found and the password is correct, return the user object.
-        return user;
       },
     }),
-    // Google provider for OAuth login.
     GoogleProvider({
       clientId: getGoogleCredentials().clientId,
       clientSecret: getGoogleCredentials().clientSecret,

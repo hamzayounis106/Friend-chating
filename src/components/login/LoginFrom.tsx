@@ -27,28 +27,31 @@ const LoginForm = () => {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     setIsLoading(true);
+    console.log('Submitting form with data:', data);
     try {
       const res = await signIn('credentials', {
         redirect: false,
         email: data.email,
         password: data.password,
       });
+      console.log('SignIn response:', res);
 
       if (res?.error) {
+        console.error('SignIn error:', res.error);
         toast.error('Invalid email or password');
       } else {
+        console.log('SignIn success:', res);
         toast.success('Logged in successfully');
       }
     } catch (error) {
+      console.error('SignIn catch block error:', error);
       toast.error('Something went wrong');
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
