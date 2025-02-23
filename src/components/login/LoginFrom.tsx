@@ -32,10 +32,12 @@ const LoginForm = () => {
     console.log('Submitting form with data:', data);
     try {
       const res = await signIn('credentials', {
-        redirect: false,
+    
         email: data.email,
         password: data.password,
+        callbackUrl: '/dashboard',  // Ensure callback URL is provided
       });
+      
       console.log('SignIn response:', res);
 
       if (res?.error) {
