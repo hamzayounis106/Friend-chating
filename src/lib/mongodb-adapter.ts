@@ -5,14 +5,22 @@ import {
   AdapterSession,
 } from 'next-auth/adapters';
 import { MongoClient, ObjectId } from 'mongodb';
+import bcrypt from 'bcryptjs';
 
+type UserRole = 'patient' | 'surgeon' | 'pending';
+
+// Extend AdapterUser to include the role field
+export interface CustomAdapterUser extends AdapterUser {
+  role?: UserRole;
+}
 // Utility function to transform a MongoDB user document into an AdapterUser
-const transformUser = (user: any): AdapterUser => ({
+const transformUser = (user: any): CustomAdapterUser => ({
   id: user._id.toString(),
   name: user.name,
   email: user.email,
   emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
   image: user.image,
+  role: user.role, // Include the role field
 });
 
 const transformSession = (session: any): AdapterSession & { id: string } => ({
@@ -30,20 +38,29 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         role?: string;
         friends?: any[];
       }
-    ): Promise<AdapterUser> {
+    ): Promise<CustomAdapterUser> {
       const client = await clientPromise;
       const db = client.db();
+
+      // Hash the password before saving
+      const hashedPassword = user.password
+        ? await bcrypt.hash(user.password, 12)
+        : null;
+
       const newUser = {
         ...user,
-        // Provide default values if missing:
-        password: user.password || null,
-        role: user.role || 'pending',
+        password: hashedPassword, // Use the hashed password
+        role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
       };
+
       const result = await db.collection('users').insertOne(newUser);
-      return { ...newUser, id: result.insertedId.toString() } as AdapterUser;
+      return {
+        ...newUser,
+        id: result.insertedId.toString(),
+      } as CustomAdapterUser;
     },
-    async getUser(id: string): Promise<AdapterUser | null> {
+    async getUser(id: string): Promise<CustomAdapterUser | null> {
       const client = await clientPromise;
       const db = client.db();
       const user = await db
@@ -51,21 +68,20 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         .findOne({ _id: new ObjectId(id) });
       return user ? transformUser(user) : null;
     },
-
-    async getUserByEmail(email: string): Promise<AdapterUser | null> {
+    async getUserByEmail(email: string): Promise<CustomAdapterUser | null> {
       const client = await clientPromise;
       const db = client.db();
       const user = await db.collection('users').findOne({ email });
+      console.log('User found by email:', user); // Log the user document
       return user ? transformUser(user) : null;
     },
-
     async getUserByAccount({
       providerAccountId,
       provider,
     }: {
       providerAccountId: string;
       provider: string;
-    }): Promise<AdapterUser | null> {
+    }): Promise<CustomAdapterUser | null> {
       const client = await clientPromise;
       const db = client.db();
       const account = await db
@@ -130,7 +146,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
 
     async getSessionAndUser(sessionToken: string): Promise<{
       session: AdapterSession & { id: string };
-      user: AdapterUser;
+      user: CustomAdapterUser;
     } | null> {
       const client = await clientPromise;
       const db = client.db();

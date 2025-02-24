@@ -3,7 +3,7 @@ import dbConnect from '@/lib/db'; // A function that awaits mongoose.connect()
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import User from '@/app/models/User';
-import { MongoDBAdapter } from './mongodb-adapter';
+import { CustomAdapterUser, MongoDBAdapter } from './mongodb-adapter';
 import { verifyPassword } from '@/lib/verifyPassword'; // Implement your password compare logic
 
 async function ensureDB() {
@@ -38,9 +38,9 @@ export const authOptions: NextAuthOptions = {
   },
   pages: {
     signIn: '/login',
+    error: '/login', // Add error page from Bolt.new
   },
   providers: [
-    // Credentials provider for form-based login.
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -52,30 +52,42 @@ export const authOptions: NextAuthOptions = {
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error('Please enter both email and password');
+        }
+
         try {
           console.log('Credentials:', credentials);
           await ensureDB();
 
-          const user = await User.findOne({ email: credentials?.email });
+          const user = await User.findOne({ email: credentials.email });
           if (!user) {
-            console.log('No user found with this email');
-            throw new Error('No user found with this email');
+            throw new Error('Invalid email or password');
           }
 
+          console.log('User found:', user);
+
           const isValid = await verifyPassword(
-            credentials!.password,
+            credentials.password,
             user.password
           );
           if (!isValid) {
-            console.log('Invalid password');
-            throw new Error('Invalid password');
+            throw new Error('Invalid email or password');
           }
 
+          console.log('is valid ', isValid);
           console.log('User authenticated:', user);
-          return user;
+
+          // Return a simplified user object
+          return {
+            id: user._id.toString(), // Convert ObjectId to string
+            name: user.name,
+            email: user.email,
+            role: user.role, // Include any additional fields you need
+          } as CustomAdapterUser; // Cast to CustomAdapterUser
         } catch (error) {
           console.error('Authorize error:', error);
-          throw new Error('Authentication failed');
+          throw error; // Propagate the error
         }
       },
     }),
@@ -89,8 +101,10 @@ export const authOptions: NextAuthOptions = {
       await ensureDB();
       if (user) {
         token.id = user.id.toString();
+        token.role = (user as CustomAdapterUser).role; // here is the
       }
 
+      // Fetch additional user data from the database
       const dbUser = await User.findById(token.id);
       if (!dbUser) {
         return token;
@@ -99,7 +113,7 @@ export const authOptions: NextAuthOptions = {
         id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
-        picture: dbUser.image,
+        picture: dbUser.image, // Keep your existing field
         role: dbUser.role, // include the role field
       };
     },
@@ -110,13 +124,19 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.image = token.picture;
+        session.user.image = token.picture; // Keep your existing field
         session.user.role = token.role; // pass role to session
       }
       return session;
     },
-    redirect() {
-      return '/dashboard';
+    async redirect({ url, baseUrl }) {
+      // Custom redirect logic from Bolt.new
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      } else if (new URL(url).origin === baseUrl) {
+        return url;
+      }
+      return baseUrl + '/dashboard';
     },
   },
   events: {
