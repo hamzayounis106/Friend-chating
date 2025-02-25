@@ -6,12 +6,16 @@ import {
 } from 'next-auth/adapters';
 import { MongoClient, ObjectId } from 'mongodb';
 import bcrypt from 'bcryptjs';
+import { is } from 'date-fns/locale';
 
 type UserRole = 'patient' | 'surgeon' | 'pending';
+
 
 // Extend AdapterUser to include the role field
 export interface CustomAdapterUser extends AdapterUser {
   role?: UserRole;
+  verificationToken?: string;
+  isVerified?: boolean;
 }
 // Utility function to transform a MongoDB user document into an AdapterUser
 const transformUser = (user: any): CustomAdapterUser => ({
@@ -21,6 +25,8 @@ const transformUser = (user: any): CustomAdapterUser => ({
   emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
   image: user.image,
   role: user.role, // Include the role field
+  verificationToken: user.verificationToken,
+  isVerified: user.isVerified,
 });
 
 const transformSession = (session: any): AdapterSession & { id: string } => ({
@@ -52,6 +58,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         password: hashedPassword, // Use the hashed password
         role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
+          isVerified: false,
       };
 
       const result = await db.collection('users').insertOne(newUser);
