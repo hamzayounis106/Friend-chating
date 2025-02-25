@@ -51,10 +51,7 @@ const FriendRequests: FC<FriendRequestsProps> = ({
   // Handle accepting a friend request
   const acceptFriend = async (senderId: string) => {
     try {
-      console.log('senderId', senderId);
       await axios.post('/api/friends/accept', { id: senderId });
-
-      // Remove the accepted request from the list
       setFriendRequests((prev) =>
         prev.filter((request) => request.senderId !== senderId)
       );

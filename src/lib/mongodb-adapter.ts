@@ -10,14 +10,11 @@ import { is } from 'date-fns/locale';
 
 type UserRole = 'patient' | 'surgeon' | 'pending';
 
-
-// Extend AdapterUser to include the role field
 export interface CustomAdapterUser extends AdapterUser {
   role?: UserRole;
   verificationToken?: string;
   isVerified?: boolean;
 }
-// Utility function to transform a MongoDB user document into an AdapterUser
 const transformUser = (user: any): CustomAdapterUser => ({
   id: user._id.toString(),
   name: user.name,
@@ -58,7 +55,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         password: hashedPassword, // Use the hashed password
         role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
-          isVerified: false,
+        isVerified: false,
       };
 
       const result = await db.collection('users').insertOne(newUser);
@@ -79,7 +76,6 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
       const client = await clientPromise;
       const db = client.db();
       const user = await db.collection('users').findOne({ email });
-      console.log('User found by email:', user); // Log the user document
       return user ? transformUser(user) : null;
     },
     async getUserByAccount({

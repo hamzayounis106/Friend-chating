@@ -1,5 +1,4 @@
-import transporter from "./mail";
-
+import transporter from './mail';
 
 async function sendTestEmail() {
   try {

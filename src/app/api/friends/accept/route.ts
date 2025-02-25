@@ -83,15 +83,11 @@ export async function POST(req: Request) {
   try {
     user.friends.push(idToAdd);
     friend.friends.push(session.user.id.toString());
-    // logs
-    console.log('User before save:', user);
-    console.log('Friend before save:', friend);
+    
     // Ensure password field is present (null if missing)
     if (!user.password) user.password = null;
     if (!friend.password) friend.password = null;
     // logs
-    console.log('User before save with pass null:', user);
-    console.log('Friend before save with pass null:', friend);
     await user.save();
     await friend.save();
     hasFriendRequest.status = 'accepted';

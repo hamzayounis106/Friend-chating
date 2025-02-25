@@ -1,13 +1,12 @@
-import { NextAuthOptions } from "next-auth";
-import dbConnect from "@/lib/db"; // A function that awaits mongoose.connect()
-import GoogleProvider from "next-auth/providers/google";
-import CredentialsProvider from "next-auth/providers/credentials";
-import User from "@/app/models/User";
-import { CustomAdapterUser, MongoDBAdapter } from "./mongodb-adapter";
-import { verifyPassword } from "@/lib/verifyPassword"; // Implement your password compare logic
+import { NextAuthOptions } from 'next-auth';
+import dbConnect from '@/lib/db';
+import GoogleProvider from 'next-auth/providers/google';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import User from '@/app/models/User';
+import { CustomAdapterUser, MongoDBAdapter } from './mongodb-adapter';
+import { verifyPassword } from '@/lib/verifyPassword';
 
 async function ensureDB() {
-  // Await the connection; you can also check connection status if needed.
   return await dbConnect();
 }
 
@@ -16,11 +15,11 @@ function getGoogleCredentials() {
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
   if (!clientId || clientId.length === 0) {
-    throw new Error("Missing GOOGLE_CLIENT_ID");
+    throw new Error('Missing GOOGLE_CLIENT_ID');
   }
 
   if (!clientSecret || clientSecret.length === 0) {
-    throw new Error("Missing GOOGLE_CLIENT_SECRET");
+    throw new Error('Missing GOOGLE_CLIENT_SECRET');
   }
 
   return { clientId, clientSecret };
@@ -34,30 +33,29 @@ const clientPromise = (async () => {
 export const authOptions: NextAuthOptions = {
   adapter: MongoDBAdapter(clientPromise),
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
   },
   pages: {
-    signIn: "/login",
-    error: "/login", // Add error page from Bolt.new
+    signIn: '/login',
+    error: '/login',
   },
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
         email: {
-          label: "Email",
-          type: "email",
-          placeholder: "jsmith@example.com",
+          label: 'Email',
+          type: 'email',
+          placeholder: 'jsmith@example.com',
         },
-        password: { label: "Password", type: "password" },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Please enter both email and password");
+          throw new Error('Please enter both email and password');
         }
 
         try {
-          console.log("Credentials:", credentials);
           await ensureDB();
 
           const isUserExist = await User.findOne({
@@ -66,44 +64,38 @@ export const authOptions: NextAuthOptions = {
           });
           if (isUserExist) {
             throw new Error(
-              "Your account is assosiated with google account, please login with google"
+              'Your account is assosiated with google account, please login with google'
             );
           }
 
           const user = await User.findOne({ email: credentials.email });
           if (!user) {
-            throw new Error("Invalid email or password");
+            throw new Error('User Not Found');
           }
-
-          console.log("User found:", user);
 
           const isValid = await verifyPassword(
             credentials.password,
             user.password
           );
           if (!isValid) {
-            throw new Error("Invalid email or password");
+            throw new Error('Invalid email or password');
           }
-          // Check if the email is verified
           if (!user.isVerified) {
             throw new Error(
-              "Email not verified. A verification email has been sent."
+              'Email not verified. A verification email has been sent.'
             );
           }
-          console.log("is valid ", isValid);
-          console.log("User authenticated:", user);
 
-          // Return a simplified user object
           return {
-            id: user._id.toString(), // Convert ObjectId to string
+            id: user._id.toString(),
             name: user.name,
             email: user.email,
-            role: user.role, // Include any additional fields you need
-            isVerified: user.isVerified, // Include the isVerified
-          } as CustomAdapterUser; // Cast to CustomAdapterUser
+            role: user.role,
+            isVerified: user.isVerified,
+          } as CustomAdapterUser;
         } catch (error) {
-          console.error("Authorize error:", error);
-          throw error; // Propagate the error
+          console.error('Authorize error:', error);
+          throw error;
         }
       },
     }),
@@ -117,13 +109,11 @@ export const authOptions: NextAuthOptions = {
       await ensureDB();
       if (user) {
         token.id = user.id.toString();
-        token.role = (user as CustomAdapterUser).role; // here is the
-        token.isVerified = true; // new code
+        token.role = (user as CustomAdapterUser).role;
+        token.isVerified = true;
       }
 
-      // Fetch additional user credentials from the credentialsbase
       const dbUser = await User.findById(token.id);
-      console.log("DB User:", dbUser);
       if (!dbUser) {
         return token;
       }
@@ -131,9 +121,9 @@ export const authOptions: NextAuthOptions = {
         id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
-        picture: dbUser.image, // Keep your existing field
-        role: dbUser.role, // include the role field
-        isVerified: true, // include the isVerified field
+        picture: dbUser.image,
+        role: dbUser.role,
+        isVerified: true,
       };
     },
     async session({ session, token }) {
@@ -143,20 +133,19 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.image = token.picture; // Keep your existing field
-        session.user.role = token.role; // pass role to session
-        session.user.isVerified = true; // include the isVerified field
+        session.user.image = token.picture;
+        session.user.role = token.role;
+        session.user.isVerified = true;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Custom redirect logic from Bolt.new
-      if (url.startsWith("/")) {
+      if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       } else if (new URL(url).origin === baseUrl) {
         return url;
       }
-      return baseUrl + "/dashboard";
+      return baseUrl + '/dashboard';
     },
   },
   events: {
@@ -168,7 +157,6 @@ export const authOptions: NextAuthOptions = {
       const user = await User.findById(message.user.id);
 
       if (user) {
-        console.log("Creating user:", user);
         user.isVerified = true;
         user.friends = user.friends || [];
         await user.save();
