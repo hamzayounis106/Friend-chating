@@ -25,13 +25,8 @@ function getGoogleCredentials() {
   return { clientId, clientSecret };
 }
 
-const clientPromise = (async () => {
-  const connection = await ensureDB();
-  return connection.connection.getClient();
-})();
-
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(), // Pass the resolved client instance
   session: {
     strategy: 'jwt',
   },
