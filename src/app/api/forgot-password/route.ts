@@ -1,4 +1,3 @@
-// src/app/api/forgot-password/route.ts
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/app/models/User';
@@ -32,7 +31,7 @@ export async function POST(req: Request) {
 
     const resetUrl = `${
       process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
-    }/reset-password?token=${resetToken}`;
+    }/change-password?token=${resetToken}`;
 
     // Send reset email using MailtrapClient
     const recipients = [{ email }];

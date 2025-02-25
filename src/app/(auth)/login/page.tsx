@@ -5,6 +5,7 @@ import { FC, useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import LoginForm from '@/components/login/LoginFrom';
+import Link from 'next/link';
 
 const Page: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -70,6 +71,13 @@ const Page: FC = () => {
             )}
             Google
           </Button>
+
+          <div>
+            If you don’t have a account,{' '}
+            <Link href={'signup'} className='text-blue-600'>
+              signup here
+            </Link>
+          </div>
         </div>
       </div>
     </>

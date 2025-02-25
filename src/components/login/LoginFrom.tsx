@@ -7,6 +7,7 @@ import { useEffect, useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -106,6 +107,12 @@ const LoginForm = () => {
       <button type='submit' className='w-full' disabled={isLoading}>
         {isLoading ? 'Signing in...' : 'Sign In'}
       </button>
+
+      <div>
+        <Link href={'/forgot-password'} className='text-blue-600'>
+          Forgot Password
+        </Link>
+      </div>
     </form>
   );
 };

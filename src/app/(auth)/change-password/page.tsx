@@ -1,4 +1,4 @@
-// src/app/(auth)/reset-password/page.tsx
+// src/app/(auth)/change-password/page.tsx
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -30,7 +30,7 @@ const ResetPassword = () => {
 
     setLoading(true);
     try {
-      const res = await fetch('/api/reset-password', {
+      const res = await fetch('/api/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token, newPassword: password }),
