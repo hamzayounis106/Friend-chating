@@ -3,11 +3,10 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
-import { useParams, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-// import User from '@/app/models/User.ts';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -57,6 +56,7 @@ const LoginForm = () => {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     const params = Object.fromEntries(searchParams!.entries());
     if (params?.error === 'OAuthAccountNotLinked') {
@@ -110,4 +110,12 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+const LoginPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <LoginForm />
+    </Suspense>
+  );
+};
+
+export default LoginPage;
