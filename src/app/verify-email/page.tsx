@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 
@@ -32,4 +32,12 @@ const VerifyEmail = () => {
   );
 };
 
-export default VerifyEmail;
+const VerifyEmailPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyEmail />
+    </Suspense>
+  );
+};
+
+export default VerifyEmailPage;
