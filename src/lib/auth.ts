@@ -47,7 +47,9 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Please enter both email and password');
+          return Promise.reject(
+            new Error(`Please enter both email and password`)
+          );
         }
 
         try {
@@ -58,27 +60,38 @@ export const authOptions: NextAuthOptions = {
             password: null,
           });
           if (isUserExist) {
-            throw new Error(
-              'Your account is assosiated with google account, please login with google'
+            console.log('⚠️ User exists with Google login only.');
+            return Promise.reject(
+              new Error(
+                `Your account is assosiated with google account, login with google`
+              )
             );
           }
 
           const user = await User.findOne({ email: credentials.email });
           if (!user) {
-            throw new Error('User Not Found');
+            console.log('⚠️ User exists with Google login only.');
+            return Promise.reject(new Error(`User Not Found`));
           }
 
           const isValid = await verifyPassword(
             credentials.password,
             user.password
           );
-          if (!isValid) {
-            throw new Error('Invalid email or password');
-          }
           if (!user.isVerified) {
-            throw new Error(
-              'Email not verified. A verification email has been sent.'
+            console.log(
+              '😈 Email not verified. A verification email has been sent.'
             );
+
+            return Promise.reject(
+              new Error(
+                `Email not verified. A verification email has been sent.`
+              )
+            );
+          }
+          if (!isValid) {
+            console.log('invalid email or password');
+            return Promise.reject(new Error(`Invalid email or password`));
           }
 
           return {

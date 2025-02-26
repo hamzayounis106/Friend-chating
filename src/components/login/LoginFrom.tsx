@@ -3,9 +3,9 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState, Suspense } from 'react';
+import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -21,7 +21,9 @@ type LoginForminputs = z.infer<typeof loginSchema>;
 const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const searchParams = useSearchParams();
+  const [showResendButton, setShowResendButton] = useState(false);
+  const [emailToResend, setEmailToResend] = useState('');
+
   const {
     register,
     handleSubmit,
@@ -32,6 +34,7 @@ const LoginForm = () => {
 
   const onSubmit: SubmitHandler<LoginForminputs> = async (data) => {
     setIsLoading(true);
+    setShowResendButton(false);
 
     try {
       const result = await signIn('credentials', {
@@ -42,6 +45,12 @@ const LoginForm = () => {
 
       if (result?.error) {
         toast.error(result.error);
+
+        // Check if the error message indicates email is not verified
+        if (result.error.includes('Email not verified')) {
+          setShowResendButton(true);
+          setEmailToResend(data.email);
+        }
         return;
       }
 
@@ -58,18 +67,29 @@ const LoginForm = () => {
     }
   };
 
-  useEffect(() => {
-    const params = Object.fromEntries(searchParams!.entries());
-    if (params?.error === 'OAuthAccountNotLinked') {
-      toast.error(
-        'Your account is not associated with Google. Please log in with email and password.'
-      );
-      // Clear the error query parameter after displaying the toast
-      const newSearchParams = new URLSearchParams(searchParams?.toString());
-      newSearchParams.delete('error');
-      router.replace(`?${newSearchParams.toString()}`);
+  const resendVerificationEmail = async () => {
+    if (!emailToResend) return;
+
+    try {
+      const response = await fetch('/api/resend-verification-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: emailToResend }),
+      });
+
+      if (response.ok) {
+        toast.success('Verification email sent. Please check your inbox.');
+        setShowResendButton(false);
+      } else {
+        toast.error('Failed to resend verification email');
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      toast.error('Something went wrong. Try again later.');
     }
-  }, [searchParams, router]);
+  };
 
   return (
     <form
@@ -108,21 +128,22 @@ const LoginForm = () => {
         {isLoading ? 'Signing in...' : 'Sign In'}
       </button>
 
-      <div>
-        <Link href={'/forgot-password'} className='text-blue-600'>
-          Forgot Password
+      <div className='flex justify-between'>
+        <Link href='/forgot-password' className='text-blue-600'>
+          Forgot Password?
         </Link>
+        {showResendButton && (
+          <button
+            type='button'
+            className='text-blue-600'
+            onClick={resendVerificationEmail}
+          >
+            Resend Verification Email
+          </button>
+        )}
       </div>
     </form>
   );
 };
 
-const LoginPage = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <LoginForm />
-    </Suspense>
-  );
-};
-
-export default LoginPage;
+export default LoginForm;
