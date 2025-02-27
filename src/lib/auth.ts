@@ -1,12 +1,14 @@
 import { NextAuthOptions } from 'next-auth';
-import dbConnect from '@/lib/db';
+import dbConnect from '@/lib/db'; // A function that awaits mongoose.connect()
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import User from '@/app/models/User';
 import { CustomAdapterUser, MongoDBAdapter } from './mongodb-adapter';
-import { verifyPassword } from '@/lib/verifyPassword';
+import { verifyPassword } from '@/lib/verifyPassword'; // Implement your password compare logic
+import { tr } from 'date-fns/locale';
 
 async function ensureDB() {
+  // Await the connection; you can also check connection status if needed.
   return await dbConnect();
 }
 
@@ -25,14 +27,19 @@ function getGoogleCredentials() {
   return { clientId, clientSecret };
 }
 
+const clientPromise = (async () => {
+  const connection = await ensureDB();
+  return connection.connection.getClient();
+})();
+
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(), // Pass the resolved client instance
+  adapter: MongoDBAdapter(clientPromise),
   session: {
     strategy: 'jwt',
   },
   pages: {
     signIn: '/login',
-    error: '/login',
+    error: '/login', // Add error page from Bolt.new
   },
   providers: [
     CredentialsProvider({
@@ -47,63 +54,42 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return Promise.reject(
-            new Error(`Please enter both email and password`)
-          );
+          throw new Error('Please enter both email and password');
         }
 
         try {
+          console.log('Credentials:', credentials);
           await ensureDB();
-
-          const isUserExist = await User.findOne({
-            email: credentials.email,
-            password: null,
-          });
-          if (isUserExist) {
-            console.log('⚠️ User exists with Google login only.');
-            return Promise.reject(
-              new Error(
-                `Your account is assosiated with google account, login with google`
-              )
-            );
-          }
 
           const user = await User.findOne({ email: credentials.email });
           if (!user) {
-            console.log('⚠️ User exists with Google login only.');
-            return Promise.reject(new Error(`User Not Found`));
+            throw new Error('Invalid email or password');
           }
+
+          console.log('User found:', user);
 
           const isValid = await verifyPassword(
             credentials.password,
             user.password
           );
-          if (!user.isVerified) {
-            console.log(
-              '😈 Email not verified. A verification email has been sent.'
-            );
-
-            return Promise.reject(
-              new Error(
-                `Email not verified. A verification email has been sent.`
-              )
-            );
-          }
           if (!isValid) {
-            console.log('invalid email or password');
-            return Promise.reject(new Error(`Invalid email or password`));
+            throw new Error('Invalid email or password');
           }
 
+          console.log('is valid ', isValid);
+          console.log('User authenticated:', user);
+
+          // Return a simplified user object
           return {
-            id: user._id.toString(),
+            id: user._id.toString(), // Convert ObjectId to string
             name: user.name,
             email: user.email,
-            role: user.role,
+            role: user.role, // Include any additional fields you need
             isVerified: user.isVerified,
-          } as CustomAdapterUser;
+          } as CustomAdapterUser; // Cast to CustomAdapterUser
         } catch (error) {
           console.error('Authorize error:', error);
-          throw error;
+          throw error; // Propagate the error
         }
       },
     }),
@@ -117,10 +103,11 @@ export const authOptions: NextAuthOptions = {
       await ensureDB();
       if (user) {
         token.id = user.id.toString();
-        token.role = (user as CustomAdapterUser).role;
+        token.role = (user as CustomAdapterUser).role; // here is the
         token.isVerified = true;
       }
 
+      // Fetch additional user data from the database
       const dbUser = await User.findById(token.id);
       if (!dbUser) {
         return token;
@@ -129,8 +116,8 @@ export const authOptions: NextAuthOptions = {
         id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
-        picture: dbUser.image,
-        role: dbUser.role,
+        picture: dbUser.image, // Keep your existing field
+        role: dbUser.role, // include the role field
         isVerified: true,
       };
     },
@@ -141,13 +128,14 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.role = token.role;
+        session.user.image = token.picture; // Keep your existing field
+        session.user.role = token.role; // pass role to session
         session.user.isVerified = true;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
+      // Custom redirect logic from Bolt.new
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       } else if (new URL(url).origin === baseUrl) {
@@ -163,7 +151,6 @@ export const authOptions: NextAuthOptions = {
 
       // Ensure the friends field is initialized
       const user = await User.findById(message.user.id);
-
       if (user) {
         user.isVerified = true;
         user.friends = user.friends || [];

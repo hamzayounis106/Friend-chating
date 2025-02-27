@@ -3,9 +3,9 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 
@@ -23,6 +23,7 @@ const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showResendButton, setShowResendButton] = useState(false);
   const [emailToResend, setEmailToResend] = useState('');
+  const searchParams = useSearchParams();
 
   const {
     register,
@@ -90,6 +91,18 @@ const LoginForm = () => {
       toast.error('Something went wrong. Try again later.');
     }
   };
+  useEffect(() => {
+    const params = Object.fromEntries(searchParams!.entries());
+    if (params?.error === 'OAuthAccountNotLinked') {
+      toast.error(
+        'Your account is not associated with Google. Please log in with email and password.'
+      );
+      // Clear the error query parameter after displaying the toast
+      const newSearchParams = new URLSearchParams(searchParams?.toString());
+      newSearchParams.delete('error');
+      router.replace(`?${newSearchParams.toString()}`);
+    }
+  }, [searchParams, router]);
 
   return (
     <form

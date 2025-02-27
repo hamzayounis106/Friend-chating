@@ -4,64 +4,78 @@ import {
   AdapterAccount,
   AdapterSession,
 } from 'next-auth/adapters';
-import mongoose, { ObjectId } from 'mongoose';
+import { MongoClient, ObjectId } from 'mongodb';
 import bcrypt from 'bcryptjs';
-import User, { IUser } from '@/app/models/User';
 
 type UserRole = 'patient' | 'surgeon' | 'pending';
 
+// Extend AdapterUser to include the role field
 export interface CustomAdapterUser extends AdapterUser {
   role?: UserRole;
-  verificationToken?: string;
   isVerified?: boolean;
 }
-
-const transformUser = (user: IUser): CustomAdapterUser => ({
+// Utility function to transform a MongoDB user document into an AdapterUser
+const transformUser = (user: any): CustomAdapterUser => ({
   id: user._id.toString(),
   name: user.name,
   email: user.email,
-  emailVerified: null,
+  emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
   image: user.image,
-  role: user.role,
-  verificationToken: user.verificationToken,
-  isVerified: user.isVerified,
+  role: user.role, // Include the role field
 });
 
-export function MongoDBAdapter(): Adapter {
+const transformSession = (session: any): AdapterSession & { id: string } => ({
+  id: session._id.toString(),
+  sessionToken: session.sessionToken,
+  userId: session.userId,
+  expires: session.expires,
+});
+
+export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
   return {
     async createUser(
       user: Omit<AdapterUser, 'id'> & {
         password?: string;
         role?: string;
-        friends?: ObjectId[];
+        friends?: any[];
       }
     ): Promise<CustomAdapterUser> {
+      const client = await clientPromise;
+      const db = client.db();
+
+      // Hash the password before saving
       const hashedPassword = user.password
         ? await bcrypt.hash(user.password, 12)
         : null;
 
-      const newUser = new User({
+      const newUser = {
         ...user,
-        password: hashedPassword,
-        role: user.role || 'pending',
+        password: hashedPassword, // Use the hashed password
+        role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
-        isVerified: false,
-      });
+      };
 
-      await newUser.save();
-      return transformUser(newUser);
+      const result = await db.collection('users').insertOne(newUser);
+      return {
+        ...newUser,
+        id: result.insertedId.toString(),
+      } as CustomAdapterUser;
     },
-
     async getUser(id: string): Promise<CustomAdapterUser | null> {
-      const user = await User.findById(id);
+      const client = await clientPromise;
+      const db = client.db();
+      const user = await db
+        .collection('users')
+        .findOne({ _id: new ObjectId(id) });
       return user ? transformUser(user) : null;
     },
-
     async getUserByEmail(email: string): Promise<CustomAdapterUser | null> {
-      const user = await User.findOne({ email });
+      const client = await clientPromise;
+      const db = client.db();
+      const user = await db.collection('users').findOne({ email });
+      console.log('User found by email:', user); // Log the user document
       return user ? transformUser(user) : null;
     },
-
     async getUserByAccount({
       providerAccountId,
       provider,
@@ -69,33 +83,42 @@ export function MongoDBAdapter(): Adapter {
       providerAccountId: string;
       provider: string;
     }): Promise<CustomAdapterUser | null> {
-      const account = await mongoose
-        .model('Account')
+      const client = await clientPromise;
+      const db = client.db();
+      const account = await db
+        .collection('accounts')
         .findOne({ providerAccountId, provider });
-
       if (!account) return null;
-      const user = await User.findById(account.userId);
+      const user = await db
+        .collection('users')
+        .findOne({ _id: new ObjectId(account.userId) });
       return user ? transformUser(user) : null;
     },
+
+    // Accept a partial update object along with the required id.
     async updateUser(
       user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>
     ): Promise<AdapterUser> {
-      const updatedUser = await User.findByIdAndUpdate(
-        user.id,
-        { $set: user },
-        { new: true }
-      ).lean<IUser>(); // Explicitly type `lean<IUser>()`
-
-      if (!updatedUser) throw new Error('User not found');
-
-      return transformUser(updatedUser); // Now correctly typed as `IUser`
+      const client = await clientPromise;
+      const db = client.db();
+      // Use $set to update only the provided fields.
+      await db
+        .collection('users')
+        .updateOne({ _id: new ObjectId(user.id) }, { $set: user });
+      // Optionally, return the merged user object.
+      return { ...user } as AdapterUser;
     },
+
     async deleteUser(id: string): Promise<void> {
-      await User.findByIdAndDelete(id);
+      const client = await clientPromise;
+      const db = client.db();
+      await db.collection('users').deleteOne({ _id: new ObjectId(id) });
     },
 
     async linkAccount(account: AdapterAccount): Promise<void> {
-      await mongoose.model('Account').create(account);
+      const client = await clientPromise;
+      const db = client.db();
+      await db.collection('accounts').insertOne(account);
     },
 
     async unlinkAccount({
@@ -105,54 +128,59 @@ export function MongoDBAdapter(): Adapter {
       providerAccountId: string;
       provider: string;
     }): Promise<void> {
-      await mongoose
-        .model('Account')
+      const client = await clientPromise;
+      const db = client.db();
+      await db
+        .collection('accounts')
         .deleteOne({ providerAccountId, provider });
     },
 
     async createSession(
       session: AdapterSession
     ): Promise<AdapterSession & { id: string }> {
-      const newSession = await mongoose.model('Session').create(session);
-      return { ...session, id: newSession._id.toString() };
+      const client = await clientPromise;
+      const db = client.db();
+      const result = await db.collection('sessions').insertOne(session);
+      // Merge the generated id into the session object.
+      return { ...session, id: result.insertedId.toString() };
     },
 
     async getSessionAndUser(sessionToken: string): Promise<{
       session: AdapterSession & { id: string };
       user: CustomAdapterUser;
     } | null> {
-      const session = await mongoose.model('Session').findOne({ sessionToken });
-
+      const client = await clientPromise;
+      const db = client.db();
+      const session = await db.collection('sessions').findOne({ sessionToken });
       if (!session) return null;
-      const user = await User.findById(session.userId);
+      const user = await db
+        .collection('users')
+        .findOne({ _id: new ObjectId(session.userId) });
       return user
-        ? {
-            session: { ...session.toObject(), id: session._id.toString() },
-            user: transformUser(user),
-          }
+        ? { session: transformSession(session), user: transformUser(user) }
         : null;
     },
 
     async updateSession(
       session: Partial<AdapterSession> & Pick<AdapterSession, 'sessionToken'>
     ): Promise<AdapterSession> {
-      const updatedSession = await mongoose
-        .model('Session')
-        .findOneAndUpdate(
-          { sessionToken: session.sessionToken },
-          { $set: session },
-          { new: true }
-        );
-
-      if (!updatedSession) throw new Error('Session not found after update');
-      return {
-        ...updatedSession.toObject(),
-        id: updatedSession._id.toString(),
-      };
+      const client = await clientPromise;
+      const db = client.db();
+      await db
+        .collection('sessions')
+        .updateOne({ sessionToken: session.sessionToken }, { $set: session });
+      // Re-fetch the session after updating
+      const updated = await db
+        .collection('sessions')
+        .findOne({ sessionToken: session.sessionToken });
+      if (!updated) throw new Error('Session not found after update'); // or return null based on your needs
+      return transformSession(updated);
     },
 
     async deleteSession(sessionToken: string): Promise<void> {
-      await mongoose.model('Session').deleteOne({ sessionToken });
+      const client = await clientPromise;
+      const db = client.db();
+      await db.collection('sessions').deleteOne({ sessionToken });
     },
   };
 }
