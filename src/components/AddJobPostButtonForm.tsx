@@ -42,7 +42,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
 
       const validatedData = addJobValidator.parse(transformedData);
       console.log('validatedData', validatedData);
-      await axios.post('/api/jobs/add', validatedData);
+      await axios.post('/api/Jobs/add', validatedData);
 
       setShowSuccessState(true);
     } catch (error) {
