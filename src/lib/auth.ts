@@ -5,7 +5,6 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import User from '@/app/models/User';
 import { CustomAdapterUser, MongoDBAdapter } from './mongodb-adapter';
 import { verifyPassword } from '@/lib/verifyPassword'; // Implement your password compare logic
-import { tr } from 'date-fns/locale';
 
 async function ensureDB() {
   // Await the connection; you can also check connection status if needed.
@@ -61,17 +60,20 @@ export const authOptions: NextAuthOptions = {
           console.log('Credentials:', credentials);
           await ensureDB();
 
-          const user = await User.findOne({ email: credentials.email });
+          const user = await User.findOne({ email: credentials.email.toLowerCase() });
           if (!user) {
-            throw new Error('Invalid email or password');
+            throw new Error('User Not Found');
           }
-
+          if (!user.password) {
+            console.log('User found but associated with google:', user);
+            throw new Error('Your account is associated with Google. Please log in with Google auth');
+          }
+        if(!user.isVerified){
+          throw new Error('Email not verified');
+        }
           console.log('User found:', user);
 
-          const isValid = await verifyPassword(
-            credentials.password,
-            user.password
-          );
+          const isValid = await verifyPassword(credentials.password, user.password);
           if (!isValid) {
             throw new Error('Invalid email or password');
           }
@@ -103,8 +105,8 @@ export const authOptions: NextAuthOptions = {
       await ensureDB();
       if (user) {
         token.id = user.id.toString();
-        token.role = (user as CustomAdapterUser).role; // here is the
-        token.isVerified = true;
+        token.role = (user as CustomAdapterUser).role;
+        token.isVerified = (user as CustomAdapterUser).isVerified; // Set isVerified from user object
       }
 
       // Fetch additional user data from the database
@@ -118,7 +120,7 @@ export const authOptions: NextAuthOptions = {
         email: dbUser.email,
         picture: dbUser.image, // Keep your existing field
         role: dbUser.role, // include the role field
-        isVerified: true,
+        isVerified: true, // include the isVerified field
       };
     },
     async session({ session, token }) {
@@ -130,7 +132,7 @@ export const authOptions: NextAuthOptions = {
         session.user.email = token.email;
         session.user.image = token.picture; // Keep your existing field
         session.user.role = token.role; // pass role to session
-        session.user.isVerified = true;
+        session.user.isVerified = token.isVerified; // include the isVerified field
       }
       return session;
     },

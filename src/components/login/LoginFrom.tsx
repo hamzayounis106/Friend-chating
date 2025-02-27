@@ -49,6 +49,7 @@ const LoginForm = () => {
 
         // Check if the error message indicates email is not verified
         if (result.error.includes('Email not verified')) {
+          console.log("Email not verified");
           setShowResendButton(true);
           setEmailToResend(data.email);
         }
