@@ -3,7 +3,7 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
@@ -92,6 +92,7 @@ const LoginForm = () => {
       toast.error('Something went wrong. Try again later.');
     }
   };
+
   useEffect(() => {
     const params = Object.fromEntries(searchParams!.entries());
     if (params?.error === 'OAuthAccountNotLinked') {
@@ -160,4 +161,17 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm;
+const Page = () => {
+  return (
+    <main className="pt-8">
+      <h1 className="font-bold text-5xl mb-8">Login</h1>
+      <div className="flex flex-col gap-4">
+        <Suspense fallback={<p>Loading...</p>}>
+          <LoginForm />
+        </Suspense>
+      </div>
+    </main>
+  );
+};
+
+export default Page;
