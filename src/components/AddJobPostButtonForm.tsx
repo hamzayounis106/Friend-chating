@@ -24,26 +24,25 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
   });
-  const session = useSession()
-  console.log("session",  session?.data?.user?.email);
-  const currentUserEmail = session?.data?.user?.email; 
+  const session = useSession();
+  // console.log('session', session?.data?.user?.email);
+  const currentUserEmail = session?.data?.user?.email;
   const addJob = async (data: FormData) => {
     try {
       const transformedData = {
         ...data,
-        date: data.date.toISOString(), // Transform date to string
-        surgeonEmails: data.surgeonEmails.join(','), // Transform array to string
-        videoURLs: data.videoURLs.join(','), // Transform array to string
+        date: data.date.toISOString(),
+        surgeonEmails: data.surgeonEmails.join(','),
+        videoURLs: data.videoURLs.join(','),
       };
-         // Check if any surgeon email is the same as the current user's email
-         if (data.surgeonEmails.includes(currentUserEmail as string)) {
-          setError('surgeonEmails', { message: 'You cannot invite yourself.' });
-          return;
-        }
-  
+      if (data.surgeonEmails.includes(currentUserEmail as string)) {
+        setError('surgeonEmails', { message: 'You cannot invite yourself.' });
+        return;
+      }
+
       const validatedData = addJobValidator.parse(transformedData);
-      console.log("validatedData", validatedData);
-      await axios.post('/api/Jobs/add', validatedData);
+      console.log('validatedData', validatedData);
+      await axios.post('/api/jobs/add', validatedData);
 
       setShowSuccessState(true);
     } catch (error) {
@@ -69,7 +68,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className='max-w-sm space-y-4'>
-      <label htmlFor='title' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='title'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Job Title
       </label>
       <input
@@ -80,7 +82,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
       />
       <p className='mt-1 text-sm text-red-600'>{errors.title?.message}</p>
 
-      <label htmlFor='type' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='type'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Job Type
       </label>
       <input
@@ -91,7 +96,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
       />
       <p className='mt-1 text-sm text-red-600'>{errors.type?.message}</p>
 
-      <label htmlFor='date' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='date'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Job Date
       </label>
       <input
@@ -101,7 +109,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
       />
       <p className='mt-1 text-sm text-red-600'>{errors.date?.message}</p>
 
-      <label htmlFor='description' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='description'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Job Description
       </label>
       <textarea
@@ -111,7 +122,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
       />
       <p className='mt-1 text-sm text-red-600'>{errors.description?.message}</p>
 
-      <label htmlFor='surgeonEmails' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='surgeonEmails'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Surgeon Emails (comma separated)
       </label>
       <input
@@ -120,9 +134,14 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
         className='block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
         placeholder='email1@example.com, email2@example.com'
       />
-      <p className='mt-1 text-sm text-red-600'>{errors.surgeonEmails?.message}</p>
+      <p className='mt-1 text-sm text-red-600'>
+        {errors.surgeonEmails?.message}
+      </p>
 
-      <label htmlFor='videoURLs' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='videoURLs'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Video URLs (comma separated)
       </label>
       <input
@@ -133,7 +152,10 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
       />
       <p className='mt-1 text-sm text-red-600'>{errors.videoURLs?.message}</p>
 
-      <label htmlFor='agreeToTerms' className='block text-sm font-medium leading-6 text-gray-900'>
+      <label
+        htmlFor='agreeToTerms'
+        className='block text-sm font-medium leading-6 text-gray-900'
+      >
         Agree to Terms
       </label>
       <input
@@ -141,7 +163,9 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = ({}) => {
         type='checkbox'
         className='block rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6'
       />
-      <p className='mt-1 text-sm text-red-600'>{errors.agreeToTerms?.message}</p>
+      <p className='mt-1 text-sm text-red-600'>
+        {errors.agreeToTerms?.message}
+      </p>
 
       <Button type='submit'>Add Job</Button>
       {showSuccessState ? (

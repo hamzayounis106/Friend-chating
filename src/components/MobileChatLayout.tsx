@@ -5,38 +5,35 @@ import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FC, Fragment, useEffect, useState } from 'react';
-import { Icons } from './Icons';
-import SignOutButton from './SignOutButton';
-import Button, { buttonVariants } from './ui/Button';
-import FriendRequestSidebarOptions from './FriendRequestSidebarOptions';
-import SidebarChatList, { Friend } from './SidebarChatList';
-import { Session } from 'next-auth';
+import { Icons } from '@/components/Icons';
+import SignOutButton from '@/components/SignOutButton';
 import { SidebarOption } from '@/types/typings';
 import { usePathname } from 'next/navigation';
+import Button, { buttonVariants } from '@/components/ui/Button';
+import { Session } from 'next-auth';
+import JobNotificationsSidebar from '@/components/JobNotificationsSidebar';
 
 interface MobileChatLayoutProps {
-  friends: Friend[];
   session: Session;
   sidebarOptions: SidebarOption[];
   unseenRequestCount: number;
 }
 
 const MobileChatLayout: FC<MobileChatLayoutProps> = ({
-  friends,
   session,
   sidebarOptions,
   unseenRequestCount,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
-
   const pathname = usePathname();
+  const userRole = session.user.role; // Assuming role is stored here
 
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
   return (
-    <div className='fixed bg-zinc-50 border-b border-zinc-200 top-0 inset-x-0 py-2 px-4'>
+    <div className='fixed bg-white border-b border-gray-200 top-0 inset-x-0 py-2 px-4 z-50'>
       <div className='w-full flex justify-between items-center'>
         <Link
           href='/dashboard'
@@ -48,8 +45,9 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
           Menu <Menu className='h-6 w-6' />
         </Button>
       </div>
+
       <Transition.Root show={open} as={Fragment}>
-        <Dialog as='div' className='relative z-10' onClose={setOpen}>
+        <Dialog as='div' className='relative z-50' onClose={setOpen}>
           <div className='fixed inset-0' />
 
           <div className='fixed inset-0 overflow-hidden'>
@@ -77,33 +75,17 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                               className='rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'
                               onClick={() => setOpen(false)}
                             >
-                              <span className='sr-only'>Close panel</span>
                               <X className='h-6 w-6' aria-hidden='true' />
                             </button>
                           </div>
                         </div>
                       </div>
                       <div className='relative mt-6 flex-1 px-4 sm:px-6'>
-                        {/* Content */}
-
-                        {friends?.length > 0 ? (
-                          <div className='text-xs font-semibold leading-6 text-gray-400'>
-                            Your chats
-                          </div>
-                        ) : null}
-
                         <nav className='flex flex-1 flex-col'>
                           <ul
                             role='list'
                             className='flex flex-1 flex-col gap-y-7'
                           >
-                            <li>
-                              <SidebarChatList
-                                friends={friends}
-                                sessionId={session.user.id.toString()}
-                              />
-                            </li>
-
                             <li>
                               <div className='text-xs font-semibold leading-6 text-gray-400'>
                                 Overview
@@ -112,7 +94,7 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                                 {sidebarOptions.map((option) => {
                                   const Icon = Icons[option.Icon];
                                   return (
-                                    <li key={option.name}>
+                                    <li key={option.id}>
                                       <Link
                                         href={option.href}
                                         className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
@@ -128,30 +110,47 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                                   );
                                 })}
 
-                                <li>
-                                  <FriendRequestSidebarOptions
-                                    initialUnseenRequestCount={
-                                      unseenRequestCount
-                                    }
-                                    sessionId={session.user.id.toString()}
-                                  />
-                                </li>
+                                {/* Show Add Post link for patients */}
+                                {/* {userRole === 'patient' && (
+                                  <li>
+                                    <Link
+                                      href='/add-post'
+                                      className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                                    >
+                                      <span className='text-gray-400 border-gray-200 group-hover:border-indigo-600 group-hover:text-indigo-600 flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border text-[0.625rem] font-medium bg-white'>
+                                        <Icons.UserPlus className='h-4 w-4' />
+                                      </span>
+                                      <span className='truncate'>Add Post</span>
+                                    </Link>
+                                  </li>
+                                )} */}
+
+                                {/* Show JobNotificationsSidebar for surgeons */}
+                                {userRole === 'surgeon' && (
+                                  <li>
+                                    <JobNotificationsSidebar
+                                      initialUnseenJobCount={unseenRequestCount}
+                                      sessionEmail={
+                                        session.user.email as string
+                                      }
+                                    />
+                                  </li>
+                                )}
                               </ul>
                             </li>
 
-                            <li className='-ml-6 mt-auto flex items-center'>
+                            <li className='-mx-6 mt-auto flex items-center'>
                               <div className='flex flex-1 items-center gap-x-4 px-6 py-3 text-sm font-semibold leading-6 text-gray-900'>
                                 <div className='relative h-8 w-8 bg-gray-50'>
                                   <Image
-                                    src={session.user.image || '/default.png'}
-                                    alt='Your profile picture'
                                     fill
                                     referrerPolicy='no-referrer'
                                     className='rounded-full'
+                                    src={session.user.image || '/default.png'}
+                                    alt='Your profile picture'
                                     sizes='(max-width: 768px) 100vw, 24px'
                                   />
                                 </div>
-
                                 <span className='sr-only'>Your profile</span>
                                 <div className='flex flex-col'>
                                   <span aria-hidden='true'>
@@ -165,7 +164,6 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                                   </span>
                                 </div>
                               </div>
-
                               <SignOutButton className='h-full aspect-square' />
                             </li>
                           </ul>
