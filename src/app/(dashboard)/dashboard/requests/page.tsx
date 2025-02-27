@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/db';
 import { pusherServer } from '@/lib/pusher';
 import User from '@/app/models/User';
-import FriendRequest from '@/app/models/FriendRequest';
+import FriendRequest from '@/app/models/Job';
 import FriendRequests from '@/components/FriendRequests';
 
 const Page = async () => {

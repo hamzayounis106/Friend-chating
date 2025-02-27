@@ -2,7 +2,7 @@ import { getServerSession } from 'next-auth';
 import { z } from 'zod';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db'; // Import MongoDB connection
-import FriendRequest from '@/app/models/FriendRequest';
+import FriendRequest from '@/app/models/Job';
 
 export async function POST(req: Request) {
   try {

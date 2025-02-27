@@ -8,8 +8,8 @@ export default withAuth(
 
     // Retrieve the token from the request, which now includes the role.
     const token = await getToken({ req });
-    // console.log("Checking token:");
-    console.log("Checking token:", token);
+    console.log("Checking token:");
+    // console.log("Checking token:", token);
     const isLoginPage = pathname.startsWith("/login");
 
     // Define sensitive routes that require an approved role.

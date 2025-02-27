@@ -5,7 +5,7 @@ import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 import dbConnect from '@/lib/db';
 import User from '@/app/models/User';
-import FriendRequest from '@/app/models/FriendRequest';
+import FriendRequest from '@/app/models/Job';
 
 export async function POST(req: Request) {
   try {

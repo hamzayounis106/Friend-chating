@@ -1,4 +1,4 @@
-import FriendRequest from '@/app/models/FriendRequest';
+import FriendRequest from '@/app/models/Job';
 import dbConnect from '@/lib/db';
 
 export const getFriendRequests = async (userId: string) => {
