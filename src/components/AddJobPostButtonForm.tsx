@@ -26,15 +26,13 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   });
 
   const session = useSession();
-  const currentUserEmail = session?.data?.user?.email;
   const addJob = async (data: FormData) => {
     try {
       const transformedData = {
         ...data,
         date: new Date(data.date).toISOString(), // Convert date to ISO
-        createdBy: "64f92e65b6a8b3d5c6e98a42", // Replace with actual user ID
-        patientId: "64f92e65b6a8b3d5c6e98b33", // Replace with actual patient ID
-        // Send surgeonEmails and videoURLs as comma-separated strings
+        createdBy: session?.data?.user?.id, // Replace with actual user ID
+        patientId:session?.data?.user?.id, // Replace with actual patient ID
         surgeonEmails: data.surgeonEmails, // Already a comma-separated string
         videoURLs: data.videoURLs, // Already a comma-separated string
       };

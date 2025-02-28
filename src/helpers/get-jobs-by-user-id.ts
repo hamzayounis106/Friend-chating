@@ -1,9 +1,7 @@
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import Job from '@/app/models/Job';
 import dbConnect from '@/lib/db';
-
 import mongoose from 'mongoose';
-
 
 export const getJobsByUserId = async (userId: string): Promise<JobData[]> => {
   try {
@@ -15,33 +13,21 @@ export const getJobsByUserId = async (userId: string): Promise<JobData[]> => {
       .exec();
 
     return jobs.map(job => ({
-      // _id: job._id.toString(),
+      _id: job._id?.toString(), // Include _id if needed in JobData
       title: job.title,
       type: job.type,
-      date: job.date,
+      date: job.date.toISOString(), // Convert Date to string
       description: job.description,
-      surgeonEmails: job.surgeonEmails,
+      surgeonEmails: job.surgeonEmails.map(({ email, status }: { email: string; status: 'accepted' | 'declined' | 'pending' }) => ({
+        email,
+        status,
+      })),
       videoURLs: job.videoURLs,
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
-    })) as JobData[];
+    })) as JobData[]; // Explicit type assertion
   } catch (error) {
     console.error('Error fetching jobs:', error);
     throw error;
-  }
-};
-
-export const getJobCountByUserId = async (userId: string): Promise<number> => {
-  try {
-    await dbConnect();
-
-    // Query for jobs created by the user
-    const count = await Job.countDocuments({
-      patientId: new mongoose.Types.ObjectId(userId),
-    });
-    return count;
-  } catch (error) {
-    console.error('Error fetching job count:', error);
-    return 0;
   }
 };

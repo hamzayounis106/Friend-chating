@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     // Assuming you do Zod validation for other fields but skip for surgeonEmails and videoURLs
     // You can preprocess the email and video fields for proper format
     const { title, type, date, description, surgeonEmails, videoURLs, agreeToTerms, createdBy, patientId } = body;
-
+console.log('patientId', patientId);
     // Transform the 'surgeonEmails' array to just include email strings
     const validSurgeonEmails = [];
     for (const emailObj of surgeonEmails) {
