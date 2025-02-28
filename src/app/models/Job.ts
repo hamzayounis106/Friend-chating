@@ -5,7 +5,7 @@ export interface IJob extends Document {
   type: string;
   date: Date;
   description: string;
-  surgeonEmails: string[];
+  surgeonEmails: { email: string; status: 'accepted' | 'declined' | 'pending' }[];
   videoURLs: string[];
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
@@ -16,7 +16,17 @@ const jobSchema = new Schema<IJob>({
   type: { type: String, required: true, minlength: 1, maxlength: 50 },
   date: { type: Date, required: true },
   description: { type: String, required: true, minlength: 10, maxlength: 500 },
-  surgeonEmails: { type: [String], required: true },
+  surgeonEmails: {
+    type: [
+      {
+        email: { type: String, required: true },
+        status: { type: String, enum: ['accepted', 'declined', 'pending'], required: true }
+      }
+    ],
+    required: true,
+    _id: false // Prevents Mongoose from adding _id to each object in the array
+
+  },
   videoURLs: { type: [String], required: true },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

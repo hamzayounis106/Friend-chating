@@ -1,14 +1,12 @@
-import { getServerSession } from 'next-auth';
-import { z } from 'zod';
-import { authOptions } from '@/lib/auth';
-import { pusherServer } from '@/lib/pusher';
-import { toPusherKey } from '@/lib/utils';
-import { addJobValidator } from '@/lib/validations/add-Job';
-import dbConnect from '@/lib/db'; // Import MongoDB connection
-import User from '@/app/models/User';
-// import Job from "@/app/models/Job"; // Import Job model
-import { mailSender, mainClient } from '@/lib/mail';
-import Job from '@/app/models/Job';
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { pusherServer } from "@/lib/pusher";
+import { toPusherKey } from "@/lib/utils";
+import dbConnect from "@/lib/db"; // MongoDB connection
+import User from "@/app/models/User";
+import Job from "@/app/models/Job";
+import { mailSender, mainClient } from "@/lib/mail";
+import { z } from "zod";
 
 export async function POST(req: Request) {
   try {
@@ -17,110 +15,110 @@ export async function POST(req: Request) {
 
     // Parse and transform the request body
     const body = await req.json();
-    console.log('Job Body---------------', body);
-    // Filter surgeonEmails to include only users with the role of "surgeon"
+    console.log("Job Body---------------", body);
+
+    // Validate the request body using Zod
+    // Assuming you do Zod validation for other fields but skip for surgeonEmails and videoURLs
+    // You can preprocess the email and video fields for proper format
+    const { title, type, date, description, surgeonEmails, videoURLs, agreeToTerms, createdBy, patientId } = body;
+
+    // Transform the 'surgeonEmails' array to just include email strings
     const validSurgeonEmails = [];
-    for (const email of body.surgeonEmails) {
-      const user = await User.findOne({ email });
+    for (const emailObj of surgeonEmails) {
+      const user = await User.findOne({ email: emailObj.email });
+
       if (user) {
-        if (user.role != 'patient') {
-          console.log('Email: ' + email + 'is of a surgeon.');
-          validSurgeonEmails.push(email);
+        if (user.role !== "patient") {
+          validSurgeonEmails.push({ email: emailObj.email, status: emailObj.status });
         } else {
-          console.log('Email: ' + email + 'is of a Patient.');
-          return new Response('Email: ' + email + 'is not of a surgeon.', {
-            status: 422,
-          });
+          console.log(`Email: ${emailObj.email} is a Patient. Rejecting...`);
+          return new Response(`Email: ${emailObj.email} is not of a surgeon.`, { status: 422 });
         }
       } else {
-        console.log('Email: ' + email + 'is not found.');
-        validSurgeonEmails.push(email);
+        // If the user doesn't exist in the database, still push the email
+        validSurgeonEmails.push({ email: emailObj.email, status: emailObj.status });
       }
     }
 
-    // Transform arrays to strings for validation
-    const transformedBody = {
-      ...body,
-      surgeonEmails: validSurgeonEmails.join(','),
-      videoURLs: body.videoURLs.join(','),
-    };
-
-    const validatedData = addJobValidator.parse(transformedBody);
+    // Validate 'videoURLs' to make sure they are strings and not an array of objects.
+    const validVideoURLs = Array.isArray(videoURLs) ? videoURLs : [];
 
     // Get the current session
     const session = await getServerSession(authOptions);
     if (!session) {
-      return new Response('Unauthorized', { status: 401 });
+      return new Response("Unauthorized", { status: 401 });
     }
 
-    // Create a new job post
+    // Create the new job post
     const job = new Job({
-      title: validatedData.title,
-      type: validatedData.type,
-      date: validatedData.date,
-      description: validatedData.description,
-      surgeonEmails: validatedData.surgeonEmails,
-      videoURLs: validatedData.videoURLs,
+      title,
+      type,
+      date: new Date(date), // Ensure date is a Date object
+      description,
+      surgeonEmails: validSurgeonEmails, // Processed surgeonEmails
+      videoURLs: validVideoURLs, // Processed video URLs
       createdBy: session.user.id,
-      patientId: session.user.id,
+      patientId,
     });
 
     await job.save();
 
     // Notify surgeons about the new job post
-    for (const email of validSurgeonEmails) {
-      const surgeon = await User.findOne({ email });
+    for (const emailObj of validSurgeonEmails) {
+      const surgeon = await User.findOne({ email: emailObj.email });
+
       if (surgeon) {
-        console.log('Triggering Pusher event for surgeon:', email);
+        console.log(`Triggering Pusher event for surgeon: ${emailObj.email}`);
         await pusherServer.trigger(
-          toPusherKey(`surgeon:${email}:jobs`),
-          'new_job',
+          toPusherKey(`surgeon:${emailObj.email}:jobs`),
+          "new_job",
           {
-            title: validatedData.title,
-            type: validatedData.type,
-            date: validatedData.date.toISOString(),
-            description: validatedData.description,
-            surgeonEmails: validatedData.surgeonEmails,
-            videoURLs: validatedData.videoURLs,
+            title,
+            type,
+            date: new Date(date).toISOString(),
+            description,
+            surgeonEmails: validSurgeonEmails,
+            videoURLs: validVideoURLs,
             createdBy: session.user.email,
             patientId: session.user.id,
           }
         );
-        console.log('Pusher event triggered successfully');
+        console.log("Pusher event triggered successfully");
       }
-      const recipients = [{ email }];
-      console.log('Sending email to---------------', email);
-      console.log('recipients---------------', recipients);
+
+      const recipients = [{ email: emailObj.email }];
+      console.log("Sending email to---------------", emailObj.email);
+
       try {
         await mainClient.send({
           from: mailSender,
           to: recipients,
-          subject: `New Job Post: ${validatedData.title}`,
+          subject: `New Job Post: ${title}`,
           html: `<p>A new job post has been created by ${session.user.name}</p>
                  <p>Job Details:</p>
                  <ul>
-                   <li>Title: ${validatedData.title}</li>
-                   <li>Type: ${validatedData.type}</li>
-                   <li>Date: ${new Date(validatedData.date).toISOString()}</li>
-                   <li>Description: ${validatedData.description}</li>
+                   <li>Title: ${title}</li>
+                   <li>Type: ${type}</li>
+                   <li>Date: ${new Date(date).toISOString()}</li>
+                   <li>Description: ${description}</li>
                  </ul>
                  <p>Please login to your account to view the job post.</p>`,
-          category: 'Job Notification',
+          category: "Job Notification",
         });
       } catch (error) {
-        console.error('Error sending notification email:', error);
-        throw new Error('Failed to send notification email');
+        console.error("Error sending notification email:", error);
+        throw new Error("Failed to send notification email");
       }
     }
 
-    return new Response('Job post created successfully', { status: 201 });
+    return new Response("Job post created successfully", { status: 201 });
   } catch (error) {
-    console.error('Error:', error);
+    console.error("Error:", error);
 
     if (error instanceof z.ZodError) {
-      return new Response('Invalid request payload', { status: 422 });
+      return new Response(`Invalid request payload: ${error.message}`, { status: 422 });
     }
 
-    return new Response('Invalid request', { status: 400 });
+    return new Response("Internal server error", { status: 500 });
   }
 }
