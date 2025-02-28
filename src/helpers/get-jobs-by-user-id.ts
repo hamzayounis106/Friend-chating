@@ -1,6 +1,7 @@
+import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import Job from '@/app/models/Job';
 import dbConnect from '@/lib/db';
-import { JobData } from '@/types/job';
+
 import mongoose from 'mongoose';
 
 
