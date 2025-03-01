@@ -8,9 +8,10 @@ import { toast } from 'react-hot-toast';
 import UnseenChatToast from './UnseenChatToast';
 import Image from 'next/image';
 import { ExtendedMessage } from '@/lib/validations/message';
+import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 
 interface SidebarChatListProps {
-  friends: Friend[];
+  jobs: JobData[];
   sessionId: string;
 }
 
@@ -21,25 +22,27 @@ export interface Friend {
   image?: string;
 }
 
-const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
+const SidebarChatList: FC<SidebarChatListProps> = ({ jobs, sessionId }) => {
+  // console.log('jobs SCL', jobs);
+  //  console.log('sessionId SCL', sessionId);
   const router = useRouter();
   const pathname = usePathname();
   // Use ExtendedMessage for unseen messages
   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
-  const [activeChats, setActiveChats] = useState<Friend[]>(friends);
-
+  const [activeChats, setActiveChats] = useState<JobData[]>(jobs);
+const [seletedJobId, setSelectedJobId] = useState<string>("");
   useEffect(() => {
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:friends`));
+    pusherClient.subscribe(toPusherKey(`user:${sessionId}:jobs`));
 
-    const newFriendHandler = (newFriend: Friend) => {
-      setActiveChats((prev) => [...prev, newFriend]);
+    const newJobHandler = (newJob: JobData) => {
+      setActiveChats((prev) => [...prev, newJob]);
     };
 
     const chatHandler = (message: ExtendedMessage) => {
       const shouldNotify =
         pathname !==
-        `/dashboard/chat/${chatHrefConstructor(sessionId, message.sender)}`;
+        `/dashboard/chat/${chatHrefConstructor(sessionId, message.sender, seletedJobId)}`;
 
       if (!shouldNotify) return;
 
@@ -58,14 +61,14 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
     };
 
     pusherClient.bind('new_message', chatHandler);
-    pusherClient.bind('new_friend', newFriendHandler);
+    pusherClient.bind('job_accepted', newJobHandler);
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:friends`));
+      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:jobs`));
 
       pusherClient.unbind('new_message', chatHandler);
-      pusherClient.unbind('new_friend', newFriendHandler);
+      pusherClient.unbind('job_accepted', newJobHandler);
     };
   }, [pathname, sessionId, router]);
 
@@ -76,26 +79,32 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
       });
     }
   }, [pathname]);
-
+  // console.log('activeChats SCL', activeChats);
   return (
-    <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
-      {activeChats?.sort().map((friend) => {
-        const unseenMessagesCount = unseenMessages.filter(
-          (unseenMsg) => unseenMsg.sender === friend._id
-        ).length;
-
+  <>
+   {/* <h2>Chats</h2> */}
+  
+   <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
+   {jobs
+    ?.filter((job) => job.surgeonEmails.some((surgeon) => surgeon.status === 'accepted'))
+    .sort() // Sorting can be customized if needed
+    .map((job) => {
+      const unseenMessagesCount = unseenMessages.filter(
+        (unseenMsg) => unseenMsg.sender === job._id
+      ).length;
         return (
-          <li key={friend._id}>
-            <a
+          <li key={job._id}>
+            <a onClick={() => setSelectedJobId(job._id)}
               href={`/dashboard/chat/${chatHrefConstructor(
                 sessionId,
-                friend._id
+                job.createdBy,
+                job._id
               )}`}
               className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
             >
-              <Image
-                src={friend.image || '/default.png'}
-                alt={`${friend.name}'s profile`}
+              {/* <Image
+                src={job.image || '/default.png'}
+                alt={`${job.name}'s profile`}
                 className='rounded-full'
                 width={24}
                 height={24}
@@ -103,8 +112,10 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
                 onError={(e) => {
                   e.currentTarget.src = '/default-profile.png';
                 }}
-              />
-              {friend.name}
+              /> */}
+              {job.title}
+              {job.type}
+                
               {unseenMessagesCount > 0 && (
                 <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
                   {unseenMessagesCount}
@@ -115,6 +126,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({ friends, sessionId }) => {
         );
       })}
     </ul>
+  </>
   );
 };
 

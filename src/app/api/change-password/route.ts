@@ -13,7 +13,7 @@ export async function POST(req: Request) {
     resetToken: token,
     resetTokenExpiry: { $gt: Date.now() },
   });
-  console.log('user from reset password ', user);
+  // console.log('user from reset password ', user);
 
   if (!user) {
     return NextResponse.json(

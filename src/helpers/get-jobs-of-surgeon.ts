@@ -6,7 +6,7 @@ export const getJobsForSurgeon = async (userEmail: string): Promise<JobData[]> =
   try {
     await dbConnect();
     console.log('Database connected successfully');
-    console.log('userEmail:', userEmail);
+    // console.log('userEmail:', userEmail);
 
     const jobs = await Job.find({
       "surgeonEmails.email": userEmail,
@@ -48,7 +48,7 @@ export const getJobCountBySurgeon = async (
     const count = await Job.countDocuments({
       "surgeonEmails.email": userEmail, 
     })
-    console.log('Job count for surgeon:', count);
+    // console.log('Job count for surgeon:', count);
     return count;
   } catch (error) {
     console.error('Error fetching job count:', error);

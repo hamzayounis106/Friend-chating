@@ -38,7 +38,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         videoURLs: data.videoURLs, // Already a comma-separated string
       };
 
-      console.log('Validated Data:', transformedData);
+      // console.log('Validated Data:', transformedData);
 
       await axios.post('/api/Jobs/add', transformedData);
       setShowSuccessState(true);
@@ -63,7 +63,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   };
   const onSubmit = (data: FormData) => {
     const userEmail = session.data?.user.email;
-    console.log(userEmail);
+    // console.log(userEmail);
     const containEmail = data?.surgeonEmails.some(
       (item) => item.email === userEmail
     );

@@ -14,7 +14,7 @@ interface JobDetailProps {
 }
 
 const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
-  console.log('Jobs:', jobs);
+  // console.log('Jobs:', jobs);
   const router = useRouter();
   const [jobList, setJobList] = useState<JobData[]>(jobs);
 
@@ -22,7 +22,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
     pusherClient.subscribe(toPusherKey(`surgeon:${userEmail}:jobs`));
 
     const jobHandler = (newJob: JobData) => {
-      console.log('New job received:', newJob);
+      // console.log('New job received:', newJob);
       setJobList((prev) => [...prev, newJob]);
 
       // ✅ Show toast notification
@@ -37,7 +37,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
       pusherClient.unsubscribe(toPusherKey(`surgeon:${userEmail}:jobs`));
       pusherClient.unbind('new_job', jobHandler);
     };
-  }, [userEmail]);
+  }, [userEmail, jobs]);
 
   // Handle accepting a job
   const acceptJob = async (jobId: string) => {
@@ -71,6 +71,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
                 Type: {job.type} | Date: {new Date(job.date).toLocaleDateString()}
               </p>
               <div className='flex gap-2'>
+              {/* {console.log("Job id to accept", job)} */}
                 <button
                   onClick={() => acceptJob(job._id)}
                   aria-label='accept job'

@@ -50,6 +50,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json(genericMessage);
   } catch (error) {
-    console.log('error in forget password', error);
+    console.error('error in forget password', error);
   }
 }

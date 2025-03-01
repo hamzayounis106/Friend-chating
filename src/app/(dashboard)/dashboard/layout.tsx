@@ -7,11 +7,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ReactNode } from "react";
 import FriendRequestSidebarOptions from "@/components/JobNotificationsSidebar";
-import { getFriendsByUserId } from "@/helpers/get-friends-by-user-id";
 import SidebarChatList, { Friend } from "@/components/SidebarChatList";
 import MobileChatLayout from "@/components/MobileChatLayout";
 import { SidebarOption } from "@/types/typings";
-import { getJobCountBySurgeon } from "@/helpers/get-jobs-of-surgeon";
+import {
+  getJobCountBySurgeon,
+  getJobsForSurgeon,
+} from "@/helpers/get-jobs-of-surgeon";
+import { getJobsByUserId } from "@/helpers/get-jobs-by-user-id";
+import { JobData } from "./requests/page";
 
 interface LayoutProps {
   children: ReactNode;
@@ -23,12 +27,13 @@ export const metadata = {
 
 const Layout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions);
+  
   if (!session) notFound();
 
-  const friends: Friend[] = await getFriendsByUserId(
-    session.user.id.toString()
-  );
 
+  const jobs: JobData[] = await getJobsForSurgeon(session.user.email as string);
+  // console.log("jobs LAYOUT----------------", jobs);
+  
   // Fetch the user's role from the session
   const userRole = session.user.role; // Ensure this exists in your auth setup
 
@@ -74,19 +79,28 @@ const Layout = async ({ children }: LayoutProps) => {
           <Icons.Logo className="h-8 w-auto text-indigo-600" />
         </Link>
 
-        {friends?.length > 0 && (
-          <div className="text-xs font-semibold leading-6 text-gray-400">
-            Your chats
-          </div>
+        {jobs?.length > 0 && (
+          <>
+            <div className="text-xs font-semibold leading-6 text-gray-400">
+              Your chats
+            </div>
+            {/* {jobs.map((job) => (
+              <div key={job._id}>
+                {job.title}
+              </div>
+            ))} */}
+          </>
         )}
 
         <nav className="flex flex-1 flex-col">
           <ul role="list" className="flex flex-1 flex-col gap-y-7">
             <li>
-              <SidebarChatList
-                sessionId={session.user.id.toString()}
-                friends={friends}
-              />
+             
+                <SidebarChatList
+                  sessionId={session.user.id.toString()}
+                  jobs={jobs}
+                />
+         
             </li>
 
             <li>

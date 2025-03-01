@@ -8,9 +8,9 @@ import React from "react";
 export default async function page() {
   const session = await getServerSession(authOptions);
   const userId = session?.user.id;
-  console.log("userId", userId);
+  // console.log("userId", userId);
   const Posts = await getJobsByUserId(userId as string);
-  console.log("Posts", Posts);
+  // console.log("Posts", Posts);
   return (
     <div>
       <h2 className="text-5xl">My Job Posts CREATED BY ME </h2>

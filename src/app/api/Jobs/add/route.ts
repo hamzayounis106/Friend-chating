@@ -15,13 +15,13 @@ export async function POST(req: Request) {
 
     // Parse and transform the request body
     const body = await req.json();
-    console.log("Job Body---------------", body);
+    // console.log("Job Body---------------", body);
 
     // Validate the request body using Zod
     // Assuming you do Zod validation for other fields but skip for surgeonEmails and videoURLs
     // You can preprocess the email and video fields for proper format
     const { title, type, date, description, surgeonEmails, videoURLs, agreeToTerms, createdBy, patientId } = body;
-console.log('patientId', patientId);
+// console.log('patientId', patientId);
     // Transform the 'surgeonEmails' array to just include email strings
     const validSurgeonEmails = [];
     for (const emailObj of surgeonEmails) {
@@ -31,7 +31,7 @@ console.log('patientId', patientId);
         if (user.role !== "patient") {
           validSurgeonEmails.push({ email: emailObj.email, status: emailObj.status });
         } else {
-          console.log(`Email: ${emailObj.email} is a Patient. Rejecting...`);
+          // console.log(`Email: ${emailObj.email} is a Patient. Rejecting...`);
           return new Response(`Email: ${emailObj.email} is not of a surgeon.`, { status: 422 });
         }
       } else {
@@ -68,11 +68,12 @@ console.log('patientId', patientId);
       const surgeon = await User.findOne({ email: emailObj.email });
 
       if (surgeon) {
-        console.log(`Triggering Pusher event for surgeon: ${emailObj.email}`);
+        // console.log(`Triggering Pusher event for surgeon: ${emailObj.email}`);
         await pusherServer.trigger(
           toPusherKey(`surgeon:${emailObj.email}:jobs`),
           "new_job",
           {
+            _id: job._id,
             title,
             type,
             date: new Date(date).toISOString(),
@@ -83,11 +84,11 @@ console.log('patientId', patientId);
             patientId: session.user.id,
           }
         );
-        console.log("Pusher event triggered successfully");
+        // console.log("Pusher event triggered successfully");
       }
 
       const recipients = [{ email: emailObj.email }];
-      console.log("Sending email to---------------", emailObj.email);
+      // console.log("Sending email to---------------", emailObj.email);
 
       try {
         await mainClient.send({
