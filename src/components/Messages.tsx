@@ -24,37 +24,42 @@ const Messages: FC<MessagesProps> = ({
 }) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const scrollDownRef = useRef<HTMLDivElement | null>(null);
-  const [_,_1,jobId] = chatId.split('--');
-// console.log('jobid finding',data -1)
+  const [_, _1, jobId] = chatId.split('--');
+  // console.log('jobid finding',data -1)
   // console.log('Subscribed to:', toPusherKey(`chat:${chatId}`));
-  console.log('chatPartner',chatPartner)
-  console.log('Subscribed to:', toPusherKey(`user:${`${chatPartner?._id}--${jobId}`}:chats`));
+  // console.log('chatPartner', chatPartner);
+  console.log(
+    'Subscribed to:',
+    toPusherKey(`user:${`${chatPartner?._id}--${jobId}`}:chats`)
+  );
   useEffect(() => {
     const userChatKey1 = toPusherKey(`user:${`${sessionId}--${jobId}`}:chats`);
-    const userChatKey2 = toPusherKey(`user:${`${chatPartner?._id}--${jobId}`}:chats`);
-  
+    const userChatKey2 = toPusherKey(
+      `user:${`${chatPartner?._id}--${jobId}`}:chats`
+    );
+
     pusherClient.subscribe(userChatKey1);
     pusherClient.subscribe(userChatKey2);
-  
+
     const messageHandler = (message: Message) => {
       setMessages((prev) => [message, ...prev]);
     };
-  
-    pusherClient.bind("incoming-message", messageHandler);
-    pusherClient.bind("new_message", messageHandler);
-  
+
+    pusherClient.bind('incoming-message', messageHandler);
+    pusherClient.bind('new_message', messageHandler);
+
     return () => {
       pusherClient.unsubscribe(userChatKey1);
       pusherClient.unsubscribe(userChatKey2);
-      pusherClient.unbind("incoming-message", messageHandler);
-      pusherClient.unbind("new_message", messageHandler);
+      pusherClient.unbind('incoming-message', messageHandler);
+      pusherClient.unbind('new_message', messageHandler);
     };
   }, [chatId]);
-  
+
   const formatTimestamp = (timestamp: string | Date) => {
     return format(new Date(timestamp), 'HH:mm');
   };
-console.log('sessionImg',sessionId)
+  console.log('sessionImg', sessionId);
   return (
     <div
       id='messages'
@@ -63,7 +68,7 @@ console.log('sessionImg',sessionId)
       <div ref={scrollDownRef} />
       {messages.map((message, index) => {
         const isCurrentUser = message.sender === sessionId;
-        {console.log('message.sender',message.sender)}
+        // {console.log('message.sender',message.sender)}
         const hasNextMessageFromSameUser =
           messages[index - 1]?.sender === messages[index].sender;
 
