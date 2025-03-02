@@ -101,7 +101,9 @@ const Layout = async ({ children }: LayoutProps) => {
             <li>
               <SidebarChatList
                 sessionId={session.user.id.toString()}
+                sessionEmail={session.user.email as string}
                 jobs={jobs}
+                session={session}
               />
             </li>
 

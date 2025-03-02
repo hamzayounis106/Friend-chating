@@ -34,12 +34,15 @@ export async function POST(req: Request) {
 
     // The chatId should be in the form "userId1--userId2"
     const [userId1, userId2, jobId] = chatId.split('--');
+    console.log('userId1',userId1)
+    console.log('userId2',userId2)
+    console.log('jobId',jobId)
     if (session.user.id !== userId1 && session.user.id !== userId2) {
       return new Response('Unauthorized', { status: 401 });
     }
 
     const friendId = session.user.id.toString() === userId1 ? userId2 : userId1;
-
+console.log('friendId',friendId)
     // Fetch the sender document and cast it as a LeanUser
     const senderDoc = await User.findById(session.user.id.toString()).lean();
     if (!senderDoc) return new Response('Unauthorized', { status: 401 });

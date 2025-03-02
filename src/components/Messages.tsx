@@ -42,6 +42,8 @@ const Messages: FC<MessagesProps> = ({
     pusherClient.subscribe(userChatKey2);
 
     const messageHandler = (message: Message) => {
+      console.log("ïncoming message", message);
+      if( message.sender!==sessionId) return;
       setMessages((prev) => [message, ...prev]);
     };
 

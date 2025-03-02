@@ -15,7 +15,7 @@ interface PageProps {
 }
 
 export async function generateMetadata({ params }: PageProps) {
-  const { chatId } = params;
+  const { chatId } = await params;
   const session = await getServerSession(authOptions);
   if (!session) notFound();
 
