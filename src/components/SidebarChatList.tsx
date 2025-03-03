@@ -41,7 +41,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   const [receiverIds, setReceiverIds] = useState<Record<string, string[]>>({});
 
   useEffect(() => {
-    console.log("selectedJobId", selectedJobId);	
+    // console.log("selectedJobId", selectedJobId);	
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
     pusherClient.subscribe(toPusherKey(`user:${sessionId}:jobs`));
 
@@ -153,8 +153,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   // console.log("RECEIVER IDS:", ids);
   // const surg = ids[0];
   // console.log("SURGEON ID:", surg);
-  console.log("selectedJobId fafddssdfsdf", selectedJobId);
-  console.log()
+  // console.log("selectedJobId fafddssdfsdf", selectedJobId);
 
 
 //get job by id
@@ -168,12 +167,11 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
     <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
       {jobs
         ?.filter((job) => {
-          console.log("JOB ID:", job);
-          console.log();
+          // console.log("JOB ID:", job);
           const hasAcceptedSurgeon = job.surgeonEmails.some(
             (surgeon) => surgeon.status === "accepted"
           );
-          console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
+          // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
           if (!hasAcceptedSurgeon) {
             console.log(`No accepted surgeon for job: ${job._id}`);
             return false;
@@ -182,9 +180,9 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
         })
         .flatMap((job) => {
           // For patient view: create one list item per accepted surgeon.
-          console.log("JOB SDSDA IDs:", job);
+          // console.log("JOB SDSDA IDs:", job);
           if (job.createdBy === sessionId) {
-            console.log("Patient view:", job);
+            // console.log("Patient view:", job);
             const acceptedSurgeons = job.surgeonEmails.filter(
               (s) => s.status === "accepted"
             );
@@ -235,7 +233,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                 surgeon.status === "accepted" &&
                 surgeon.email.toLowerCase().trim() === sessionEmail
             ); // hyderation error
-            console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
+            // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
             // if (!hasAcceptedSurgeon) {
             //   console.log(`No accepted surgeon for job: ${job._id}`);
             //   return [];

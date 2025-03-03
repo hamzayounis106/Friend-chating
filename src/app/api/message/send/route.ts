@@ -83,7 +83,7 @@ console.log('friendId',friendId)
       }
     );
 
-    return new Response('OK');
+    return new Response(JSON.stringify(newMessage), { status: 200, headers: { 'Content-Type': 'application/json' } });
   } catch (error) {
     if (error instanceof Error) {
       return new Response(error.message, { status: 500 });

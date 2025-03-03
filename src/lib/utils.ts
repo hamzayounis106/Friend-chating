@@ -18,9 +18,9 @@ export function chatHrefConstructor(
 ) {
   if(session){
 
-    console.log('session',session)
+    // console.log('session',session)
   } else {
-    console.log('no session')
+    // console.log('no session')
   }
 
   if (session?.user?.role === "surgeon") {

@@ -9,6 +9,7 @@ import Message from '@/app/models/Message';
 import Image from 'next/image';
 import Job from '@/app/models/Job';
 import { JobData } from '../../requests/page';
+import { ChatProvider } from '@/lib/ChatContext';
 
 interface PageProps {
   params: { chatId: string };
@@ -104,7 +105,11 @@ const page = async ({ params }: PageProps) => {
 
   const initialMessages = await getChatMessages(chatId);
 
+
   return (
+    
+    <ChatProvider initialMessages={initialMessages}>
+
     <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
       <div className='flex sm:items-center justify-between py-3 border-b-2 border-gray-200'>
         <div className='relative flex items-center space-x-4'>
@@ -145,6 +150,7 @@ const page = async ({ params }: PageProps) => {
       />
       <ChatInput chatId={chatId} chatPartner={plainChatPartner} />
     </div>
+    </ChatProvider>
   );
 };
 
