@@ -21,7 +21,7 @@ interface LayoutProps {
   children: ReactNode;
 }
 export const metadata = {
-  title: 'FriendZone | Dashboard',
+  title: 'Secure Cosmetics | Dashboard',
   description: 'Your dashboard',
 };
 

@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: PageProps) {
   const plainChatPartner = JSON.parse(JSON.stringify(chatPartnerDoc));
   plainChatPartner._id = plainChatPartner._id.toString();
 
-  return { title: `FriendZone | ${plainChatPartner.name} chat` };
+  return { title: `Secure Cosmetics | ${plainChatPartner.name} chat` };
 }
 
 async function getChatMessages(chatId: string) {
@@ -105,51 +105,48 @@ const page = async ({ params }: PageProps) => {
 
   const initialMessages = await getChatMessages(chatId);
 
-
   return (
-    
     <ChatProvider initialMessages={initialMessages}>
-
-    <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
-      <div className='flex sm:items-center justify-between py-3 border-b-2 border-gray-200'>
-        <div className='relative flex items-center space-x-4'>
-          <div className='relative'>
-            <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
-              <Image
-                fill
-                referrerPolicy='no-referrer'
-                src={plainChatPartner.image || '/default.png'}
-                alt={`${plainChatPartner.name} profile picture`}
-                className='rounded-full'
-                sizes='(max-width: 768px) 100vw, 24px'
-              />
+      <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
+        <div className='flex sm:items-center justify-between py-3 border-b-2 border-gray-200'>
+          <div className='relative flex items-center space-x-4'>
+            <div className='relative'>
+              <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
+                <Image
+                  fill
+                  referrerPolicy='no-referrer'
+                  src={plainChatPartner.image || '/default.png'}
+                  alt={`${plainChatPartner.name} profile picture`}
+                  className='rounded-full'
+                  sizes='(max-width: 768px) 100vw, 24px'
+                />
+              </div>
             </div>
-          </div>
-          <div className='flex flex-col leading-tight'>
-            <div className='text-xl flex items-center'>
-              <span className='text-gray-700 mr-3 font-semibold'>
-                {plainChatPartner?.name}
-              </span>
-              <span className='text-gray-700 mr-3 font-semibold'>
-                {relatedJob?.title as string}
+            <div className='flex flex-col leading-tight'>
+              <div className='text-xl flex items-center'>
+                <span className='text-gray-700 mr-3 font-semibold'>
+                  {plainChatPartner?.name}
+                </span>
+                <span className='text-gray-700 mr-3 font-semibold'>
+                  {relatedJob?.title as string}
+                </span>
+              </div>
+              <span className='text-sm text-gray-600'>
+                {plainChatPartner.email}
               </span>
             </div>
-            <span className='text-sm text-gray-600'>
-              {plainChatPartner.email}
-            </span>
           </div>
         </div>
-      </div>
 
-      <Messages
-        chatId={chatId}
-        chatPartner={plainChatPartner}
-        sessionImg={session.user.image}
-        sessionId={session.user.id.toString()}
-        initialMessages={initialMessages}
-      />
-      <ChatInput chatId={chatId} chatPartner={plainChatPartner} />
-    </div>
+        <Messages
+          chatId={chatId}
+          chatPartner={plainChatPartner}
+          sessionImg={session.user.image}
+          sessionId={session.user.id.toString()}
+          initialMessages={initialMessages}
+        />
+        <ChatInput chatId={chatId} chatPartner={plainChatPartner} />
+      </div>
     </ChatProvider>
   );
 };

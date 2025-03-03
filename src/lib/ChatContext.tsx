@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useCallback,
+} from 'react';
 import { Message } from '@/lib/validations/message';
 
 interface ChatContextType {
@@ -10,12 +16,19 @@ interface ChatContextType {
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider = ({ children, initialMessages }: { children: ReactNode; initialMessages: Message[] }) => {
+export const ChatProvider = ({
+  children,
+  initialMessages,
+}: {
+  children: ReactNode;
+  initialMessages: Message[];
+}) => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
-// console.log('messages from the cntext',messages)
-  const addMessage = (message: Message) => {
+
+  // Prevent unnecessary re-renders using useCallback
+  const addMessage = useCallback((message: Message) => {
     setMessages((prev) => [message, ...prev]);
-  };
+  }, []);
 
   return (
     <ChatContext.Provider value={{ messages, addMessage }}>

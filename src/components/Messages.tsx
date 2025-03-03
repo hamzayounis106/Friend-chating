@@ -23,25 +23,29 @@ const Messages: FC<MessagesProps> = ({
   chatPartner,
   sessionImg,
 }) => {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const scrollDownRef = useRef<HTMLDivElement | null>(null);
   const [_, userId2, jobId] = chatId.split('--');
 
   const { messages: messagesFromContext } = useChat();
 
-  useEffect(() => {
-    setMessages(messagesFromContext);
-  }, [messagesFromContext]);
+  const { messages, addMessage } = useChat(); // Get messages from context
+
+  // useEffect(() => {
+  //   setMessages(messagesFromContext);
+  // }, [messagesFromContext]);
 
   useEffect(() => {
     const userChatKey = toPusherKey(`user:${sessionId}--${jobId}:chats`);
     pusherClient.subscribe(userChatKey);
 
     const messageHandler = (message: Message) => {
-      console.log("userId2---------------------😭😭😭😭", userId2);
+      console.log('userId2---------------------😭😭😭😭', userId2);
       if (message.sender !== userId2) return;
-      console.log("Received new message:---------------------😭😭😭😭", message);
-      setMessages((prev) => [message, ...prev]);
+      console.log(
+        'Received new message:---------------------😭😭😭😭',
+        message
+      );
+      addMessage(message); // Use context to update state
     };
     pusherClient.bind('new_message', messageHandler);
 
@@ -132,41 +136,40 @@ const Messages: FC<MessagesProps> = ({
 
 export default Messages;
 
-// 
+//
 
-// 
+//
 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// 
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
-// 
-// 
-// 
-// 
-// 
-// 
+//
+//
+//
+//
+//
+//
 
+//
+//
+//
+//
 
-// 
-// 
-// 
-// 
-
-// 
-// 
-// 
-// 
-// 
-// 
-// 
-// // 
+//
+//
+//
+//
+//
+//
+//
+// //
 // "use client";
 
 // import { pusherClient } from "@/lib/pusher";
