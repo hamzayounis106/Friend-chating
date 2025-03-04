@@ -1,4 +1,6 @@
 import Providers from '@/components/Providers';
+import ReduxProvider from '@/components/Providers/ReduxProvider';
+import SessionWrapper from '@/components/Providers/SessionWrapper';
 import './globals.css';
 
 // Done after the video and optional: add page metadata
@@ -15,7 +17,11 @@ export default function RootLayout({
   return (
     <html lang='en'>
       <body>
-        <Providers>{children}</Providers>
+        <ReduxProvider>
+          <Providers>
+            <SessionWrapper>{children}</SessionWrapper>
+          </Providers>
+        </ReduxProvider>
       </body>
     </html>
   );

@@ -1,11 +1,14 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
 
 export interface IJob extends Document {
   title: string;
   type: string;
   date: Date;
   description: string;
-  surgeonEmails: { email: string; status: 'accepted' | 'declined' | 'pending' }[];
+  surgeonEmails: {
+    email: string;
+    status: 'accepted' | 'declined' | 'pending';
+  }[];
   videoURLs: string[];
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
@@ -20,16 +23,30 @@ const jobSchema = new Schema<IJob>({
     type: [
       {
         email: { type: String, required: true },
-        status: { type: String, enum: ['accepted', 'declined', 'pending'], required: true }
-      }
+        status: {
+          type: String,
+          enum: ['accepted', 'declined', 'pending'],
+          required: true,
+        },
+      },
     ],
     required: true,
-    _id: false // Prevents Mongoose from adding _id to each object in the array
-
+    _id: false, // Prevents Mongoose from adding _id to each object in the array
   },
   videoURLs: { type: [String], required: true },
-  createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  createdBy: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
+  patientId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 
+export type LeanJob = Omit<InferSchemaType<typeof jobSchema>, '_id'> & {
+  _id: string;
+};
 export default mongoose.models.Job || mongoose.model<IJob>('Job', jobSchema);

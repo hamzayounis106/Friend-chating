@@ -6,7 +6,8 @@ import { toast } from 'react-hot-toast';
 import TextareaAutosize from 'react-textarea-autosize';
 import Button from './ui/Button';
 import { Message } from '@/lib/validations/message';
-import { useChat } from '@/lib/ChatContext';
+import { addMessage } from '@/store/slices/chatSlice';
+import { useDispatch } from 'react-redux';
 
 interface ChatInputProps {
   chatPartner: User;
@@ -17,16 +18,20 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [input, setInput] = useState<string>('');
-  const { addMessage } = useChat();
 
+  const dispatch = useDispatch(); // Use Redux dispatch
   const sendMessage = async () => {
     if (!input) return;
     setIsLoading(true);
 
     try {
-      const response = await axios.post('/api/message/send', { text: input, chatId });
+      const response = await axios.post('/api/message/send', {
+        text: input,
+        chatId,
+      });
       const newMessage: Message = response.data;
-      addMessage(newMessage);
+      // addMessage(newMessage);
+      dispatch(addMessage(newMessage)); // Dispatch message to Redux store
       setInput('');
       textareaRef.current?.focus();
     } catch {

@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { pusherClient } from "@/lib/pusher";
-import { chatHrefConstructor, toPusherKey, cn } from "@/lib/utils";
-import { usePathname, useRouter } from "next/navigation";
-import { FC, useEffect, useState } from "react";
-import { toast } from "react-hot-toast";
-import UnseenChatToast from "./UnseenChatToast";
-import { ExtendedMessage } from "@/lib/validations/message";
-import { JobData } from "@/app/(dashboard)/dashboard/requests/page";
-import axios from "axios";
-import { Session } from "inspector";
+import { pusherClient } from '@/lib/pusher';
+import { chatHrefConstructor, toPusherKey, cn } from '@/lib/utils';
+import { usePathname, useRouter } from 'next/navigation';
+import { FC, useEffect, useState } from 'react';
+import { toast } from 'react-hot-toast';
+import UnseenChatToast from './UnseenChatToast';
+import { ExtendedMessage } from '@/lib/validations/message';
+import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
+import axios from 'axios';
+import { Session } from 'inspector';
 
 interface SidebarChatListProps {
   jobs: JobData[];
@@ -37,55 +37,55 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   // console.log("Session ID:", sessionId);
   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
   const [activeChats, setActiveChats] = useState<JobData[]>(jobs);
-  const [selectedJobId, setSelectedJobId] = useState<string>("");
+  const [selectedJobId, setSelectedJobId] = useState<string>('');
   const [receiverIds, setReceiverIds] = useState<Record<string, string[]>>({});
 
-  useEffect(() => {
-    // console.log("selectedJobId", selectedJobId);	
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
-    pusherClient.subscribe(toPusherKey(`user:${sessionId}:jobs`));
+  // useEffect(() => {
+  //   // console.log("selectedJobId", selectedJobId);
+  //   pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
+  //   pusherClient.subscribe(toPusherKey(`user:${sessionId}:jobs`));
 
-    const newJobHandler = (newJob: JobData) => {
-      setActiveChats((prev) => [...prev, newJob]);
-    };
+  //   const newJobHandler = (newJob: JobData) => {
+  //     setActiveChats((prev) => [...prev, newJob]);
+  //   };
 
-    const chatHandler = (message: ExtendedMessage) => {
-      const isCurrentChatOpen =
-        pathname ===
-        `/dashboard/chat/${chatHrefConstructor(
-          sessionId,
-          message.sender,
-          selectedJobId,
-          session
-        )}`;
+  //   const chatHandler = (message: ExtendedMessage) => {
+  //     const isCurrentChatOpen =
+  //       pathname ===
+  //       `/dashboard/chat/${chatHrefConstructor(
+  //         sessionId,
+  //         message.sender,
+  //         selectedJobId,
+  //         session
+  //       )}`;
 
-      if (isCurrentChatOpen || message.receiver !== sessionId) return;
+  //     if (isCurrentChatOpen || message.receiver !== sessionId) return;
 
-      toast.custom((t) => (
-        <UnseenChatToast
-          t={t}
-          sessionId={sessionId}
-          senderId={message.sender}
-          senderImg={message.senderImg}
-          senderMessage={message.content}
-          senderName={message.senderName}
-        />
-      ));
+  //     toast.custom((t) => (
+  //       <UnseenChatToast
+  //         t={t}
+  //         sessionId={sessionId}
+  //         senderId={message.sender}
+  //         senderImg={message.senderImg}
+  //         senderMessage={message.content}
+  //         senderName={message.senderName}
+  //       />
+  //     ));
 
-      setUnseenMessages((prev) => [...prev, message]);
-    };
+  //     setUnseenMessages((prev) => [...prev, message]);
+  //   };
 
-    pusherClient.bind("new_message", chatHandler);
-    pusherClient.bind("job_accepted", newJobHandler);
+  //   pusherClient.bind("new_message", chatHandler);
+  //   pusherClient.bind("job_accepted", newJobHandler);
 
-    return () => {
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
-      pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:jobs`));
+  //   return () => {
+  //     pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
+  //     pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:jobs`));
 
-      pusherClient.unbind("new_message", chatHandler);
-      pusherClient.unbind("job_accepted", newJobHandler);
-    };
-  }, [pathname, sessionId, router, selectedJobId]);
+  //     pusherClient.unbind("new_message", chatHandler);
+  //     pusherClient.unbind("job_accepted", newJobHandler);
+  //   };
+  // }, [pathname, sessionId, router, selectedJobId]);
 
   const [isLoading, setIsLoading] = useState(true);
 
@@ -100,7 +100,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
             // console.log("This is fkin patient jobs view", job);
             // Get all accepted surgeons for this job.
             const acceptedSurgeons = job.surgeonEmails.filter(
-              (s) => s.status === "accepted"
+              (s) => s.status === 'accepted'
             );
             // console.log("Accepted surgeons:", acceptedSurgeons);
             // For each accepted surgeon, fetch the user ID from the API.
@@ -108,7 +108,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
               acceptedSurgeons.map(async (surgeon) => {
                 if (surgeon.email) {
                   try {
-                    const { data } = await axios.post("/api/user-by-email", {
+                    const { data } = await axios.post('/api/user-by-email', {
                       email: surgeon.email,
                     });
                     if (data?.userId) {
@@ -121,7 +121,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                       return null;
                     }
                   } catch (error) {
-                    console.error("Error fetching user ID:", error);
+                    console.error('Error fetching user ID:', error);
                     return null;
                   }
                 }
@@ -155,21 +155,17 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   // console.log("SURGEON ID:", surg);
   // console.log("selectedJobId fafddssdfsdf", selectedJobId);
 
-
-//get job by id
-
-
-
+  //get job by id
 
   let userId1 = sessionId;
   // let userId2 = session.user.role==="patient" ? surg
   return (
-    <ul role="list" className="max-h-[25rem] overflow-y-auto -mx-2 space-y-1">
+    <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
       {jobs
         ?.filter((job) => {
           // console.log("JOB ID:", job);
           const hasAcceptedSurgeon = job.surgeonEmails.some(
-            (surgeon) => surgeon.status === "accepted"
+            (surgeon) => surgeon.status === 'accepted'
           );
           // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
           if (!hasAcceptedSurgeon) {
@@ -184,7 +180,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
           if (job.createdBy === sessionId) {
             // console.log("Patient view:", job);
             const acceptedSurgeons = job.surgeonEmails.filter(
-              (s) => s.status === "accepted"
+              (s) => s.status === 'accepted'
             );
             const surgeonIds = receiverIds[job._id] || [];
             return acceptedSurgeons.map((surgeon, idx) => {
@@ -210,11 +206,11 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                       job._id,
                       session
                     )}`}
-                    className="text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                    className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                   >
-                   PV {job.title} ({job.type}) - {surgeon.email}
+                    PV {job.title} ({job.type}) - {surgeon.email}
                     {unseenMessagesCount > 0 && (
-                      <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center">
+                      <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
                         {unseenMessagesCount}
                       </div>
                     )}
@@ -230,7 +226,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
             const receiverId = job.createdBy; // Patient's ID.
             const hasAcceptedSurgeon = job.surgeonEmails.some(
               (surgeon) =>
-                surgeon.status === "accepted" &&
+                surgeon.status === 'accepted' &&
                 surgeon.email.toLowerCase().trim() === sessionEmail
             ); // hyderation error
             // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
@@ -249,11 +245,11 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                       job._id,
                       session
                     )}`}
-                    className="text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold"
+                    className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
                   >
                     {job.title} ({job.type})
                     {unseenMessagesCount > 0 && (
-                      <div className="bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center">
+                      <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
                         {unseenMessagesCount}
                       </div>
                     )}

@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -41,5 +41,8 @@ const userSchema: Schema = new mongoose.Schema(
   }
 );
 
+export type LeanUser = Omit<InferSchemaType<typeof userSchema>, '_id'> & {
+  _id: string;
+}; // ✅ Override _id as string
 export default mongoose.models.User ||
   mongoose.model<IUser>('User', userSchema);

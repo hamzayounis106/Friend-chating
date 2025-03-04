@@ -1,12 +1,14 @@
 'use client';
 
-import { useChat } from '@/lib/ChatContext';
 import { pusherClient } from '@/lib/pusher';
 import { cn, toPusherKey } from '@/lib/utils';
 import { Message } from '@/lib/validations/message';
+import { addMessage } from '@/store/slices/chatSlice';
+import { RootState } from '@/store/store';
 import { format } from 'date-fns';
 import Image from 'next/image';
-import { FC, useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 interface MessagesProps {
   initialMessages: Message[];
@@ -25,14 +27,8 @@ const Messages: FC<MessagesProps> = ({
 }) => {
   const scrollDownRef = useRef<HTMLDivElement | null>(null);
   const [_, userId2, jobId] = chatId.split('--');
-
-  const { messages: messagesFromContext } = useChat();
-
-  const { messages, addMessage } = useChat(); // Get messages from context
-
-  // useEffect(() => {
-  //   setMessages(messagesFromContext);
-  // }, [messagesFromContext]);
+  const dispatch = useDispatch();
+  const messages = useSelector((state: RootState) => state.chat.messages);
 
   useEffect(() => {
     const userChatKey = toPusherKey(`user:${sessionId}--${jobId}:chats`);
@@ -45,7 +41,7 @@ const Messages: FC<MessagesProps> = ({
         'Received new message:---------------------😭😭😭😭',
         message
       );
-      addMessage(message); // Use context to update state
+      dispatch(addMessage(message)); // Use context to update state
     };
     pusherClient.bind('new_message', messageHandler);
 
