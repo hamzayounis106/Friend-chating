@@ -72,6 +72,18 @@ export async function POST(req: Request) {
       timestamp: new Date(),
     });
 
+    console.log('🔥 Triggering Pusher event...');
+    console.log('Channel:', toPusherKey(`user:${`${friendId}`}:chats`));
+    console.log('Event: notificaiton_toast');
+    console.log('Payload:', {
+      ...newMessage.toObject(),
+      senderImg: sender.image,
+      senderName: sender.name,
+      jobId,
+    });
+
+    console.log('Backend channel:', toPusherKey(`user:${`${friendId}`}:chats`)); // in send/route.ts
+
     await pusherServer.trigger(
       toPusherKey(`user:${`${friendId}--${jobId}`}:chats`),
       'new_message',
@@ -84,7 +96,7 @@ export async function POST(req: Request) {
     );
     await pusherServer.trigger(
       toPusherKey(`user:${`${friendId}`}:chats`),
-      'notificaiton_toast',
+      'notification_toast',
       {
         ...newMessage.toObject(),
         senderImg: sender.image,
@@ -92,7 +104,6 @@ export async function POST(req: Request) {
         jobId,
       }
     );
-
     return new Response(JSON.stringify(newMessage), {
       status: 200,
       headers: { 'Content-Type': 'application/json' },

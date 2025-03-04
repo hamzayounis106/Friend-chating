@@ -10,6 +10,7 @@ interface UnseenChatToastProps {
   senderImg: string;
   senderName: string;
   senderMessage: string;
+  jobId: string;
 }
 
 const UnseenChatToast: FC<UnseenChatToastProps> = ({
@@ -19,6 +20,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
   senderImg,
   senderName,
   senderMessage,
+  jobId,
 }) => {
   return (
     <div
@@ -29,7 +31,12 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
     >
       <a
         onClick={() => toast.dismiss(t.id)}
-        href={`/dashboard/chat/${chatHrefConstructor(sessionId, senderId)}`}
+        href={`/dashboard/chat/${chatHrefConstructor(
+          sessionId,
+          senderId,
+          jobId
+          // pass the fourth arg ie session whole
+        )}`}
         className='flex-1 w-0 p-4'
       >
         <div className='flex items-start'>

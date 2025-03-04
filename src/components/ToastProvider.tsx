@@ -1,34 +1,33 @@
-'use client';
-
 import { useEffect } from 'react';
 import { pusherClient } from '@/lib/pusher';
 import { toast } from 'react-hot-toast';
-import UnseenChatToast from '@/components/UnseenChatToast';
 import { toPusherKey } from '@/lib/utils';
+import { useDispatch } from 'react-redux';
+import UnseenChatToast from './UnseenChatToast';
 
 interface ToastProviderProps {
   sessionId: string;
-  jobId: string;
 }
 
-const ToastProvider = ({ sessionId, jobId }: ToastProviderProps) => {
+const ToastProvider = ({ sessionId }: ToastProviderProps) => {
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    if (!sessionId || !jobId) return;
+    if (!sessionId) return;
 
-    const chatChannel = toPusherKey(`user:${sessionId}--${jobId}:chats`);
     const notificationChannel = toPusherKey(`user:${sessionId}:chats`);
-    console.log('channel', notificationChannel);
-    console.log('Subscribing to channels:', {
-      chatChannel,
-      notificationChannel,
-    });
-
-    pusherClient.subscribe(chatChannel);
     pusherClient.subscribe(notificationChannel);
+    console.log('✅ Frontend subscribing to:', notificationChannel);
+    console.log(
+      '✅ Expected backend channel:',
+      toPusherKey(`user:${sessionId}:chats`)
+    );
 
-    // ✅ Chat message notification
     const chatHandler = (message: any) => {
+      console.log('🔥 Event received in frontend!', message);
       if (message.receiver !== sessionId) return;
+
+      // dispatch(addMessage(message)); // Store in Redux
 
       toast.custom((t) => (
         <UnseenChatToast
@@ -38,35 +37,24 @@ const ToastProvider = ({ sessionId, jobId }: ToastProviderProps) => {
           senderImg={message.senderImg}
           senderMessage={message.content}
           senderName={message.senderName}
+          jobId={message?.jobId}
         />
       ));
     };
 
-    // ✅ General notification toast
-    const notificationHandler = (message: any) => {
-      if (message.receiver !== sessionId) return;
-
-      toast.success(`New message from ${message.senderName}`);
-    };
-
-    pusherClient.bind('new_message', chatHandler);
-    pusherClient.bind('notificaiton_toast', notificationHandler);
-
+    pusherClient.bind('notification_toast', chatHandler);
     pusherClient.connection.bind('connected', () => {
-      console.log('Pusher connected');
+      console.log('✅ Pusher connected successfully!');
     });
-
-    pusherClient.connection.bind('error', (error) => {
-      console.error('Pusher error:', error);
+    pusherClient.connection.bind('error', (error: any) => {
+      console.log('❌ Pusher error:', error);
     });
 
     return () => {
-      pusherClient.unsubscribe(chatChannel);
       pusherClient.unsubscribe(notificationChannel);
-      pusherClient.unbind('new_message', chatHandler);
-      pusherClient.unbind('notificaiton_toast', notificationHandler);
+      pusherClient.unbind('notification_toast', chatHandler);
     };
-  }, [sessionId, jobId]);
+  }, [sessionId, dispatch]);
 
   return null;
 };

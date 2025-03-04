@@ -1,15 +1,10 @@
 'use client';
-
-import { pusherClient } from '@/lib/pusher';
-import { chatHrefConstructor, toPusherKey, cn } from '@/lib/utils';
+import { chatHrefConstructor } from '@/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
-import { toast } from 'react-hot-toast';
-import UnseenChatToast from './UnseenChatToast';
 import { ExtendedMessage } from '@/lib/validations/message';
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import axios from 'axios';
-import { Session } from 'inspector';
 
 interface SidebarChatListProps {
   jobs: JobData[];
@@ -31,12 +26,12 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   sessionEmail,
   session,
 }) => {
-  const router = useRouter();
-  const pathname = usePathname();
+  // const router = useRouter();
+  // const pathname = usePathname();
   // console.log("Jobs sidebar:", jobs);
   // console.log("Session ID:", sessionId);
   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
-  const [activeChats, setActiveChats] = useState<JobData[]>(jobs);
+  // const [activeChats, setActiveChats] = useState<JobData[]>(jobs);
   const [selectedJobId, setSelectedJobId] = useState<string>('');
   const [receiverIds, setReceiverIds] = useState<Record<string, string[]>>({});
 
@@ -149,6 +144,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   if (isLoading) {
     return <div>Loading...</div>;
   }
+  console.log('receiverIds', receiverIds);
   // const ids = receiverIds[selectedJobId] || [];
   // console.log("RECEIVER IDS:", ids);
   // const surg = ids[0];
