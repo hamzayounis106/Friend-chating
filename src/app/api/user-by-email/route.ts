@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import User from '@/app/models/User';
+import User, { LeanUser } from '@/app/models/User';
 
 export async function POST(req: Request) {
   try {
@@ -10,13 +10,17 @@ export async function POST(req: Request) {
     }
 
     await dbConnect();
-    const user = await User.findOne({ email }).lean();
-
+    const user: LeanUser | null = await User.findOne({ email })
+      .lean<LeanUser>()
+      .exec();
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ userId: user?._id }, { status: 200 });
+    return NextResponse.json(
+      { userId: user?._id?.toString() },
+      { status: 200 }
+    );
   } catch (error) {
     console.error('Error fetching user by email:', error);
     return NextResponse.json(
