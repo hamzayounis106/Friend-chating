@@ -7,6 +7,7 @@ import User from '@/app/models/User';
 import Message from '@/app/models/Message';
 import mongoose from 'mongoose';
 import Job from '@/app/models/Job';
+import type { SurgeonEmail } from '@/types/surgeon';
 
 // Define a lean type for a friend (as stored in the User model)
 interface LeanFriend {
@@ -54,7 +55,8 @@ export async function POST(req: Request) {
     const job = await Job.findById(jobId);
     const data = job?.toObject();
     const isContainEmail = data?.surgeonEmails.some(
-      (item) => item.email === userEmail && item.status === 'accepted'
+      (item: SurgeonEmail) =>
+        item.email === userEmail && item.status === 'accepted'
     );
 
     // const isContainEmailForPatient = data?.createdBy === userEmail;

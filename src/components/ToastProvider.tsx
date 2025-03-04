@@ -20,10 +20,8 @@ const ToastProvider = ({ sessionId }: ToastProviderProps) => {
     string,
     string
   ];
-  console.log('console.log for the chat id', receiverId, senderId, jobId);
   useEffect(() => {
     if (!sessionId) return;
-
     const notificationChannel = toPusherKey(`user:${sessionId}:chats`);
     pusherClient.subscribe(notificationChannel);
     console.log('✅ Frontend subscribing to:', notificationChannel);

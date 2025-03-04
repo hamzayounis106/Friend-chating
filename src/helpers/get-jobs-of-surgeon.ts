@@ -1,17 +1,22 @@
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import Job from '@/app/models/Job';
 import dbConnect from '@/lib/db';
+import { SurgeonEmail } from '@/types/surgeon';
 
-export const getJobsForSurgeon = async (userEmail: string): Promise<JobData[]> => {
+export const getJobsForSurgeon = async (
+  userEmail: string
+): Promise<JobData[]> => {
   try {
     await dbConnect();
     console.log('Database connected successfully');
     // console.log('userEmail:', userEmail);
 
     const jobs = await Job.find({
-      "surgeonEmails.email": userEmail,
+      'surgeonEmails.email': userEmail,
     })
-      .select("title type date description surgeonEmails videoURLs createdBy patientId")
+      .select(
+        'title type date description surgeonEmails videoURLs createdBy patientId'
+      )
       .lean()
       .exec();
 
@@ -23,11 +28,14 @@ export const getJobsForSurgeon = async (userEmail: string): Promise<JobData[]> =
       _id: job._id?.toString(),
       title: job.title,
       type: job.type,
-      date: job.date.toISOString(),      description: job.description,
-      surgeonEmails: job.surgeonEmails.map(({ email, status }: { email: string; status: 'accepted' | 'declined' | 'pending' }) => ({
-        email,
-        status,
-      })),
+      date: job.date.toISOString(),
+      description: job.description,
+      surgeonEmails: job.surgeonEmails.map(
+        ({ email, status }: SurgeonEmail) => ({
+          email,
+          status,
+        })
+      ),
       videoURLs: job.videoURLs,
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
@@ -38,7 +46,6 @@ export const getJobsForSurgeon = async (userEmail: string): Promise<JobData[]> =
   }
 };
 
-
 export const getJobCountBySurgeon = async (
   userEmail: string
 ): Promise<number> => {
@@ -46,8 +53,8 @@ export const getJobCountBySurgeon = async (
     await dbConnect();
 
     const count = await Job.countDocuments({
-      "surgeonEmails.email": userEmail, 
-    })
+      'surgeonEmails.email': userEmail,
+    });
     // console.log('Job count for surgeon:', count);
     return count;
   } catch (error) {

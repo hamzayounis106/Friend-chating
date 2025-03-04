@@ -7,6 +7,7 @@ import User, { LeanUser } from '@/app/models/User';
 import Message from '@/app/models/Message';
 import Job, { LeanJob } from '@/app/models/Job';
 import { JobData } from '../../requests/page';
+import { SurgeonEmail } from '@/types/surgeon';
 
 interface PageProps {
   params: Promise<{ chatId: string }>;
@@ -82,12 +83,10 @@ const Page = async ({ params }: PageProps) => {
     type: rawJob.type,
     date: new Date(rawJob.date).toISOString(),
     description: rawJob.description ?? '', // Ensure a default value
-    surgeonEmails: rawJob.surgeonEmails.map(
-      (se: { email: string; status: 'accepted' | 'declined' | 'pending' }) => ({
-        email: se.email,
-        status: se.status,
-      })
-    ),
+    surgeonEmails: rawJob.surgeonEmails.map((se: SurgeonEmail) => ({
+      email: se.email,
+      status: se.status,
+    })),
     videoURLs: rawJob.videoURLs || [],
     createdBy: rawJob.createdBy.toString(),
     patientId: rawJob.patientId.toString(),
