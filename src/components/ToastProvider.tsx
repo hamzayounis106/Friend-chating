@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast';
 import { toPusherKey } from '@/lib/utils';
 import { useDispatch } from 'react-redux';
 import UnseenChatToast from './UnseenChatToast';
+import { useParams } from 'next/navigation';
 
 interface ToastProviderProps {
   sessionId: string;
@@ -11,7 +12,15 @@ interface ToastProviderProps {
 
 const ToastProvider = ({ sessionId }: ToastProviderProps) => {
   const dispatch = useDispatch();
+  const params = useParams<{ chatId?: string }>();
+  const chatId = params?.chatId || '';
 
+  const [receiverId, senderId, jobId] = chatId.split('--') as [
+    string,
+    string,
+    string
+  ];
+  console.log('console.log for the chat id', receiverId, senderId, jobId);
   useEffect(() => {
     if (!sessionId) return;
 
@@ -26,9 +35,12 @@ const ToastProvider = ({ sessionId }: ToastProviderProps) => {
     const chatHandler = (message: any) => {
       console.log('🔥 Event received in frontend!', message);
       if (message.receiver !== sessionId) return;
-
-      // dispatch(addMessage(message)); // Store in Redux
-
+      if (
+        message.receiver === receiverId &&
+        message.sender === senderId &&
+        message.jobId === jobId
+      )
+        return;
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
