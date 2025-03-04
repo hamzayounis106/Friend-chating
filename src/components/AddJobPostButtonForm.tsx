@@ -9,6 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { addJobValidator } from '@/lib/validations/add-Job';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
+import CloudinaryUpload from './cloudinary/CloudinaryUpload';
 
 interface AddJobButtonProps {}
 
@@ -16,34 +17,43 @@ type FormData = z.infer<typeof addJobValidator>;
 
 const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   const [showSuccessState, setShowSuccessState] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  console.log('image urls all urls', imageUrls);
   const {
     register,
     handleSubmit,
     setError,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
+    defaultValues: {
+      imageUrls: [],
+      budget: undefined,
+    },
   });
 
   const session = useSession();
   const addJob = async (data: FormData) => {
     try {
+      setLoading(true);
       const transformedData = {
         ...data,
-        date: new Date(data.date).toISOString(), // Convert date to ISO
-        createdBy: session?.data?.user?.id, // Replace with actual user ID
-        patientId: session?.data?.user?.id, // Replace with actual patient ID
-        surgeonEmails: data.surgeonEmails, // Already a comma-separated string
-        videoURLs: data.videoURLs, // Already a comma-separated string
+        date: new Date(data.date).toISOString(),
+        createdBy: session?.data?.user?.id,
+        patientId: session?.data?.user?.id,
+        surgeonEmails: data.surgeonEmails,
+        videoURLs: data.videoURLs,
+        imageUrls: imageUrls,
       };
 
-      // console.log('Validated Data:', transformedData);
-
       await axios.post('/api/Jobs/add', transformedData);
-      setShowSuccessState(true);
+
+      toast.success('Job successfully added!');
     } catch (error) {
-      console.error('Error:', error); // Log the full error object
+      console.error('Error:', error);
 
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
@@ -53,15 +63,25 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       }
 
       if (error instanceof AxiosError) {
-        console.error('Axios Error Response:', error.response?.data); // Log the Axios error response
+        console.error('Axios Error Response:', error.response?.data);
         setError('title', { message: error.response?.data || 'Server error.' });
+        toast.error(error.response?.data || 'Something went wrong.');
         return;
       }
 
       setError('title', { message: 'Something went wrong.' });
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
   const onSubmit = (data: FormData) => {
+    if (!data.imageUrls || data.imageUrls.length === 0) {
+      data.imageUrls = []; // ✅ Ensure it's an empty array if undefined
+    }
+    if (typeof data.budget !== 'number') {
+      data.budget = undefined;
+    }
     const userEmail = session.data?.user.email;
     // console.log(userEmail);
     const containEmail = data?.surgeonEmails.some(
@@ -86,7 +106,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='Job Title'
       />
       <p className='text-sm text-red-600'>{errors.title?.message}</p>
-
       <label className='block text-sm font-medium text-gray-900'>
         Job Type
       </label>
@@ -97,7 +116,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='Job Type'
       />
       <p className='text-sm text-red-600'>{errors.type?.message}</p>
-
       <label className='block text-sm font-medium text-gray-900'>
         Job Date
       </label>
@@ -107,7 +125,19 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         className='block w-full rounded-md border py-1.5 text-gray-900 shadow-sm'
       />
       <p className='text-sm text-red-600'>{errors.date?.message}</p>
-
+      <label className='block text-sm font-medium text-gray-900'>
+        Budget (USD - optional)
+      </label>
+      <input
+        {...register('budget', {
+          setValueAs: (v) => (v === '' ? undefined : Number(v)),
+        })}
+        type='number'
+        step='0.01'
+        className='block w-full rounded-md border py-1.5 text-gray-900 shadow-sm'
+        placeholder='Enter budget amount (optional)'
+      />
+      <p className='text-sm text-red-600'>{errors.budget?.message}</p>
       <label className='block text-sm font-medium text-gray-900'>
         Job Description
       </label>
@@ -117,7 +147,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='Job Description'
       />
       <p className='text-sm text-red-600'>{errors.description?.message}</p>
-
       <label className='block text-sm font-medium text-gray-900'>
         Surgeon Emails (comma separated)
       </label>
@@ -128,7 +157,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='email1@example.com, email2@example.com'
       />
       <p className='text-sm text-red-600'>{errors.surgeonEmails?.message}</p>
-
       <label className='block text-sm font-medium text-gray-900'>
         Video URLs (comma separated)
       </label>
@@ -139,7 +167,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='https://example.com/video1, https://example.com/video2'
       />
       <p className='text-sm text-red-600'>{errors.videoURLs?.message}</p>
-
       <label className='block text-sm font-medium text-gray-900'>
         Agree to Terms
       </label>
@@ -149,9 +176,28 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         className='rounded-md border py-1.5 text-gray-900 shadow-sm'
       />
       <p className='text-sm text-red-600'>{errors.agreeToTerms?.message}</p>
-
-      <Button type='submit'>Add Job</Button>
-
+      <label className='block text-sm font-medium text-gray-900'>
+        Upload Image
+      </label>
+      <CloudinaryUpload
+        onUpload={(newUrls) => {
+          setValue('imageUrls', [...imageUrls, ...newUrls], {
+            shouldValidate: true,
+          });
+          setImageUrls((prev) => [...prev, ...newUrls]);
+        }}
+      />
+      {imageUrls?.length > 0 && (
+        <p className='text-sm text-green-600'>
+          {imageUrls.length < 2 ? 'Image is Uploaded' : 'Images are Uploaded'}
+        </p>
+      )}
+      {errors.imageUrls && (
+        <p className='text-sm text-red-600'>{errors.imageUrls?.message}</p>
+      )}
+      <Button type='submit' disabled={loading}>
+        {loading ? 'Adding Job...' : 'Add Job'}
+      </Button>{' '}
       {showSuccessState && (
         <p className='text-sm text-green-600'>Job request sent!</p>
       )}
