@@ -1,9 +1,11 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { formatISO } from 'date-fns';
 
 interface Message {
   id: string;
-  text: string;
+  content: string; // ✅ Changed from text to content
   sender: string;
+  receiver: string;
   timestamp: string;
 }
 
@@ -20,7 +22,9 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     addMessage: (state, action: PayloadAction<Message>) => {
-      state.messages.unshift(action.payload); // Add message to the beginning
+      const message = action.payload;
+      message.timestamp = formatISO(new Date(message.timestamp));
+      state.messages.unshift(message);
     },
     setInitialMessages: (state, action: PayloadAction<Message[]>) => {
       state.messages = action.payload; // Set initial messages

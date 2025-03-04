@@ -71,7 +71,7 @@ export async function POST(req: Request) {
       receiver: friendId,
       content: text,
       jobId: jobId?.toString(),
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
     });
 
     console.log('🔥 Triggering Pusher event...');

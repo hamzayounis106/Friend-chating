@@ -41,7 +41,11 @@ const Messages: FC<MessagesProps> = ({
         'Received new message:---------------------😭😭😭😭',
         message
       );
-      dispatch(addMessage(message)); // Use context to update state
+      const formattedMessage = {
+        ...message,
+        timestamp: new Date(message.timestamp).toISOString(),
+      };
+      dispatch(addMessage(formattedMessage)); // Use context to update state
     };
     pusherClient.bind('new_message', messageHandler);
 
@@ -49,7 +53,7 @@ const Messages: FC<MessagesProps> = ({
       pusherClient.unsubscribe(userChatKey);
       pusherClient.unbind('new_message', messageHandler);
     };
-  }, [chatId, sessionId, jobId]);
+  }, [chatId, sessionId, jobId, dispatch, userId2]);
 
   const formatTimestamp = (timestamp: string | Date) => {
     return format(new Date(timestamp), 'HH:mm');

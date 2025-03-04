@@ -30,8 +30,11 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
         chatId,
       });
       const newMessage: Message = response.data;
-      // addMessage(newMessage);
-      dispatch(addMessage(newMessage)); // Dispatch message to Redux store
+      const formattedMessage = {
+        ...newMessage,
+        timestamp: new Date(newMessage.timestamp).toISOString(),
+      };
+      dispatch(addMessage(formattedMessage));
       setInput('');
       textareaRef.current?.focus();
     } catch {

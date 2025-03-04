@@ -26,61 +26,9 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   sessionEmail,
   session,
 }) => {
-  // const router = useRouter();
-  // const pathname = usePathname();
-  // console.log("Jobs sidebar:", jobs);
-  // console.log("Session ID:", sessionId);
   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
-  // const [activeChats, setActiveChats] = useState<JobData[]>(jobs);
   const [selectedJobId, setSelectedJobId] = useState<string>('');
   const [receiverIds, setReceiverIds] = useState<Record<string, string[]>>({});
-
-  // useEffect(() => {
-  //   // console.log("selectedJobId", selectedJobId);
-  //   pusherClient.subscribe(toPusherKey(`user:${sessionId}:chats`));
-  //   pusherClient.subscribe(toPusherKey(`user:${sessionId}:jobs`));
-
-  //   const newJobHandler = (newJob: JobData) => {
-  //     setActiveChats((prev) => [...prev, newJob]);
-  //   };
-
-  //   const chatHandler = (message: ExtendedMessage) => {
-  //     const isCurrentChatOpen =
-  //       pathname ===
-  //       `/dashboard/chat/${chatHrefConstructor(
-  //         sessionId,
-  //         message.sender,
-  //         selectedJobId,
-  //         session
-  //       )}`;
-
-  //     if (isCurrentChatOpen || message.receiver !== sessionId) return;
-
-  //     toast.custom((t) => (
-  //       <UnseenChatToast
-  //         t={t}
-  //         sessionId={sessionId}
-  //         senderId={message.sender}
-  //         senderImg={message.senderImg}
-  //         senderMessage={message.content}
-  //         senderName={message.senderName}
-  //       />
-  //     ));
-
-  //     setUnseenMessages((prev) => [...prev, message]);
-  //   };
-
-  //   pusherClient.bind("new_message", chatHandler);
-  //   pusherClient.bind("job_accepted", newJobHandler);
-
-  //   return () => {
-  //     pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:chats`));
-  //     pusherClient.unsubscribe(toPusherKey(`user:${sessionId}:jobs`));
-
-  //     pusherClient.unbind("new_message", chatHandler);
-  //     pusherClient.unbind("job_accepted", newJobHandler);
-  //   };
-  // }, [pathname, sessionId, router, selectedJobId]);
 
   const [isLoading, setIsLoading] = useState(true);
 

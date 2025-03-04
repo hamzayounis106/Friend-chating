@@ -5,16 +5,17 @@ import { toPusherKey } from '@/lib/utils';
 import { useDispatch } from 'react-redux';
 import UnseenChatToast from './UnseenChatToast';
 import { useParams } from 'next/navigation';
+import { Session } from 'next-auth';
 
 interface ToastProviderProps {
-  sessionId: string;
+  session: Session | null;
 }
 
-const ToastProvider = ({ sessionId }: ToastProviderProps) => {
+const ToastProvider = ({ session }: ToastProviderProps) => {
   const dispatch = useDispatch();
   const params = useParams<{ chatId?: string }>();
   const chatId = params?.chatId || '';
-
+  const sessionId = session?.user?.id;
   const [receiverId, senderId, jobId] = chatId.split('--') as [
     string,
     string,
@@ -48,6 +49,7 @@ const ToastProvider = ({ sessionId }: ToastProviderProps) => {
           senderMessage={message.content}
           senderName={message.senderName}
           jobId={message?.jobId}
+          session={session}
         />
       ));
     };
@@ -64,7 +66,7 @@ const ToastProvider = ({ sessionId }: ToastProviderProps) => {
       pusherClient.unsubscribe(notificationChannel);
       pusherClient.unbind('notification_toast', chatHandler);
     };
-  }, [sessionId, dispatch]);
+  }, [sessionId, dispatch, jobId, receiverId, senderId, session]);
 
   return null;
 };

@@ -1,4 +1,5 @@
 import { chatHrefConstructor, cn } from '@/lib/utils';
+import { Session } from 'next-auth';
 import Image from 'next/image';
 import { FC } from 'react';
 import { toast, type Toast } from 'react-hot-toast';
@@ -11,6 +12,7 @@ interface UnseenChatToastProps {
   senderName: string;
   senderMessage: string;
   jobId: string;
+  session: Session;
 }
 
 const UnseenChatToast: FC<UnseenChatToastProps> = ({
@@ -21,6 +23,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
   senderName,
   senderMessage,
   jobId,
+  session,
 }) => {
   return (
     <div
@@ -34,8 +37,8 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
         href={`/dashboard/chat/${chatHrefConstructor(
           sessionId,
           senderId,
-          jobId
-          // pass the fourth arg ie session whole
+          jobId,
+          session
         )}`}
         className='flex-1 w-0 p-4'
       >
