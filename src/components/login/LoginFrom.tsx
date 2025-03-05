@@ -49,7 +49,6 @@ const LoginForm = () => {
 
         // Check if the error message indicates email is not verified
         if (result.error.includes('Email not verified')) {
-          console.log("Email not verified");
           setShowResendButton(true);
           setEmailToResend(data.email);
         }
@@ -163,9 +162,9 @@ const LoginForm = () => {
 
 const Page = () => {
   return (
-    <main className="pt-8">
-      <h1 className="font-bold text-5xl mb-8">Login</h1>
-      <div className="flex flex-col gap-4">
+    <main className='pt-8'>
+      <h1 className='font-bold text-5xl mb-8'>Login</h1>
+      <div className='flex flex-col gap-4'>
         <Suspense fallback={<p>Loading...</p>}>
           <LoginForm />
         </Suspense>

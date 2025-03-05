@@ -57,29 +57,32 @@ export const authOptions: NextAuthOptions = {
         }
 
         try {
-          console.log('Credentials:', credentials);
           await ensureDB();
 
-          const user = await User.findOne({ email: credentials.email.toLowerCase() });
+          const user = await User.findOne({
+            email: credentials.email.toLowerCase(),
+          });
           if (!user) {
             throw new Error('User Not Found');
           }
           if (!user.password) {
             console.log('User found but associated with google:', user);
-            throw new Error('Your account is associated with Google. Please log in with Google auth');
+            throw new Error(
+              'Your account is associated with Google. Please log in with Google auth'
+            );
           }
-        if(!user.isVerified){
-          throw new Error('Email not verified');
-        }
+          if (!user.isVerified) {
+            throw new Error('Email not verified');
+          }
           console.log('User found:', user);
 
-          const isValid = await verifyPassword(credentials.password, user.password);
+          const isValid = await verifyPassword(
+            credentials.password,
+            user.password
+          );
           if (!isValid) {
             throw new Error('Invalid email or password');
           }
-
-          console.log('is valid ', isValid);
-          console.log('User authenticated:', user);
 
           // Return a simplified user object
           return {

@@ -1,6 +1,7 @@
 import { chatHrefConstructor, cn } from '@/lib/utils';
 import { Session } from 'next-auth';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FC } from 'react';
 import { toast, type Toast } from 'react-hot-toast';
 
@@ -32,7 +33,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
         { 'animate-enter': t.visible, 'animate-leave': !t.visible }
       )}
     >
-      <a
+      <Link
         onClick={() => toast.dismiss(t.id)}
         href={`/dashboard/chat/${chatHrefConstructor(
           sessionId,
@@ -40,6 +41,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
           jobId,
           session
         )}`}
+        prefetch={false}
         className='flex-1 w-0 p-4'
       >
         <div className='flex items-start'>
@@ -61,7 +63,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
             <p className='mt-1 text-sm text-gray-500'>{senderMessage}</p>
           </div>
         </div>
-      </a>
+      </Link>
 
       <div className='flex border-l border-gray-200'>
         <button

@@ -17,7 +17,6 @@ export async function POST(req: Request) {
     const resetTokenExpiry = Date.now() + 3600000; // 1 hour from now
     try {
       const user = await User.findOne({ email });
-      // console.log('user checking ', user);
       if (!user) {
         return NextResponse.json(genericMessage);
       }

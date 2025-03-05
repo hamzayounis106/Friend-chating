@@ -14,7 +14,6 @@ interface JobDetailProps {
 }
 
 const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
-  // console.log('Jobs:', jobs);
   const router = useRouter();
   const [jobList, setJobList] = useState<JobData[]>(jobs);
 
@@ -22,10 +21,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
     pusherClient.subscribe(toPusherKey(`surgeon:${userEmail}:jobs`));
 
     const jobHandler = (newJob: JobData) => {
-      // console.log('New job received:', newJob);
       setJobList((prev) => [...prev, newJob]);
-
-      // ✅ Show toast notification
       toast.success(`New job assigned: ${newJob.title}`, {
         position: 'top-right',
       });
@@ -43,9 +39,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
   const acceptJob = async (jobId: string) => {
     try {
       await axios.post('/api/Jobs/accept', { id: jobId });
-      setJobList((prev) =>
-        prev.filter((job) => job._id !== jobId)
-      );
+      setJobList((prev) => prev.filter((job) => job._id !== jobId));
 
       // Refresh the page to reflect changes
       router.refresh();
@@ -59,50 +53,59 @@ const JobDetail: FC<JobDetailProps> = ({ jobs, userEmail }) => {
       {jobList.length === 0 ? (
         <p className='text-sm text-zinc-500'>No jobs assigned...</p>
       ) : (
-        jobList.map((job, index) => (
-          job.surgeonEmails.some(emailObj => emailObj.email === userEmail && emailObj.status === 'pending') && (
-            <div
-              key={index}
-              className='flex flex-col gap-4 p-4 border rounded-md'
-            >
-              <h3 className='font-bold text-lg'>{job.title}</h3>
-              <p className='text-sm text-gray-600'>{job.description}</p>
-              <p className='text-xs text-gray-500'>
-                Type: {job.type} | Date: {new Date(job.date).toLocaleDateString()}
-              </p>
-              <div className='flex gap-2'>
-              {/* {console.log("Job id to accept", job)} */}
-                <button
-                  onClick={() => acceptJob(job._id)}
-                  aria-label='accept job'
-                  className='w-8 h-8 bg-indigo-600 hover:bg-indigo-700 grid place-items-center rounded-full transition hover:shadow-md'
-                >
-                  <Check className='font-semibold text-white w-3/4 h-3/4' />
-                </button>
+        jobList.map(
+          (job, index) =>
+            job.surgeonEmails.some(
+              (emailObj) =>
+                emailObj.email === userEmail && emailObj.status === 'pending'
+            ) && (
+              <div
+                key={index}
+                className='flex flex-col gap-4 p-4 border rounded-md'
+              >
+                <h3 className='font-bold text-lg'>{job.title}</h3>
+                <p className='text-sm text-gray-600'>{job.description}</p>
+                <p className='text-xs text-gray-500'>
+                  Type: {job.type} | Date:{' '}
+                  {new Date(job.date).toLocaleDateString()}
+                </p>
+                <div className='flex gap-2'>
+                  <button
+                    onClick={() => acceptJob(job._id)}
+                    aria-label='accept job'
+                    className='w-8 h-8 bg-indigo-600 hover:bg-indigo-700 grid place-items-center rounded-full transition hover:shadow-md'
+                  >
+                    <Check className='font-semibold text-white w-3/4 h-3/4' />
+                  </button>
+                </div>
               </div>
-            </div>
-          )
-        ))
+            )
+        )
       )}
 
       {/* for accepted */}
       {jobList.length === 0 ? (
         <p className='text-sm text-zinc-500'>No jobs assigned...</p>
       ) : (
-        jobList.map((job, index) => (
-          job.surgeonEmails.some(emailObj => emailObj.email === userEmail && emailObj.status === 'accepted') && (
-            <div
-              key={index}
-              className='flex flex-col gap-4 p-4 border rounded-md'
-            >
-              <h3 className='font-bold text-lg'>{job.title}</h3>
-              <p className='text-sm text-gray-600'>{job.description}</p>
-              <p className='text-xs text-gray-500'>
-                Type: {job.type} | Date: {new Date(job.date).toLocaleDateString()}
-              </p>
-            </div>
-          )
-        ))
+        jobList.map(
+          (job, index) =>
+            job.surgeonEmails.some(
+              (emailObj) =>
+                emailObj.email === userEmail && emailObj.status === 'accepted'
+            ) && (
+              <div
+                key={index}
+                className='flex flex-col gap-4 p-4 border rounded-md'
+              >
+                <h3 className='font-bold text-lg'>{job.title}</h3>
+                <p className='text-sm text-gray-600'>{job.description}</p>
+                <p className='text-xs text-gray-500'>
+                  Type: {job.type} | Date:{' '}
+                  {new Date(job.date).toLocaleDateString()}
+                </p>
+              </div>
+            )
+        )
       )}
     </>
   );

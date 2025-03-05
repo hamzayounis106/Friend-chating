@@ -40,7 +40,6 @@ export async function POST(req: Request) {
             status: emailObj.status,
           });
         } else {
-          // console.log(`Email: ${emailObj.email} is a Patient. Rejecting...`);
           return new Response(`Email: ${emailObj.email} is not of a surgeon.`, {
             status: 422,
           });
@@ -56,13 +55,11 @@ export async function POST(req: Request) {
 
     // Validate 'videoURLs' to make sure they are strings and not an array of objects.
     const validVideoURLs = Array.isArray(videoURLs) ? videoURLs : [];
-    // Get the current session
     const session = await getServerSession(authOptions);
 
     if (!session) {
       return new Response('Unauthorized', { status: 401 });
     }
-    console.log('Received Image URLs:', imageUrls);
     if (!Array.isArray(imageUrls)) {
       return new Response('Invalid image URLs format', { status: 400 });
     }
@@ -70,26 +67,23 @@ export async function POST(req: Request) {
     const job = new Job({
       title,
       type,
-      date: new Date(date), // Ensure date is a Date object
+      date: new Date(date),
       description,
-      surgeonEmails: validSurgeonEmails, // Processed surgeonEmails
-      videoURLs: validVideoURLs, // Processed video URLs
+      surgeonEmails: validSurgeonEmails,
+      videoURLs: validVideoURLs,
       imageUrls:
         Array.isArray(imageUrls) && imageUrls.length > 0 ? imageUrls : [],
       createdBy: session.user.id,
       patientId,
-      budget: body.budget || undefined, // Will be omitted if not provided
+      budget: body.budget || undefined,
     });
 
-    console.log('Job before saving:', JSON.stringify(job, null, 2));
     await job.save();
 
-    // Notify surgeons about the new job post
     for (const emailObj of validSurgeonEmails) {
       const surgeon = await User.findOne({ email: emailObj.email });
 
       if (surgeon) {
-        // console.log(`Triggering Pusher event for surgeon: ${emailObj.email}`);
         await pusherServer.trigger(
           toPusherKey(`surgeon:${emailObj.email}:jobs`),
           'new_job',
@@ -108,11 +102,9 @@ export async function POST(req: Request) {
             budget: body.budget || undefined, // Will be omitted if not provided
           }
         );
-        // console.log("Pusher event triggered successfully");
       }
 
       const recipients = [{ email: emailObj.email }];
-      // console.log("Sending email to---------------", emailObj.email);
 
       try {
         await mainClient.send({

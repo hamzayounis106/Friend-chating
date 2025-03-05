@@ -73,7 +73,6 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
       const client = await clientPromise;
       const db = client.db();
       const user = await db.collection('users').findOne({ email });
-      console.log('User found by email:', user); // Log the user document
       return user ? transformUser(user) : null;
     },
     async getUserByAccount({

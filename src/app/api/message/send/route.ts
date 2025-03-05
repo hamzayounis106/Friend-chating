@@ -35,22 +35,16 @@ export async function POST(req: Request) {
 
     // The chatId should be in the form "userId1--userId2"
     const [userId1, userId2, jobId] = chatId.split('--');
-    console.log('userId1', userId1);
-    console.log('userId2', userId2);
-    console.log('jobId', jobId);
     if (session.user.id !== userId1 && session.user.id !== userId2) {
       return new Response('Unauthorized', { status: 401 });
     }
 
     const friendId = session.user.id.toString() === userId1 ? userId2 : userId1;
-    console.log('friendId', friendId);
     // Fetch the sender document and cast it as a LeanUser
     const senderDoc = await User.findById(session.user.id.toString()).lean();
     if (!senderDoc) return new Response('Unauthorized', { status: 401 });
     const sender = senderDoc as unknown as LeanUser;
-    // const isInvited = sender.friends.some(
-    //   (friend: LeanFriend) => friend._id.toString() === friendId
-    // );
+
     const userEmail = session?.user.email;
     const job = await Job.findById(jobId);
     const data = job?.toObject();
@@ -73,18 +67,15 @@ export async function POST(req: Request) {
       jobId: jobId?.toString(),
       timestamp: new Date().toISOString(),
     });
-
-    console.log('🔥 Triggering Pusher event...');
-    console.log('Channel:', toPusherKey(`user:${`${friendId}`}:chats`));
-    console.log('Event: notificaiton_toast');
-    console.log('Payload:', {
-      ...newMessage.toObject(),
-      senderImg: sender.image,
-      senderName: sender.name,
-      jobId,
-    });
-
-    console.log('Backend channel:', toPusherKey(`user:${`${friendId}`}:chats`)); // in send/route.ts
+    //  check for the pusher is working or not on message send or recieve
+    // console.log('🔥 Triggering Pusher event...');
+    // console.log('Channel:', toPusherKey(`user:${`${friendId}`}:chats`));
+    // console.log('Payload:', {
+    //   ...newMessage.toObject(),
+    //   senderImg: sender.image,
+    //   senderName: sender.name,
+    //   jobId,
+    // });
 
     await pusherServer.trigger(
       toPusherKey(`user:${`${friendId}--${jobId}`}:chats`),

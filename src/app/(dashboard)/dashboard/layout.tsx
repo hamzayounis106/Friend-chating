@@ -37,7 +37,7 @@ const Layout = async ({ children }: LayoutProps) => {
     jobs = await getJobsForSurgeon(session.user.email as string);
   } else if (userRole === 'patient') {
     jobs = await getJobsByUserId(session.user.id as string); // Fetch jobs created by the patient
-  } // console.log("jobs LAYOUT----------------", jobs);
+  }
 
   // Fetch the user's role from the session
 

@@ -25,14 +25,12 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
     if (!sessionId) return;
     const notificationChannel = toPusherKey(`user:${sessionId}:chats`);
     pusherClient.subscribe(notificationChannel);
-    console.log('✅ Frontend subscribing to:', notificationChannel);
     console.log(
       '✅ Expected backend channel:',
       toPusherKey(`user:${sessionId}:chats`)
     );
 
     const chatHandler = (message: any) => {
-      console.log('🔥 Event received in frontend!', message);
       if (message.receiver !== sessionId) return;
       if (
         message.receiver === receiverId &&
