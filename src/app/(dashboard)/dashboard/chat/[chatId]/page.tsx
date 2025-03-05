@@ -87,7 +87,7 @@ const Page = async ({ params }: PageProps) => {
       email: se.email,
       status: se.status,
     })),
-    videoURLs: rawJob.videoURLs || [],
+
     createdBy: rawJob.createdBy.toString(),
     patientId: rawJob.patientId.toString(),
   };

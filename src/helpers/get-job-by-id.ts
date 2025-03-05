@@ -29,7 +29,7 @@ export const getJobsByUserId = async (userId: string): Promise<JobData[]> => {
           status,
         })
       ),
-      videoURLs: job.videoURLs,
+      AttachmentUrls : job.AttachmentUrls, 
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
     })) as JobData[]; // Explicit type assertion

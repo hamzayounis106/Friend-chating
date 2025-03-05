@@ -13,7 +13,7 @@ export interface JobData {
   date: string;
   description: string;
   surgeonEmails: SurgeonEmail[];
-  videoURLs: string[];
+  AttachmentUrls ?: string[];
   createdBy: string;
   patientId: string;
 }

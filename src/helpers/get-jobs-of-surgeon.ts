@@ -35,7 +35,7 @@ export const getJobsForSurgeon = async (
           status,
         })
       ),
-      videoURLs: job.videoURLs,
+      AttachmentUrls : job.AttachmentUrls, 
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
     })) as JobData[];
