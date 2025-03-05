@@ -21,11 +21,11 @@ export async function POST(req: Request) {
       date,
       description,
       surgeonEmails,
-      videoURLs,
+      // videoURLs,
       agreeToTerms,
       createdBy,
       patientId,
-      imageUrls,
+      AttachmentUrls,
       budget,
     } = body;
     // Transform the 'surgeonEmails' array to just include email strings
@@ -54,13 +54,13 @@ export async function POST(req: Request) {
     }
 
     // Validate 'videoURLs' to make sure they are strings and not an array of objects.
-    const validVideoURLs = Array.isArray(videoURLs) ? videoURLs : [];
+    // const validVideoURLs = Array.isArray(videoURLs) ? videoURLs : [];
     const session = await getServerSession(authOptions);
 
     if (!session) {
       return new Response('Unauthorized', { status: 401 });
     }
-    if (!Array.isArray(imageUrls)) {
+    if (!Array.isArray(AttachmentUrls)) {
       return new Response('Invalid image URLs format', { status: 400 });
     }
     // Create the new job post
@@ -70,9 +70,11 @@ export async function POST(req: Request) {
       date: new Date(date),
       description,
       surgeonEmails: validSurgeonEmails,
-      videoURLs: validVideoURLs,
-      imageUrls:
-        Array.isArray(imageUrls) && imageUrls.length > 0 ? imageUrls : [],
+      // videoURLs: validVideoURLs,
+      AttachmentUrls:
+        Array.isArray(AttachmentUrls) && AttachmentUrls.length > 0
+          ? AttachmentUrls
+          : [],
       createdBy: session.user.id,
       patientId,
       budget: body.budget || undefined,
@@ -94,11 +96,13 @@ export async function POST(req: Request) {
             date: new Date(date).toISOString(),
             description,
             surgeonEmails: validSurgeonEmails,
-            videoURLs: validVideoURLs,
+            // videoURLs: validVideoURLs,
             createdBy: session.user.email,
             patientId: session.user.id,
-            imageUrls:
-              Array.isArray(imageUrls) && imageUrls.length > 0 ? imageUrls : [],
+            AttachmentUrls:
+              Array.isArray(AttachmentUrls) && AttachmentUrls.length > 0
+                ? AttachmentUrls
+                : [],
             budget: body.budget || undefined, // Will be omitted if not provided
           }
         );

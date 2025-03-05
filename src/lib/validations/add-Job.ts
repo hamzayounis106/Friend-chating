@@ -44,21 +44,21 @@ export const addJobValidator = z.object({
         message: 'Duplicate emails are not allowed',
       }
     ),
-  videoURLs: z
-    .string()
-    .transform((val) =>
-      val
-        .split(',')
-        .map((url) => url.trim())
-        .filter((url) => url !== '')
-    )
-    .refine((urls) => urls.length > 0, {
-      message: 'At least one URL is required',
-    })
-    .refine((urls) => urls.every((url) => url.startsWith('http')), {
-      message: 'All URLs must be valid',
-    }),
-  imageUrls: z.array(z.string().url()).optional(), // ✅ Make imageUrls optional
+  // videoURLs: z
+  //   .string()
+  //   .transform((val) =>
+  //     val
+  //       .split(',')
+  //       .map((url) => url.trim())
+  //       .filter((url) => url !== '')
+  //   )
+  //   .refine((urls) => urls.length > 0, {
+  //     message: 'At least one URL is required',
+  //   })
+  //   .refine((urls) => urls.every((url) => url.startsWith('http')), {
+  //     message: 'All URLs must be valid',
+  //   }),
+  AttachmentUrls: z.array(z.string().url()).optional(), // ✅ Make imageUrls optional
   agreeToTerms: z.boolean(),
   budget: z
     .number()

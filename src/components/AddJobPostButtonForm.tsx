@@ -19,8 +19,8 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   const [showSuccessState, setShowSuccessState] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
-  console.log('image urls all urls', imageUrls);
+  const [AttachmentUrls, setAttachmentUrls] = useState<string[]>([]);
+  // console.log('All Assests', AttachmentUrls);
   const {
     register,
     handleSubmit,
@@ -30,7 +30,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
     defaultValues: {
-      imageUrls: [],
+      AttachmentUrls: [],
       budget: undefined,
     },
   });
@@ -45,8 +45,8 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         createdBy: session?.data?.user?.id,
         patientId: session?.data?.user?.id,
         surgeonEmails: data.surgeonEmails,
-        videoURLs: data.videoURLs,
-        imageUrls: imageUrls,
+        // videoURLs: data.videoURLs,
+        AttachmentUrls: AttachmentUrls,
       };
 
       await axios.post('/api/Jobs/add', transformedData);
@@ -76,8 +76,8 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     }
   };
   const onSubmit = (data: FormData) => {
-    if (!data.imageUrls || data.imageUrls.length === 0) {
-      data.imageUrls = []; // ✅ Ensure it's an empty array if undefined
+    if (!data.AttachmentUrls || data.AttachmentUrls.length === 0) {
+      data.AttachmentUrls = []; // ✅ Ensure it's an empty array if undefined
     }
     if (typeof data.budget !== 'number') {
       data.budget = undefined;
@@ -157,7 +157,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         placeholder='email1@example.com, email2@example.com'
       />
       <p className='text-sm text-red-600'>{errors.surgeonEmails?.message}</p>
-      <label className='block text-sm font-medium text-gray-900'>
+      {/* <label className='block text-sm font-medium text-gray-900'>
         Video URLs (comma separated)
       </label>
       <input
@@ -166,7 +166,28 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         className='block w-full rounded-md border py-1.5 text-gray-900 shadow-sm'
         placeholder='https://example.com/video1, https://example.com/video2'
       />
-      <p className='text-sm text-red-600'>{errors.videoURLs?.message}</p>
+      <p className='text-sm text-red-600'>{errors.videoURLs?.message}</p> */}
+      <label className='block text-sm font-medium text-gray-900'>
+        Attach Files Images/Videos
+      </label>
+      <CloudinaryUpload
+        onUpload={(newUrls) => {
+          setValue('AttachmentUrls', [...AttachmentUrls, ...newUrls], {
+            shouldValidate: true,
+          });
+          setAttachmentUrls((prev) => [...prev, ...newUrls]);
+        }}
+      />
+      {AttachmentUrls?.length > 0 && (
+        <p className='text-sm text-green-600'>
+          {AttachmentUrls.length < 2
+            ? 'Image is Uploaded'
+            : 'Images are Uploaded'}
+        </p>
+      )}
+      {errors.AttachmentUrls && (
+        <p className='text-sm text-red-600'>{errors.AttachmentUrls?.message}</p>
+      )}
       <label className='block text-sm font-medium text-gray-900'>
         Agree to Terms
       </label>
@@ -176,25 +197,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         className='rounded-md border py-1.5 text-gray-900 shadow-sm'
       />
       <p className='text-sm text-red-600'>{errors.agreeToTerms?.message}</p>
-      <label className='block text-sm font-medium text-gray-900'>
-        Upload Image
-      </label>
-      <CloudinaryUpload
-        onUpload={(newUrls) => {
-          setValue('imageUrls', [...imageUrls, ...newUrls], {
-            shouldValidate: true,
-          });
-          setImageUrls((prev) => [...prev, ...newUrls]);
-        }}
-      />
-      {imageUrls?.length > 0 && (
-        <p className='text-sm text-green-600'>
-          {imageUrls.length < 2 ? 'Image is Uploaded' : 'Images are Uploaded'}
-        </p>
-      )}
-      {errors.imageUrls && (
-        <p className='text-sm text-red-600'>{errors.imageUrls?.message}</p>
-      )}
       <Button type='submit' disabled={loading}>
         {loading ? 'Adding Job...' : 'Add Job'}
       </Button>{' '}

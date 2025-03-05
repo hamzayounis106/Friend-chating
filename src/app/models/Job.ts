@@ -9,8 +9,7 @@ export interface IJob extends Document {
     email: string;
     status: 'accepted' | 'declined' | 'pending';
   }[];
-  videoURLs?: string[];
-  imageUrls?: string[];
+  AttachmentUrls?: string[];
   budget?: number;
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
@@ -35,8 +34,7 @@ const jobSchema = new Schema<IJob>({
     required: true,
     _id: false, // Prevents Mongoose from adding _id to each object in the array
   },
-  videoURLs: { type: [String], default: undefined }, // ✅ Made optional
-  imageUrls: { type: [String], default: undefined }, // ✅ Made optional
+  AttachmentUrls: { type: [String], default: undefined }, // ✅ Made optional
   budget: {
     type: Number,
     min: [0, 'Budget cannot be negative'],
