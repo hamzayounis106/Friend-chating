@@ -104,29 +104,29 @@ export async function POST(req: Request) {
         );
       }
 
-      const recipients = [{ email: emailObj.email }];
+      // const recipients = [{ email: emailObj.email }];
 
-      try {
-        await mainClient.send({
-          from: mailSender,
-          to: recipients,
-          subject: `New Job Post: ${title}`,
-          html: `<p>A new job post has been created by ${session.user.name}</p>
-                 <p>Job Details:</p>
-                 <ul>
-                   <li>Title: ${title}</li>
-                   <li>Type: ${type}</li>
-                   <li>Date: ${new Date(date).toISOString()}</li>
-                   ${budget ? `<li>Budget: $${budget}</li>` : ''}
-                   <li>Description: ${description}</li>
-                 </ul>
-                 <p>Please login to your account to view the job post.</p>`,
-          category: 'Job Notification',
-        });
-      } catch (error) {
-        console.error('Error sending notification email:', error);
-        throw new Error('Failed to send notification email');
-      }
+      // try {
+      //   await mainClient.send({
+      //     from: mailSender,
+      //     to: recipients,
+      //     subject: `New Job Post: ${title}`,
+      //     html: `<p>A new job post has been created by ${session.user.name}</p>
+      //            <p>Job Details:</p>
+      //            <ul>
+      //              <li>Title: ${title}</li>
+      //              <li>Type: ${type}</li>
+      //              <li>Date: ${new Date(date).toISOString()}</li>
+      //              ${budget ? `<li>Budget: $${budget}</li>` : ''}
+      //              <li>Description: ${description}</li>
+      //            </ul>
+      //            <p>Please login to your account to view the job post.</p>`,
+      //     category: 'Job Notification',
+      //   });
+      // } catch (error) {
+      //   console.error('Error sending notification email:', error);
+      //   throw new Error('Failed to send notification email');
+      // }
     }
 
     return new Response('Job post created successfully', { status: 201 });

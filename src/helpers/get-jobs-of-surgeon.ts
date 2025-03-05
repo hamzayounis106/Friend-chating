@@ -19,7 +19,7 @@ export const getJobsForSurgeon = async (
       .lean()
       .exec();
 
-    if (jobs.length === 0) {
+    if (jobs?.length === 0) {
       return [];
     }
 
@@ -50,11 +50,14 @@ export const getJobCountBySurgeon = async (
 ): Promise<number> => {
   try {
     await dbConnect();
-
-    const count = await Job.countDocuments({
-      'surgeonEmails.email': userEmail,
+    return await Job.countDocuments({
+      surgeonEmails: {
+        $elemMatch: {
+          email: userEmail,
+          status: { $ne: 'accepted' },
+        },
+      },
     });
-    return count;
   } catch (error) {
     console.error('Error fetching job count:', error);
     return 0;

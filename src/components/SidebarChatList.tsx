@@ -100,8 +100,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   }, [jobs, sessionId, sessionEmail]);
 
   if (isLoading) return <div>Loading...</div>;
-  console.log('creatorIds', creatorIds);
-  console.log('reciever ids', receiverIds);
+
   return (
     <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
       {jobs

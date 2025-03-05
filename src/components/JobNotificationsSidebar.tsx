@@ -2,6 +2,11 @@
 
 import { pusherClient } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  incrementUnseenJobCount,
+  setUnseenJobCount,
+} from '@/store/slices/jobSlice';
 import { Briefcase } from 'lucide-react'; // Updated Icon
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
@@ -15,16 +20,27 @@ const JobNotificationsSidebar: FC<JobNotificationsSidebarProps> = ({
   sessionEmail,
   initialUnseenJobCount,
 }) => {
-  const [unseenJobCount, setUnseenJobCount] = useState<number>(
-    initialUnseenJobCount
+  const dispatch = useAppDispatch();
+  const unseenJobCount = useAppSelector(
+    (state) => state.jobs.unseenJobCounts[sessionEmail] || 0
   );
+  console.log('unseenJobCount from the job notificaiotn', unseenJobCount);
+  useEffect(() => {
+    dispatch(
+      setUnseenJobCount({
+        email: sessionEmail,
+        count: initialUnseenJobCount,
+      })
+    );
+  }, [dispatch, sessionEmail, initialUnseenJobCount]);
 
   useEffect(() => {
     const jobKey = toPusherKey(`surgeon:${sessionEmail}:jobs`);
     pusherClient.subscribe(jobKey);
 
+    console.log('jobKey pusehr', jobKey);
     const jobHandler = () => {
-      setUnseenJobCount((prev) => prev + 1);
+      dispatch(incrementUnseenJobCount({ email: sessionEmail }));
     };
 
     pusherClient.bind('new_job', jobHandler);
@@ -33,7 +49,7 @@ const JobNotificationsSidebar: FC<JobNotificationsSidebarProps> = ({
       pusherClient.unsubscribe(jobKey);
       pusherClient.unbind('new_job', jobHandler);
     };
-  }, [sessionEmail]);
+  }, [sessionEmail, dispatch]);
 
   return (
     <Link

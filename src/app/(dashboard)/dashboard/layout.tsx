@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ReactNode } from 'react';
-import FriendRequestSidebarOptions from '@/components/JobNotificationsSidebar';
+import JobNotificationsSidebar from '@/components/JobNotificationsSidebar';
 import SidebarChatList from '@/components/SidebarChatList';
 import MobileChatLayout from '@/components/MobileChatLayout';
 import { SidebarOption } from '@/types/typings';
@@ -64,7 +64,7 @@ const Layout = async ({ children }: LayoutProps) => {
     userRole === 'surgeon'
       ? await getJobCountBySurgeon(session.user.email as string)
       : 0;
-
+  console.log('unseenJobCount data', unseenJobCount);
   return (
     <div className='w-full flex h-screen'>
       {/* Mobile Sidebar */}
@@ -131,7 +131,7 @@ const Layout = async ({ children }: LayoutProps) => {
 
                 {userRole === 'surgeon' && (
                   <li>
-                    <FriendRequestSidebarOptions
+                    <JobNotificationsSidebar
                       initialUnseenJobCount={unseenJobCount}
                       sessionEmail={session?.user?.email as string}
                     />
