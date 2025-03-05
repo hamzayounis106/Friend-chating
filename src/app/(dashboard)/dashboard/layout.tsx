@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ReactNode } from 'react';
 import FriendRequestSidebarOptions from '@/components/JobNotificationsSidebar';
-import SidebarChatList, { Friend } from '@/components/SidebarChatList';
+import SidebarChatList from '@/components/SidebarChatList';
 import MobileChatLayout from '@/components/MobileChatLayout';
 import { SidebarOption } from '@/types/typings';
 import {

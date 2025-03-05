@@ -1,9 +1,14 @@
 import FriendRequest from '@/app/models/Job';
 import User, { IUser } from '@/app/models/User';
-import { Friend } from '@/components/SidebarChatList';
 import dbConnect from '@/lib/db';
 import mongoose from 'mongoose';
 
+export interface Friend {
+  _id: string;
+  name: string;
+  email: string;
+  image?: string;
+}
 interface LeanUser extends Omit<IUser, 'friends'> {
   friends: Friend[];
 }

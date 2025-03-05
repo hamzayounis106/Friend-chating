@@ -1,23 +1,18 @@
 'use client';
 import { chatHrefConstructor } from '@/lib/utils';
-import { usePathname, useRouter } from 'next/navigation';
 import { FC, useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import { ExtendedMessage } from '@/lib/validations/message';
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import axios from 'axios';
+import Image from 'next/image';
 
 interface SidebarChatListProps {
   jobs: JobData[];
   sessionId: string;
   sessionEmail: string;
   session: any;
-}
-
-export interface Friend {
-  _id: string;
-  name: string;
-  email: string;
-  image?: string;
 }
 
 const SidebarChatList: FC<SidebarChatListProps> = ({
@@ -27,26 +22,22 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
   session,
 }) => {
   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
-  const [selectedJobId, setSelectedJobId] = useState<string>('');
-  const [receiverIds, setReceiverIds] = useState<Record<string, string[]>>({});
-
+  const [receiverIds, setReceiverIds] = useState<
+    Record<string, { id: string; image?: string }[]>
+  >({});
   const [isLoading, setIsLoading] = useState(true);
+  const pathname = usePathname(); // Get current route
 
   useEffect(() => {
     const fetchSurgeonIds = async () => {
-      const newReceiverIds: Record<string, string[]> = {};
-
-      // Only needed for jobs where the logged-in user is the patient. // if pateint is logged in
+      const newReceiverIds: Record<string, { id: string; image?: string }[]> =
+        {};
       await Promise.all(
         jobs.map(async (job) => {
           if (job.createdBy === sessionId) {
-            // console.log("This is fkin patient jobs view", job);
-            // Get all accepted surgeons for this job.
             const acceptedSurgeons = job.surgeonEmails.filter(
               (s) => s.status === 'accepted'
             );
-            // console.log("Accepted surgeons:", acceptedSurgeons);
-            // For each accepted surgeon, fetch the user ID from the API.
             const surgeonIds = await Promise.all(
               acceptedSurgeons.map(async (surgeon) => {
                 if (surgeon.email) {
@@ -54,34 +45,23 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                     const { data } = await axios.post('/api/user-by-email', {
                       email: surgeon.email,
                     });
-                    if (data?.userId) {
-                      return data.userId;
-                    } else {
-                      console.error(
-                        `Failed to fetch user for email: ${surgeon.email}`,
-                        data
-                      );
-                      return null;
-                    }
-                  } catch (error) {
-                    console.error('Error fetching user ID:', error);
+                    return data?.user
+                      ? { id: data.user._id, image: data.user.image }
+                      : null;
+                  } catch {
                     return null;
                   }
                 }
                 return null;
               })
             );
-            // console.log("Surgeon IDs:", surgeonIds);
-            // Filter out null values.
-            newReceiverIds[job._id] = surgeonIds.filter(
-              (id): id is string => id !== null
-            );
-            // console.log("Receiver IDs:", newReceiverIds[job._id]);
+            newReceiverIds[job._id] = surgeonIds.filter(Boolean) as {
+              id: string;
+              image?: string;
+            }[];
           }
         })
       );
-
-      // console.log("Final Receiver IDs:", newReceiverIds);
       setReceiverIds(newReceiverIds);
       setIsLoading(false);
     };
@@ -89,107 +69,95 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
     fetchSurgeonIds();
   }, [jobs, sessionId]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  console.log('receiverIds', receiverIds);
-  // const ids = receiverIds[selectedJobId] || [];
-  // console.log("RECEIVER IDS:", ids);
-  // const surg = ids[0];
-  // console.log("SURGEON ID:", surg);
-  // console.log("selectedJobId fafddssdfsdf", selectedJobId);
+  if (isLoading) return <div>Loading...</div>;
 
-  //get job by id
-
-  let userId1 = sessionId;
-  // let userId2 = session.user.role==="patient" ? surg
   return (
     <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
       {jobs
-        ?.filter((job) => {
-          // console.log("JOB ID:", job);
-          const hasAcceptedSurgeon = job.surgeonEmails.some(
-            (surgeon) => surgeon.status === 'accepted'
-          );
-          // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
-          if (!hasAcceptedSurgeon) {
-            console.log(`No accepted surgeon for job: ${job._id}`);
-            return false;
-          }
-          return true;
-        })
+        .filter((job) =>
+          job.surgeonEmails.some((surgeon) => surgeon.status === 'accepted')
+        )
         .flatMap((job) => {
-          // For patient view: create one list item per accepted surgeon.
-          // console.log("JOB SDSDA IDs:", job);
           if (job.createdBy === sessionId) {
-            // console.log("Patient view:", job);
             const acceptedSurgeons = job.surgeonEmails.filter(
               (s) => s.status === 'accepted'
             );
             const surgeonIds = receiverIds[job._id] || [];
             return acceptedSurgeons.map((surgeon, idx) => {
               const surgeonUserId = surgeonIds[idx];
-              if (!surgeonUserId) {
-                console.error(
-                  `Receiver ID is undefined for job: ${job._id} at index ${idx}`
-                );
-                return null;
-              }
-              // You can calculate unseenMessagesCount per surgeon if needed.
+              if (!surgeonUserId) return null;
               const unseenMessagesCount = unseenMessages.filter(
                 (msg) => msg.sender === job._id
               ).length;
 
+              // Construct chat URL
+              const chatUrl = `/dashboard/chat/${chatHrefConstructor(
+                sessionId,
+                surgeonUserId.id,
+                job._id,
+                session
+              )}`;
+
               return (
-                <li key={`${job._id}-${surgeonUserId}`}>
-                  <a
-                    onClick={() => setSelectedJobId(job._id)}
-                    href={`/dashboard/chat/${chatHrefConstructor(
-                      sessionId,
-                      surgeonUserId,
-                      job._id,
-                      session
-                    )}`}
-                    className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                <li key={`${job._id}-${surgeonUserId.id}`}>
+                  <Link
+                    href={chatUrl}
+                    prefetch={false}
+                    className={`group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold 
+                      ${
+                        pathname === chatUrl
+                          ? 'bg-indigo-100 text-indigo-700' // Active job highlight
+                          : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                      }`}
                   >
-                    {job.title} ({job.type}) - {surgeon.email}
+                    <Image
+                      src={surgeonUserId?.image || '/default.png'}
+                      alt='Surgeon'
+                      width={70}
+                      height={70}
+                      className='rounded-full object-cover'
+                    />
+                    {job.title} - {surgeon.email}
                     {unseenMessagesCount > 0 && (
                       <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
                         {unseenMessagesCount}
                       </div>
                     )}
-                  </a>
+                  </Link>
                 </li>
               );
             });
           } else {
-            // For surgeon view: chat partner is the patient.
             const unseenMessagesCount = unseenMessages.filter(
               (msg) => msg.sender === job._id
             ).length;
-            const receiverId = job.createdBy; // Patient's ID.
+            const receiverId = job.createdBy;
             const hasAcceptedSurgeon = job.surgeonEmails.some(
               (surgeon) =>
                 surgeon.status === 'accepted' &&
                 surgeon.email.toLowerCase().trim() === sessionEmail
-            ); // hyderation error
-            // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
-            // if (!hasAcceptedSurgeon) {
-            //   console.log(`No accepted surgeon for job: ${job._id}`);
-            //   return [];
-            // }
+            );
+
+            // Construct chat URL
+            const chatUrl = `/dashboard/chat/${chatHrefConstructor(
+              receiverId,
+              sessionId,
+              job._id,
+              session
+            )}`;
+
             return (
               hasAcceptedSurgeon && (
                 <li key={job._id}>
-                  <a
-                    onClick={() => setSelectedJobId(job._id)}
-                    href={`/dashboard/chat/${chatHrefConstructor(
-                      receiverId,
-                      sessionId,
-                      job._id,
-                      session
-                    )}`}
-                    className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+                  <Link
+                    href={chatUrl}
+                    prefetch={false} // Prevents unnecessary prefetching
+                    className={`group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold 
+                      ${
+                        pathname === chatUrl
+                          ? 'bg-indigo-100 text-indigo-700' // Active job highlight
+                          : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
+                      }`}
                   >
                     {job.title} ({job.type})
                     {unseenMessagesCount > 0 && (
@@ -197,7 +165,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                         {unseenMessagesCount}
                       </div>
                     )}
-                  </a>
+                  </Link>
                 </li>
               )
             );
@@ -209,3 +177,220 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
 };
 
 export default SidebarChatList;
+
+// 'use client';
+// import { chatHrefConstructor } from '@/lib/utils';
+// import { usePathname, useRouter } from 'next/navigation';
+// import { FC, useEffect, useState } from 'react';
+// import { ExtendedMessage } from '@/lib/validations/message';
+// import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
+// import axios from 'axios';
+// import Image from 'next/image';
+
+// interface SidebarChatListProps {
+//   jobs: JobData[];
+//   sessionId: string;
+//   sessionEmail: string;
+//   session: any;
+// }
+// const SidebarChatList: FC<SidebarChatListProps> = ({
+//   jobs,
+//   sessionId,
+//   sessionEmail,
+//   session,
+// }) => {
+//   const [unseenMessages, setUnseenMessages] = useState<ExtendedMessage[]>([]);
+//   const [receiverIds, setReceiverIds] = useState<
+//     Record<string, { id: string; image?: string }[]>
+//   >({});
+//   const [isLoading, setIsLoading] = useState(true);
+
+//   useEffect(() => {
+//     const fetchSurgeonIds = async () => {
+//       const newReceiverIds: Record<string, { id: string; image?: string }[]> =
+//         {};
+//       await Promise.all(
+//         jobs.map(async (job) => {
+//           if (job.createdBy === sessionId) {
+//             // console.log("This is fkin patient jobs view", job);
+//             // Get all accepted surgeons for this job.
+//             const acceptedSurgeons = job.surgeonEmails.filter(
+//               (s) => s.status === 'accepted'
+//             );
+//             // console.log("Accepted surgeons:", acceptedSurgeons);
+//             // For each accepted surgeon, fetch the user ID from the API.
+//             const surgeonIds = await Promise.all(
+//               acceptedSurgeons.map(async (surgeon) => {
+//                 if (surgeon.email) {
+//                   try {
+//                     const { data } = await axios.post('/api/user-by-email', {
+//                       email: surgeon.email,
+//                     });
+//                     if (data?.user) {
+//                       console.log('data', data);
+//                       return data?.user
+//                         ? { id: data.user._id, image: data.user.image }
+//                         : null;
+//                     } else {
+//                       console.error(
+//                         `Failed to fetch user for email: ${surgeon.email}`,
+//                         data
+//                       );
+//                       return null;
+//                     }
+//                   } catch (error) {
+//                     console.error('Error fetching user ID:', error);
+//                     return null;
+//                   }
+//                 }
+//                 return null;
+//               })
+//             );
+
+//             newReceiverIds[job._id] = surgeonIds
+//               .filter((data): data is NonNullable<typeof data> => data !== null)
+//               .map((data) => ({ id: data.id, image: data.image ?? undefined }));
+//           }
+//         })
+//       );
+
+//       // console.log("Final Receiver IDs:", newReceiverIds);
+//       setReceiverIds(newReceiverIds);
+//       setIsLoading(false);
+//     };
+
+//     fetchSurgeonIds();
+//   }, [jobs, sessionId]);
+
+//   if (isLoading) {
+//     return <div>Loading...</div>;
+//   }
+//   console.log('receiverIds', receiverIds);
+//   // const ids = receiverIds[selectedJobId] || [];
+//   // console.log("RECEIVER IDS:", ids);
+//   // const surg = ids[0];
+//   // console.log("SURGEON ID:", surg);
+//   // console.log("selectedJobId fafddssdfsdf", selectedJobId);
+
+//   //get job by id
+
+//   let userId1 = sessionId;
+//   // let userId2 = session.user.role==="patient" ? surg
+//   return (
+//     <ul role='list' className='max-h-[25rem] overflow-y-auto -mx-2 space-y-1'>
+//       {jobs
+//         ?.filter((job) => {
+//           // console.log("JOB ID:", job);
+//           const hasAcceptedSurgeon = job.surgeonEmails.some(
+//             (surgeon) => surgeon.status === 'accepted'
+//           );
+//           // console.log("hasAcceptedSurgeon", hasAcceptedSurgeon);
+//           if (!hasAcceptedSurgeon) {
+//             console.log(`No accepted surgeon for job: ${job._id}`);
+//             return false;
+//           }
+//           return true;
+//         })
+//         .flatMap((job) => {
+//           // For patient view: create one list item per accepted surgeon.
+//           // console.log("JOB SDSDA IDs:", job);
+//           if (job.createdBy === sessionId) {
+//             // console.log("Patient view:", job);
+//             const acceptedSurgeons = job.surgeonEmails.filter(
+//               (s) => s.status === 'accepted'
+//             );
+//             const surgeonIds = receiverIds[job._id] || [];
+//             return acceptedSurgeons.map((surgeon, idx) => {
+//               const surgeonUserId = surgeonIds[idx];
+//               console.log('surgeonUserId', surgeonUserId);
+//               if (!surgeonUserId) {
+//                 console.error(
+//                   `Receiver ID is undefined for job: ${job._id} at index ${idx}`
+//                 );
+//                 return null;
+//               }
+//               // You can calculate unseenMessagesCount per surgeon if needed.
+//               const unseenMessagesCount = unseenMessages.filter(
+//                 (msg) => msg.sender === job._id
+//               ).length;
+
+//               return (
+//                 <li key={`${job._id}-${surgeonUserId}`}>
+//                   <a
+//                     // onClick={() => setSelectedJobId(job._id)}
+//                     href={`/dashboard/chat/${chatHrefConstructor(
+//                       sessionId,
+//                       surgeonUserId.id,
+//                       job._id,
+//                       session
+//                     )}`}
+//                     className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+//                   >
+//                     <div>
+//                       <Image
+//                         src={surgeonUserId?.image || '/default.png'} // Ensure the correct image path
+//                         alt='Surgeon'
+//                         width={70}
+//                         height={70}
+//                         className='rounded-full object-cover'
+//                       />
+//                     </div>
+//                     {job.title} - {surgeon.email}
+//                     {unseenMessagesCount > 0 && (
+//                       <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
+//                         {unseenMessagesCount}
+//                       </div>
+//                     )}
+//                   </a>
+//                 </li>
+//               );
+//             });
+//           } else {
+//             // For surgeon view: chat partner is the patient.
+//             const unseenMessagesCount = unseenMessages.filter(
+//               (msg) => msg.sender === job._id
+//             ).length;
+//             const receiverId = job.createdBy; // Patient's ID.
+//             const hasAcceptedSurgeon = job.surgeonEmails.some(
+//               (surgeon) =>
+//                 surgeon.status === 'accepted' &&
+//                 surgeon.email.toLowerCase().trim() === sessionEmail
+//             );
+//             console.log('reciverId', receiverId);
+//             return (
+//               hasAcceptedSurgeon && (
+//                 <li key={job._id}>
+//                   <a
+//                     href={`/dashboard/chat/${chatHrefConstructor(
+//                       receiverId,
+//                       sessionId,
+//                       job._id,
+//                       session
+//                     )}`}
+//                     className='text-gray-700 hover:text-indigo-600 hover:bg-gray-50 group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold'
+//                   >
+//                     {/* <Image
+//                       src={surgeonUserId?.image || '/default.png'} // Ensure the correct image path
+//                       alt='Surgeon'
+//                       width={70}
+//                       height={70}
+//                       className='rounded-full object-cover'
+//                     /> */}
+//                     {job.title} ({job.type})
+//                     {unseenMessagesCount > 0 && (
+//                       <div className='bg-indigo-600 font-medium text-xs text-white w-4 h-4 rounded-full flex justify-center items-center'>
+//                         {unseenMessagesCount}
+//                       </div>
+//                     )}
+//                   </a>
+//                 </li>
+//               )
+//             );
+//           }
+//         })
+//         .filter(Boolean)}
+//     </ul>
+//   );
+// };
+
+// export default SidebarChatList;

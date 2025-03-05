@@ -17,10 +17,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json(
-      { userId: user?._id?.toString() },
-      { status: 200 }
-    );
+    return NextResponse.json({ user }, { status: 200 });
   } catch (error) {
     console.error('Error fetching user by email:', error);
     return NextResponse.json(
