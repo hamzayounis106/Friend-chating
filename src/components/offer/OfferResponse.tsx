@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { useState } from 'react';
 
 export interface OfferType {
@@ -25,13 +26,11 @@ const OfferResponse = ({
 
     setLoading(true);
     try {
-      const res = await fetch(`/api/offer/${offerDetails._id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
+      const res = await axios.patch(`/api/offers/${offerDetails._id}`, {
+        status: newStatus
       });
 
-      if (res.ok) {
+      if (res.status === 200) {
         setStatus(newStatus);
       } else {
         console.error('Failed to update offer status');
