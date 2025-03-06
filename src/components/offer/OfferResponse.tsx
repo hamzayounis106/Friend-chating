@@ -1,0 +1,92 @@
+'use client';
+
+import { useState } from 'react';
+
+export interface OfferType {
+  _id: string;
+  cost: number;
+  status: string;
+  createdAt: Date | string;
+  createdBy: string;
+  jobId: string;
+  location: string;
+}
+
+const OfferResponse = ({
+  offerDetails,
+}: {
+  offerDetails: OfferType | null;
+}) => {
+  const [status, setStatus] = useState(offerDetails?.status);
+  const [loading, setLoading] = useState(false);
+
+  const handleStatusChange = async (newStatus: 'accepted' | 'declined') => {
+    if (!offerDetails) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/offer/${offerDetails._id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (res.ok) {
+        setStatus(newStatus);
+      } else {
+        console.error('Failed to update offer status');
+      }
+    } catch (error) {
+      console.error('Error updating offer:', error);
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className='bg-gray-100 p-4 rounded-md'>
+      <h3 className='text-lg font-semibold'>Offer Details</h3>
+      {offerDetails ? (
+        <div className='mt-2 text-gray-700'>
+          <p>
+            <span className='font-semibold'>Amount:</span> ${offerDetails.cost}
+          </p>
+          <p>
+            <span className='font-semibold'>Location:</span>{' '}
+            {offerDetails.location}
+          </p>
+          <p>
+            <span className='font-semibold'>Status:</span> {status}
+          </p>
+          <p>
+            <span className='font-semibold'>Sent on:</span>{' '}
+            {new Date(offerDetails.createdAt).toLocaleDateString()}
+          </p>
+
+          {/* Action Buttons */}
+          {status === 'pending' && (
+            <div className='mt-4 flex space-x-4'>
+              <button
+                className='bg-green-500 text-white px-4 py-2 rounded-md'
+                disabled={loading}
+                onClick={() => handleStatusChange('accepted')}
+              >
+                {loading ? 'Processing...' : 'Accept'}
+              </button>
+              <button
+                className='bg-red-500 text-white px-4 py-2 rounded-md'
+                disabled={loading}
+                onClick={() => handleStatusChange('declined')}
+              >
+                {loading ? 'Processing...' : 'Decline'}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : (
+        <p className='text-red-500'>No offer received yet.</p>
+      )}
+    </div>
+  );
+};
+
+export default OfferResponse;

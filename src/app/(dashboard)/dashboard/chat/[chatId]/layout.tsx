@@ -1,71 +1,71 @@
 'use client';
-import { ReactNode } from 'react';
+
+import { ReactNode, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import Button from '@/components/ui/Button';
 import { useSession } from 'next-auth/react';
+import clsx from 'clsx';
+import Button from '@/components/ui/Button';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const ChatLayout = ({ children }: LayoutProps) => {
-  const pathname = usePathname() ?? '';
+  const pathname = usePathname();
   const router = useRouter();
   const session = useSession();
-  const userRole = session?.data?.user?.role;
 
-  const pathSegments = pathname.split('/').filter(Boolean);
-  const chatId = pathSegments.length > 2 ? pathSegments[2] : '';
-  const currentPage = pathSegments.length > 3 ? pathSegments[3] : '';
+  const userRole = useMemo(() => session?.data?.user?.role, [session]);
+
+  // Extract chatId and current page from URL
+  const pathSegments = pathname?.split('/').filter(Boolean) || [];
+  const chatId = pathSegments[2] || '';
+  const currentPage = pathSegments[3] || '';
+
+  // Define navigation buttons
+  const navItems = [
+    {
+      label: 'Chat',
+      path: `/dashboard/chat/${chatId}`,
+      active: currentPage === '',
+    },
+    {
+      label: 'Job Details',
+      path: `/dashboard/chat/${chatId}/job-detail`,
+      active: currentPage === 'job-detail',
+    },
+    {
+      label: userRole === 'patient' ? 'See Offers' : 'Send Offer',
+      path: `/dashboard/chat/${chatId}/offer`,
+      active: currentPage === 'offer',
+    },
+  ];
 
   return (
     <div className='flex flex-col h-screen'>
-      {/* Header with Navigation Buttons */}
-      <div className='p-4 bg-gray-100 flex justify-between items-center'>
+      {/* Header */}
+      <header className='p-4 bg-gray-100 flex justify-between items-center shadow-sm'>
         <h1 className='text-lg font-semibold'>Chat</h1>
         <div className='flex space-x-4'>
-          {/* Chat Button */}
-          <Button
-            onClick={() => router.push(`/dashboard/chat/${chatId}`)}
-            className={
-              currentPage === ''
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }
-          >
-            Chat
-          </Button>
-
-          {/* Job Details Button */}
-          <Button
-            onClick={() => router.push(`/dashboard/chat/${chatId}/job-detail`)}
-            className={
-              currentPage === 'job-detail'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700'
-            }
-          >
-            Job Details
-          </Button>
-
-          {/* Send Offer Button (Only for Surgeons) */}
-          {userRole === 'surgeon' && (
+          {navItems.map(({ label, path, active }) => (
             <Button
-              onClick={() => router.push(`/dashboard/chat/${chatId}/offer`)}
-              className={
-                currentPage === 'offer'
+              key={label}
+              onClick={() => chatId && router.push(path)}
+              className={clsx(
+                'px-4 py-2 rounded-md transition',
+                active
                   ? 'bg-blue-500 text-white'
-                  : 'bg-green-500 text-white'
-              }
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              )}
             >
-              Send Offer
+              {label}
             </Button>
-          )}
+          ))}
         </div>
-      </div>
+      </header>
 
       {/* Main Content */}
-      <div className='flex-1 overflow-auto'>{children}</div>
+      <main className='flex-1 overflow-auto'>{children}</main>
     </div>
   );
 };

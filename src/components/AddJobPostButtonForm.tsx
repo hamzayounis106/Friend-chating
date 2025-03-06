@@ -181,8 +181,8 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       {AttachmentUrls?.length > 0 && (
         <p className='text-sm text-green-600'>
           {AttachmentUrls.length < 2
-            ? 'Image is Uploaded'
-            : 'Images are Uploaded'}
+            ? 'File is Uploaded'
+            : 'Files are Uploaded'}
         </p>
       )}
       {errors.AttachmentUrls && (
