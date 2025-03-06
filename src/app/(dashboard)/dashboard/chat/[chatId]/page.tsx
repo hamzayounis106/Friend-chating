@@ -72,8 +72,9 @@ const Page = async ({ params }: PageProps) => {
 
   const rawJob = await Job.findById(jobId)
     .select(
-      '_id title type date description surgeonEmails videoURLs createdBy patientId'
+      '_id title type date description surgeonEmails AttachmentUrls createdBy patientId'
     )
+    .populate('patientId') // ✅ Populate the patientId field
     .lean<LeanJob>(); // ✅ Properly typing lean() output
   if (!rawJob) notFound();
 
@@ -87,9 +88,14 @@ const Page = async ({ params }: PageProps) => {
       email: se.email,
       status: se.status,
     })),
-
     createdBy: rawJob.createdBy.toString(),
-    patientId: rawJob.patientId.toString(),
+    patientId: {
+      _id: rawJob.patientId._id.toString(),
+      name: rawJob.patientId.name,
+      email: rawJob.patientId.email,
+      image: rawJob.patientId.image,
+    },
+    AttachmentUrls: rawJob.AttachmentUrls ?? [], // Ensure a default value
   };
 
   const chatPartner = {

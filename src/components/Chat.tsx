@@ -1,12 +1,14 @@
-// src/components/Chat.tsx
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { setInitialMessages } from '@/store/slices/chatSlice';
 import Image from 'next/image';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
+import SendOfferModal from '@/components/SendOfferModal'; // Assuming you have a SendOfferModal component
+import JobDetailsOnChat from './JobDetailsOnChat';
+import { useSession } from 'next-auth/react';
 
 interface ChatProps {
   chatId: string;
@@ -23,6 +25,17 @@ interface ChatProps {
   };
   relatedJob: {
     title: string;
+    type: string;
+    date: string;
+    description: string;
+    patientId: {
+      name: string;
+      email: string;
+      image: string;
+    };
+    createdBy: string;
+    AttachmentUrls: string[];
+    surgeonEmails: { email: string }[];
   };
   initialMessages: any[];
 }
@@ -35,13 +48,29 @@ const Chat = ({
   initialMessages,
 }: ChatProps) => {
   const dispatch = useDispatch();
-
+  const [activeSection, setActiveSection] = useState('chat');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+const session = useSession();
+  const userRole = session?.data?.user?.role;
+  console.log("Related Job", relatedJob);
   useEffect(() => {
     dispatch(setInitialMessages(initialMessages));
   }, [dispatch, initialMessages]);
 
+  const handleSectionChange = (section: string) => {
+    setActiveSection(section);
+  };
+
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <div className='flex-1 justify-between flex flex-col h-full max-h-[calc(100vh-6rem)]'>
+    <div className='flex-1 flex flex-col h-full max-h-[calc(100vh-6rem)]'>
       <div className='flex sm:items-center justify-between py-3 border-b-2 border-gray-200'>
         <div className='relative flex items-center space-x-4'>
           <div className='relative'>
@@ -68,16 +97,54 @@ const Chat = ({
             <span className='text-sm text-gray-600'>{chatPartner.email}</span>
           </div>
         </div>
+        <div className='flex space-x-4'>
+          <button
+            className={`px-4 py-2 rounded ${activeSection === 'chat' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => handleSectionChange('chat')}
+          >
+            Chat
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${activeSection === 'jobDetails' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700'}`}
+            onClick={() => handleSectionChange('jobDetails')}
+          >
+            Job Details
+          </button>
+          {userRole === 'surgeon' && (
+            <button
+            className='px-4 py-2 bg-green-500 text-white rounded'
+            onClick={handleModalOpen}
+            >
+            Send Offer
+          </button>
+          )}
+        </div>
       </div>
 
-      <Messages
-        chatId={chatId}
-        chatPartner={chatPartner}
-        sessionImg={sessionUser.image}
-        sessionId={sessionUser.id}
-        initialMessages={initialMessages}
-      />
-      <ChatInput chatId={chatId} chatPartner={chatPartner} />
+      {activeSection === 'chat' && (
+        <>
+          <Messages
+            chatId={chatId}
+            chatPartner={chatPartner}
+            sessionImg={sessionUser.image}
+            sessionId={sessionUser.id}
+            initialMessages={initialMessages}
+          />
+          <ChatInput chatId={chatId} chatPartner={chatPartner} />
+        </>
+      )}
+
+      {activeSection === 'jobDetails' && (
+        <JobDetailsOnChat job={relatedJob} userRole={userRole} />
+      )}
+
+      {isModalOpen && (
+        <SendOfferModal
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          chatPartner={chatPartner}
+        />
+      )}
     </div>
   );
 };
