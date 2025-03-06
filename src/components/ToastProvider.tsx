@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { pusherClient } from '@/lib/pusher';
 import { toast } from 'react-hot-toast';
 import { toPusherKey } from '@/lib/utils';
 import { useDispatch } from 'react-redux';
 import UnseenChatToast from './UnseenChatToast';
-import { useParams } from 'next/navigation';
+import { useParams, usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 
 interface ToastProviderProps {
   session: Session | null;
@@ -17,12 +16,9 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
   const params = useParams<{ chatId?: string }>();
   const chatId = params?.chatId || '';
   const sessionId = session?.user?.id;
-  const userEmail = session?.user?.email;
-  const [receiverId, senderId, jobId] = chatId.split('--') as [
-    string,
-    string,
-    string
-  ];
+
+  const pathname = usePathname(); // Get the current pathname
+
   useEffect(() => {
     if (!sessionId) return;
     const notificationChannel = toPusherKey(`user:${sessionId}:chats`);
@@ -34,12 +30,11 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
 
     const chatHandler = (message: any) => {
       if (message.receiver !== sessionId) return;
-      if (
-        message.receiver === receiverId &&
-        message.sender === senderId &&
-        message.jobId === jobId
-      )
-        return;
+
+      // Define the exact route where the toast should NOT be shown
+      const blockedPath = `/dashboard/chat/${chatId}`;
+
+      if (pathname === blockedPath) return;
       toast.custom((t) => (
         <UnseenChatToast
           t={t}
@@ -66,28 +61,7 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
       pusherClient.unsubscribe(notificationChannel);
       pusherClient.unbind('notification_toast', chatHandler);
     };
-  }, [sessionId, dispatch, jobId, receiverId, senderId, session]);
-  // useEffect(() => {
-  //   if (!userEmail) return;
-
-  //   const jobChannel = toPusherKey(`surgeon:${userEmail}:jobs`);
-  //   pusherClient.subscribe(jobChannel);
-
-  //   const jobHandler = (newJob: JobData) => {
-  //     toast.success(`New job assigned: ${newJob.title}`, {
-  //       position: 'top-right',
-  //       icon: '📨',
-  //     });
-  //     setNewJob(newJob);
-  //   };
-
-  //   pusherClient.bind('new_job', jobHandler);
-
-  //   return () => {
-  //     pusherClient.unsubscribe(jobChannel);
-  //     pusherClient.unbind('new_job', jobHandler);
-  //   };
-  // }, [userEmail]);
+  }, [sessionId, dispatch, session, chatId, pathname]);
   return null;
 };
 

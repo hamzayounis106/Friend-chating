@@ -13,9 +13,15 @@ export interface JobData {
   date: string;
   description: string;
   surgeonEmails: SurgeonEmail[];
-  AttachmentUrls ?: string[];
+  AttachmentUrls?: string[];
   createdBy: string;
-  patientId: string;
+  patientId?: {
+    // ✅ Made optional with `?`
+    _id: string;
+    name: string;
+    email: string;
+    image: string;
+  };
 }
 
 const Page = async () => {

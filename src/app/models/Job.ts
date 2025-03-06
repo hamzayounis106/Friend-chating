@@ -1,4 +1,5 @@
 import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
+import { IUser } from './User';
 
 export interface IJob extends Document {
   title: string;
@@ -52,7 +53,12 @@ const jobSchema = new Schema<IJob>({
   },
 });
 
-export type LeanJob = Omit<InferSchemaType<typeof jobSchema>, '_id'> & {
+export type LeanJob = Omit<
+  InferSchemaType<typeof jobSchema>,
+  '_id' | 'patientId'
+> & {
   _id: string;
+  patientId?: IUser; // ✅ Ensuring patientId is either a full User or undefined
 };
+
 export default mongoose.models.Job || mongoose.model<IJob>('Job', jobSchema);

@@ -2,9 +2,12 @@ import Job from '@/app/models/Job';
 import dbConnect from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest, { params }: { params: { jobid: string } }) {
-  const { jobid } = params; // Change from jobId to jobid
-  console.log("received id", jobid);
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ jobid: string }> }
+) {
+  const { jobid } = await params; // Change from jobId to jobid
+  console.log('received id', jobid);
 
   await dbConnect();
 
@@ -18,6 +21,9 @@ export async function GET(req: NextRequest, { params }: { params: { jobid: strin
     return NextResponse.json({ job }, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 }
+    );
   }
 }
