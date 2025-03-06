@@ -135,7 +135,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                     prefetch={false}
                     className={`group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold 
                       ${
-                        pathname === chatUrl
+                        pathname?.includes(chatUrl)
                           ? 'bg-indigo-100 text-indigo-700' // Active job highlight
                           : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
                       }`}
@@ -184,7 +184,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                     prefetch={false} // Prevents unnecessary prefetching
                     className={`group flex items-center gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold 
                       ${
-                        pathname === chatUrl
+                        pathname?.includes(chatUrl)
                           ? 'bg-indigo-100 text-indigo-700' // Active job highlight
                           : 'text-gray-700 hover:text-indigo-600 hover:bg-gray-50'
                       }`}
