@@ -29,6 +29,7 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
     );
 
     const chatHandler = (message: any) => {
+      
       if (message.receiver !== sessionId) return;
       console.log("✅ Received message:", message);
       console.log("✅ Received jobId:", message.jobId);

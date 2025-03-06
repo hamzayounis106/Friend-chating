@@ -1,7 +1,8 @@
 'use client';
 
-import axios from 'axios';
 import { useState } from 'react';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export interface OfferType {
   _id: string;
@@ -27,16 +28,19 @@ const OfferResponse = ({
     setLoading(true);
     try {
       const res = await axios.patch(`/api/offers/${offerDetails._id}`, {
-        status: newStatus
+        status: newStatus,
       });
 
       if (res.status === 200) {
         setStatus(newStatus);
+        toast.success(`Offer ${newStatus} successfully`);
       } else {
         console.error('Failed to update offer status');
+        toast.error('Failed to update offer');
       }
     } catch (error) {
       console.error('Error updating offer:', error);
+      toast.error('Error updating offer');
     }
     setLoading(false);
   };
