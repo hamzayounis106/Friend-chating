@@ -12,6 +12,7 @@ export interface OfferType {
   createdBy: string;
   jobId: string;
   location: string;
+  expectedSurgeoryDate: string;
 }
 
 const OfferResponse = ({
@@ -63,6 +64,10 @@ const OfferResponse = ({
           <p>
             <span className='font-semibold'>Sent on:</span>{' '}
             {new Date(offerDetails.createdAt).toLocaleDateString()}
+          </p>
+          <p>
+            <span className='font-semibold'>Expected Surgeory Date:</span>{' '}
+            {new Date(offerDetails.expectedSurgeoryDate).toLocaleDateString()}
           </p>
 
           {/* Action Buttons */}

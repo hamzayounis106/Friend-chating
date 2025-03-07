@@ -4,10 +4,14 @@ import { authOptions } from '@/lib/auth';
 import Offer from '@/app/models/Offer';
 import dbConnect from '@/lib/db';
 import User from '@/app/models/User';
-import { pusherServer } from '@/lib/pusher'
+import { pusherServer } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
+import Job from '@/app/models/Job';
 
-export async function PATCH(req: NextRequest, { params }: { params: { offerId: string } }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ offerId: string }> }
+) {
   try {
     // Authenticate user
     const session = await getServerSession(authOptions);
@@ -16,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { offerId: s
     }
 
     // Parse and validate request body
-    const { offerId } = params;
+    const { offerId } = await params;
     const body = await req.json();
     const { status } = body;
 
@@ -40,10 +44,11 @@ export async function PATCH(req: NextRequest, { params }: { params: { offerId: s
     // Get surgeon info (offer creator)
     const surgeon = await User.findById(updatedOffer.createdBy);
     if (!surgeon) {
-      return NextResponse.json(
-        { error: 'Surgeon not found' }, 
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Surgeon not found' }, { status: 404 });
+    }
+    const job = await Job.findById(updatedOffer.jobId);
+    if (!job) {
+      return NextResponse.json({ error: 'Surgeon not found' }, { status: 404 });
     }
 
     // Send a notification using Pusher
@@ -55,9 +60,12 @@ export async function PATCH(req: NextRequest, { params }: { params: { offerId: s
         sender: session.user.id,
         senderName: session.user.name || 'Patient',
         senderImg: session.user.image || '/default.png',
-        content: `Your offer for job ${updatedOffer.jobId.title || 'Unknown Job'} has been ${status}`,
+        content: `Your offer for job ${
+          job.title || 'Unknown Job'
+        } has been ${status}`,
         timestamp: new Date().toISOString(),
-        jobId: updatedOffer.jobId._id.toString(),
+        jobId: job._id.toString(),
+        type: 'offer',
       }
     );
 

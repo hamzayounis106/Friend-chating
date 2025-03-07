@@ -27,6 +27,7 @@ export interface OfferType {
   createdBy: string;
   jobId: string;
   location: string;
+  expectedSurgeoryDate: string;
 }
 
 const OfferPage = async ({ params }: PageProps) => {
@@ -75,6 +76,7 @@ const OfferPage = async ({ params }: PageProps) => {
         createdBy: offer.createdBy.toString(),
         jobId: offer.jobId.toString(),
         location: offer.location,
+        expectedSurgeoryDate: offer.date.toString(),
       }));
 
       offerSender = await User.findById(
@@ -105,10 +107,12 @@ const OfferPage = async ({ params }: PageProps) => {
         createdBy: offer.createdBy.toString(),
         jobId: offer.jobId.toString(),
         location: offer.location,
+        expectedSurgeoryDate: offer.date.toString(),
       }));
     }
   }
 
+  console.log('offer', offersDetails);
   return (
     <div className='p-4 space-y-6'>
       {userRole === 'surgeon' ? (

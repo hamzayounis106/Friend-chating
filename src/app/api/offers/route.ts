@@ -4,6 +4,10 @@ import { authOptions } from '@/lib/auth';
 import Offer from '@/app/models/Offer';
 import * as z from 'zod';
 import dbConnect from '@/lib/db';
+import User from '@/app/models/User';
+import { pusherServer } from '@/lib/pusher';
+import { toPusherKey } from '@/lib/utils';
+import Job from '@/app/models/Job';
 
 // Schema validation using Zod
 const offerSchema = z.object({
@@ -50,6 +54,31 @@ export async function POST(req: NextRequest) {
       createdBy: session.user.id, // Use authenticated user ID
     });
 
+    const job = await Job.findById(newOffer.jobId);
+    if (!job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    }
+    const patient = await User.findById(job.patientId);
+    if (!patient) {
+      return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
+    }
+
+    await pusherServer.trigger(
+      toPusherKey(`user:${patient._id}:chats`),
+      'notification_toast',
+      {
+        receiver: patient._id.toString(),
+        sender: session.user.id,
+        senderName: session.user.name || 'Surgeon',
+        senderImg: session.user.image || '/default.png',
+        content: `A new offer has been created for your job ${
+          job.title || 'Unknown Job'
+        }`,
+        timestamp: new Date().toISOString(),
+        jobId: newOffer.jobId._id.toString(),
+        type: 'offer',
+      }
+    );
     return NextResponse.json(newOffer, { status: 201 });
   } catch (error) {
     console.error('Error creating offer:', error);

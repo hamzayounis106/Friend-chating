@@ -115,7 +115,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
             const surgeonIds = receiverIds[job._id] || [];
             return acceptedSurgeons.map((surgeon, idx) => {
               const surgeonUserId = surgeonIds[idx];
-              console.log('surgeonUserId', surgeonUserId);
+              // console.log('surgeonUserId', surgeonUserId);
               if (!surgeonUserId) return null;
               const unseenMessagesCount = unseenMessages.filter(
                 (msg) => msg.sender === job._id
