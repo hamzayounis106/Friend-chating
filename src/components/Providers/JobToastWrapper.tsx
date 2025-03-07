@@ -3,23 +3,26 @@ import { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { useAppSelector } from '@/store/hooks';
 import { useSession } from 'next-auth/react';
+import JobToast from '../toasts/JobToast';
 
 const JobToastWrapper = () => {
   const { data: session } = useSession();
   const userEmail = session?.user?.email;
-  const { newJobIdsBySurgeon } = useAppSelector((state) => state.jobs);
 
-  // Get new jobs for current user only
-  const newJobs = userEmail ? newJobIdsBySurgeon[userEmail] || [] : [];
+  // Get the latest job
+  const latestJob = useAppSelector((state) =>
+    userEmail ? state.jobs.latestJobsBySurgeon[userEmail] : null
+  );
+
+  console.log('Latest job from JobToastWrapper:', latestJob);
 
   useEffect(() => {
-    if (newJobs.length > 0) {
-      toast.success(`New job assignment received!`, {
-        position: 'top-right',
-        icon: '📨',
+    if (latestJob) {
+      toast.custom((t) => <JobToast t={t} job={latestJob} />, {
+        duration: 5000, // Stays visible for 5 seconds
       });
     }
-  }, [newJobs.length]); // Only trigger for current user's new jobs
+  }, [latestJob]); // Only trigger when a new job arrives
 
   return null;
 };

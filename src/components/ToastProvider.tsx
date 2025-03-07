@@ -3,7 +3,7 @@ import { pusherClient } from '@/lib/pusher';
 import { toast } from 'react-hot-toast';
 import { toPusherKey } from '@/lib/utils';
 import { useDispatch } from 'react-redux';
-import UnseenChatToast from './UnseenChatToast';
+import UnseenChatToast from './toasts/UnseenChatToast';
 import { useParams, usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
 
@@ -101,7 +101,16 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
       pusherClient.unsubscribe(notificationChannel);
       pusherClient.unbind('notification_toast', chatHandler);
     };
-  }, [sessionId, dispatch, session, chatId, pathname]);
+  }, [
+    sessionId,
+    dispatch,
+    session,
+    chatId,
+    pathname,
+    jobId_p,
+    userId1_p,
+    userId2_p,
+  ]);
   return null;
 };
 

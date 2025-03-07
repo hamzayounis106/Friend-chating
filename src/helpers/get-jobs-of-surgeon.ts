@@ -14,7 +14,7 @@ export const getJobsForSurgeon = async (
       'surgeonEmails.email': userEmail,
     })
       .select(
-        'title type date description surgeonEmails videoURLs createdBy patientId'
+        'title type date description surgeonEmails videoURLs createdBy patientId AttachmentUrls'
       )
       .lean()
       .exec();
@@ -35,7 +35,7 @@ export const getJobsForSurgeon = async (
           status,
         })
       ),
-      AttachmentUrls : job.AttachmentUrls, 
+      AttachmentUrls: job.AttachmentUrls,
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
     })) as JobData[];

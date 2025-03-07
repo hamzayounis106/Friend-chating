@@ -104,6 +104,7 @@ export async function POST(req: Request) {
                 ? AttachmentUrls
                 : [],
             budget: body.budget || undefined, // Will be omitted if not provided
+            typeOfNotification: 'job',
           }
         );
       }

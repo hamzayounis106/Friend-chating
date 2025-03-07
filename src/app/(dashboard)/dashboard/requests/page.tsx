@@ -13,7 +13,7 @@ export interface JobData {
   date: string;
   description: string;
   surgeonEmails: SurgeonEmail[];
-  AttachmentUrls?: string[];
+  AttachmentUrls: string[];
   createdBy: string;
   patientId?: {
     // ✅ Made optional with `?`
