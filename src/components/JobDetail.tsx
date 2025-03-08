@@ -42,12 +42,16 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
   };
   const session = useSession();
   const sessionId = session.data?.user.id;
+  const navigate = useRouter();
   const acceptJob = async (jobId: string) => {
     try {
-      await axios.post('/api/Jobs/accept', { id: jobId, userEmail });
+ const res =      await axios.post('/api/Jobs/accept', { id: jobId, userEmail });
       dispatch(removeAcceptedJob({ email: userEmail, jobId }));
       dispatch(decrementUnseenJobCount({ email: userEmail }));
-
+      console.log("res on invite accept",res)
+      const job = res.data.job;
+      
+ navigate.push(`/dashboard/chat/${sessionId}--${job.patientId}--${job?._id}`);
       router.refresh();
     } catch (error) {
       toast.error('Error accepting job');
@@ -137,8 +141,8 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
                     onClick={() => acceptJob(job._id)}
                     aria-label='accept job'
                     className='w-8 h-8 bg-green-600 hover:bg-green-700 grid place-items-center rounded-full transition hover:shadow-md'
-                  >
-                    <Check className='font-semibold text-white w-3/4 h-3/4' />
+                  > Reply -
+                    {/* <Check className='font-semibold text-white w-3/4 h-3/4' /> */}
                   </button>
                 </div>
               </div>

@@ -33,7 +33,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
         { 'animate-enter': t.visible, 'animate-leave': !t.visible }
       )}
     >
-      <Link
+      <a
         onClick={() => toast.dismiss(t.id)}
         href={`/dashboard/chat/${chatHrefConstructor(
           sessionId,
@@ -41,7 +41,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
           jobId,
           session
         )}`}
-        prefetch={false}
+      
         className='flex-1 w-0 p-4'
       >
         <div className='flex items-start'>
@@ -63,7 +63,7 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
             <p className='mt-1 text-sm text-gray-500'>{senderMessage}</p>
           </div>
         </div>
-      </Link>
+      </a>
 
       <div className='flex border-l border-gray-200'>
         <button

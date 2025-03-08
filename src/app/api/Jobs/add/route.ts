@@ -5,6 +5,7 @@ import { toPusherKey } from '@/lib/utils';
 import dbConnect from '@/lib/db'; // MongoDB connection
 import User from '@/app/models/User';
 import Job from '@/app/models/Job';
+import Notification from '@/app/models/Notification'; // Import the Notification model
 import { mailSender, mainClient } from '@/lib/mail';
 import { z } from 'zod';
 
@@ -21,13 +22,13 @@ export async function POST(req: Request) {
       date,
       description,
       surgeonEmails,
-      // videoURLs,
       agreeToTerms,
       createdBy,
       patientId,
       AttachmentUrls,
       budget,
     } = body;
+    
     // Transform the 'surgeonEmails' array to just include email strings
     const validSurgeonEmails = [];
     for (const emailObj of surgeonEmails) {
@@ -53,8 +54,6 @@ export async function POST(req: Request) {
       }
     }
 
-    // Validate 'videoURLs' to make sure they are strings and not an array of objects.
-    // const validVideoURLs = Array.isArray(videoURLs) ? videoURLs : [];
     const session = await getServerSession(authOptions);
 
     if (!session) {
@@ -63,6 +62,7 @@ export async function POST(req: Request) {
     if (!Array.isArray(AttachmentUrls)) {
       return new Response('Invalid image URLs format', { status: 400 });
     }
+    
     // Create the new job post
     const job = new Job({
       title,
@@ -70,7 +70,6 @@ export async function POST(req: Request) {
       date: new Date(date),
       description,
       surgeonEmails: validSurgeonEmails,
-      // videoURLs: validVideoURLs,
       AttachmentUrls:
         Array.isArray(AttachmentUrls) && AttachmentUrls.length > 0
           ? AttachmentUrls
@@ -82,10 +81,12 @@ export async function POST(req: Request) {
 
     await job.save();
 
+    // Loop through each surgeon email and create notifications
     for (const emailObj of validSurgeonEmails) {
       const surgeon = await User.findOne({ email: emailObj.email });
 
       if (surgeon) {
+        // Send pusher notification
         await pusherServer.trigger(
           toPusherKey(`surgeon:${emailObj.email}:jobs`),
           'new_job',
@@ -96,42 +97,57 @@ export async function POST(req: Request) {
             date: new Date(date).toISOString(),
             description,
             surgeonEmails: validSurgeonEmails,
-            // videoURLs: validVideoURLs,
             createdBy: session.user.email,
             patientId: session.user.id,
             AttachmentUrls:
               Array.isArray(AttachmentUrls) && AttachmentUrls.length > 0
                 ? AttachmentUrls
                 : [],
-            budget: body.budget || undefined, // Will be omitted if not provided
+            budget: body.budget || undefined,
             typeOfNotification: 'job',
           }
         );
+
+        // Create a notification entry in the database
+        try {
+          const notificationMessage = `You have a new job invitation: ${title}`;
+          const notificationLink = `/dashboard/jobs/${job._id}`;
+          
+          // Check if a similar notification already exists
+          const existingNotification = await Notification.findOne({
+            jobId: job._id,
+            senderId: session.user.id,
+            receiverId: surgeon._id,
+     
+            notificationType: 'job_invite',
+          });
+
+          if (existingNotification) {
+            // Update the existing notification
+            await Notification.findByIdAndUpdate(existingNotification._id, {
+              jobId: job._id,
+              message: notificationMessage,
+              isSeen: false,
+   
+            });
+          } else {
+            // Create a new notification
+            const newNotification = new Notification({
+              jobId: job._id,
+              message: notificationMessage,
+        
+              isSeen: false,
+              senderId: session.user.id,
+              receiverId: surgeon._id,
+              notificationType: 'job_invite',
+            });
+            await newNotification.save();
+          }
+        } catch (error) {
+          console.error("Failed to create/update notification:", error);
+          // Continue execution even if notification creation fails
+        }
       }
-
-      // const recipients = [{ email: emailObj.email }];
-
-      // try {
-      //   await mainClient.send({
-      //     from: mailSender,
-      //     to: recipients,
-      //     subject: `New Job Post: ${title}`,
-      //     html: `<p>A new job post has been created by ${session.user.name}</p>
-      //            <p>Job Details:</p>
-      //            <ul>
-      //              <li>Title: ${title}</li>
-      //              <li>Type: ${type}</li>
-      //              <li>Date: ${new Date(date).toISOString()}</li>
-      //              ${budget ? `<li>Budget: $${budget}</li>` : ''}
-      //              <li>Description: ${description}</li>
-      //            </ul>
-      //            <p>Please login to your account to view the job post.</p>`,
-      //     category: 'Job Notification',
-      //   });
-      // } catch (error) {
-      //   console.error('Error sending notification email:', error);
-      //   throw new Error('Failed to send notification email');
-      // }
     }
 
     return new Response('Job post created successfully', { status: 201 });

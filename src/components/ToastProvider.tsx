@@ -45,9 +45,27 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
       if (message.type === 'offer') {
         console.log('🎉 Offer notification received! Showing toast.');
         toast.custom((t) => (
+          
           <UnseenChatToast
             t={t}
             sessionId={sessionId}
+            senderId={message.sender}
+            senderImg={message.senderImg}
+            senderMessage={message.content}
+            senderName={message.senderName}
+            jobId={message?.jobId}
+            session={session}
+          />
+        ));
+        return;
+      }
+      if (message.type === 'invite_accepted') {
+        console.log('🎉 invite accepted', message);
+        toast.custom((t) => (
+          <UnseenChatToast
+            t={t}
+            sessionId={sessionId}
+
             senderId={message.sender}
             senderImg={message.senderImg}
             senderMessage={message.content}

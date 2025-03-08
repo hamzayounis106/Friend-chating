@@ -25,7 +25,7 @@ const SignOutButton: FC<SignOutButtonProps> = ({ ...props }) => {
         }
       }}>
       {isSigningOut ? (
-        <Loader2 className='animate-spin h-4 w-4' />
+        <Loader2 className='animate-spin h-4 w-4 text-back' />
       ) : (
         <LogOut className='w-4 h-4' />
       )}
