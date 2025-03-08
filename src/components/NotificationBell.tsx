@@ -162,8 +162,8 @@ const NotificationBell = () => {
     // Define the notification handler for general notifications
     const notificationHandler = (message: any) => {
       console.log("✅ Received notification message in bell:", message);
-      if (message.type !== "offer" || message.type !== "invite_accepted")
-        return;
+      // if (message.type !== "offer" || message.type !== "invite_accepted")
+        // return;
       if (message.receiver !== sessionId) return;
 
       console.log("✅ Received notification message:", message);
