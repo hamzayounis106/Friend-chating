@@ -80,11 +80,11 @@ export async function POST(req: Request) {
     });
 
     await job.save();
-
+console.log("validSurgeonEmails", validSurgeonEmails);
     // Loop through each surgeon email and create notifications
     for (const emailObj of validSurgeonEmails) {
       const surgeon = await User.findOne({ email: emailObj.email });
-
+console.log("surgeon", surgeon);
       if (surgeon) {
         // Send pusher notification
         await pusherServer.trigger(
@@ -110,6 +110,7 @@ export async function POST(req: Request) {
 
         // Create a notification entry in the database
         try {
+          console.log("Creating notification for job invite for user:", surgeon.email) ;
           const notificationMessage = `You have a new job invitation: ${title}`;
           const notificationLink = `/dashboard/jobs/${job._id}`;
           
@@ -123,6 +124,7 @@ export async function POST(req: Request) {
           });
 
           if (existingNotification) {
+            console.log("Updating existing notification for user:", surgeon.email);
             // Update the existing notification
             await Notification.findByIdAndUpdate(existingNotification._id, {
               jobId: job._id,
@@ -131,6 +133,7 @@ export async function POST(req: Request) {
    
             });
           } else {
+            console.log("Creating new notification for user:", surgeon.email);
             // Create a new notification
             const newNotification = new Notification({
               jobId: job._id,
