@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import Offer from '@/app/models/Offer';
 import User from '@/app/models/User';
 import Job from '@/app/models/Job';
+import Surgery from '@/app/models/surgery'; // Import the Surgery model
 import Notification from '@/app/models/Notification';
 import dbConnect from '@/lib/db';
 import { pusherServer } from '@/lib/pusher';
@@ -21,13 +22,11 @@ export async function PATCH(
     }
 
     // Parse and validate request body
-
     const { offerId } = await params;
-    // console.log('offerId', params);
     const body = await req.json();
     console.log('body', body);
     const { status } = body;
-    console.log('helllllllllllllllllllllllllllllllll😎😎😎', offerId);
+    
     if (!['accepted', 'declined'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
@@ -58,6 +57,42 @@ export async function PATCH(
       return NextResponse.json({ error: 'Surgeon not found' }, { status: 404 });
     }
 
+    // If the offer was accepted, create a surgery in the database
+    if (status === 'accepted') {
+      try {
+        // Create new surgery record
+        const newSurgery = new Surgery({
+          patientId: job.patientId, // From the job
+          surgeonId: updatedOffer.createdBy, // From the offer
+          offerId: offerId, // The accepted offer
+          jobId: job._id, // The original job
+          status: 'scheduled',
+          scheduledDate: updatedOffer.date, // Use the date from the offer
+        });
+        
+        // Save the surgery to the database
+        await newSurgery.save();
+        console.log('Surgery created successfully:', newSurgery._id);
+        
+        // You could optionally update the job status here too
+        await Job.findByIdAndUpdate(job._id, { status: 'scheduled' });
+        
+        // Also update any other offers for this job to 'declined'
+        await Offer.updateMany(
+          { 
+            _id: { $ne: offerId },  // Not this offer
+            jobId: job._id,         // But for the same job
+            status: 'pending'       // That are still pending
+          },
+          { status: 'declined' }
+        );
+      } catch (surgeryError) {
+        console.error('Error creating surgery:', surgeryError);
+        // We'll continue even if surgery creation fails
+        // You might want to handle this differently in production
+      }
+    }
+
     // Send a notification using Pusher
     await pusherServer.trigger(
       toPusherKey(`user:${updatedOffer.createdBy}:chats`),
@@ -78,20 +113,26 @@ export async function PATCH(
 
     // Create notification in database
     try {
-      const notificationMessage = `Your offer for "${job.title}" has been ${status}`;
-      const notificationLink = `/dashboard/jobs/${job._id}`;
-      const notificationType =
-        status === 'accepted' ? 'offer_accepted' : 'offer_declined';
+      let notificationMessage = '';
+      let notificationType = '';
+      
+      if (status === 'accepted') {
+        notificationMessage = `Your offer for "${job.title}" has been accepted! A surgery has been scheduled.`;
+        notificationType = 'offer_accepted';
+      } else {
+        notificationMessage = `Your offer for "${job.title}" has been declined.`;
+        notificationType = 'offer_declined';
+      }
 
       const newNotification = new Notification({
         jobId: job._id,
         message: notificationMessage,
-
         isSeen: false,
         senderId: session.user.id,
         receiverId: updatedOffer.createdBy,
         notificationType,
       });
+      
       await newNotification.save();
     } catch (error) {
       console.error('Failed to create notification:', error);
