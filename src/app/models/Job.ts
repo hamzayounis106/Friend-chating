@@ -1,6 +1,13 @@
 import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
 import { IUser } from './User';
 
+// Add job status enum
+export enum JobStatus {
+  CREATED = 'created',
+  STARTED = 'started',
+  CLOSED = 'closed',
+}
+
 export interface IJob extends Document {
   title: string;
   type: string;
@@ -14,6 +21,7 @@ export interface IJob extends Document {
   budget?: number;
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
+  status: JobStatus; // Add status field
 }
 
 const jobSchema = new Schema<IJob>({
@@ -49,6 +57,12 @@ const jobSchema = new Schema<IJob>({
   patientId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: Object.values(JobStatus),
+    default: JobStatus.CREATED,
     required: true,
   },
 });

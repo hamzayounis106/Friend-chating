@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth";
 import dbConnect from "@/lib/db";
 import Surgery from "@/app/models/surgery";
 import User from "@/app/models/User";
-
+import Offer from "@/app/models/Offer"; 
 export async function GET(req: NextRequest) {
   try {
     // Check authentication
@@ -36,6 +36,7 @@ export async function GET(req: NextRequest) {
         })
         .populate({
           path: "offerId",
+          model: Offer,
           select: "cost date location status",
         })
         .sort({ scheduledDate: 1 }); // Sort by upcoming surgeries
@@ -53,6 +54,7 @@ export async function GET(req: NextRequest) {
         })
         .populate({
           path: "offerId",
+          model: Offer, // Add this line with the Offer model
           select: "cost date location status",
         })
         .sort({ scheduledDate: 1 }); // Sort by upcoming surgeries

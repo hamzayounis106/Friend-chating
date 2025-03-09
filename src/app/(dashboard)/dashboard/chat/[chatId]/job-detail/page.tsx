@@ -48,8 +48,8 @@ const JobDetailPage = async ({ params }: PageProps) => {
 
   return (
     <div className='p-4'>
-      <h2 className='text-xl font-semibold'>{relatedJob.title}</h2>
-      <p>{relatedJob.description}</p>
+      {/* <h2 className='text-xl font-semibol  */}
+      {/* <p>{relatedJob.description}</p> */}
       {/* ✅ Pass `userRole` to JobDetailsOnChat */}
       <JobDetailsOnChat job={relatedJob} userRole={userRole as string} />
     </div>

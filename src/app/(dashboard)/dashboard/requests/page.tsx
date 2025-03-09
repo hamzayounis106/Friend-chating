@@ -15,6 +15,8 @@ export interface JobData {
   surgeonEmails: SurgeonEmail[];
   AttachmentUrls: string[];
   createdBy: string;
+  status: string; // ✅ Add status field
+  createdAt: Date;
   patientId?: {
     // ✅ Made optional with `?`
     _id: string;

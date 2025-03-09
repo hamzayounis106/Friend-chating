@@ -6,6 +6,7 @@ import { setInitialMessages } from '@/store/slices/chatSlice';
 import Image from 'next/image';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
+import { MessageCircle, Phone, Video } from 'lucide-react';
 
 interface ChatProps {
   chatId: string;
@@ -37,38 +38,48 @@ const Chat = ({
 
   return (
     <div className='flex-1 flex flex-col h-full max-h-[calc(100vh-6rem)]'>
-      <div className='flex sm:items-center justify-between py-3 border-b-2 border-gray-200'>
-        <div className='relative flex items-center space-x-4'>
-          <div className='relative w-8 sm:w-12 h-8 sm:h-12'>
+      {/* Chat Header */}
+      <div className='flex items-center justify-between p-4 border-b border-gray-200 bg-white shadow-sm'>
+        <div className='flex items-center space-x-3'>
+          <div className='relative w-10 h-10'>
             <Image
               fill
               referrerPolicy='no-referrer'
               src={chatPartner.image || '/default.png'}
               alt={`${chatPartner.name} profile picture`}
-              className='rounded-full'
-              sizes='(max-width: 768px) 100vw, 24px'
+              className='rounded-full object-cover'
+              sizes='(max-width: 768px) 40px, 40px'
             />
+            
           </div>
-          <div className='flex flex-col leading-tight'>
-            <div className='text-xl flex items-center'>
-              <span className='text-gray-700 mr-3 font-semibold'>
-                {chatPartner.name}
-              </span>
-            </div>
-            <span className='text-sm text-gray-600'>{chatPartner.email}</span>
+          <div className='flex flex-col'>
+            <span className='text-gray-800 font-medium leading-tight'>
+              {chatPartner.name}
+            </span>
+            <span className='text-xs text-gray-500'>{chatPartner.email}</span>
           </div>
+        </div>
+
+        <div className='flex items-center space-x-2'>
+         
         </div>
       </div>
 
-      {/* Chat Messages */}
-      <Messages
-        chatId={chatId}
-        chatPartner={chatPartner}
-        sessionImg={sessionUser.image}
-        sessionId={sessionUser.id}
-        initialMessages={initialMessages}
-      />
-      <ChatInput chatId={chatId} chatPartner={chatPartner} />
+      {/* Message Thread Area */}
+      <div className='flex-1 bg-gray-50 overflow-hidden'>
+        <Messages
+          chatId={chatId}
+          chatPartner={chatPartner}
+          sessionImg={sessionUser.image}
+          sessionId={sessionUser.id}
+          initialMessages={initialMessages}
+        />
+      </div>
+
+      {/* Chat Input Area */}
+      <div className='bg-white border-t border-gray-100'>
+        <ChatInput chatId={chatId} chatPartner={chatPartner} />
+      </div>
     </div>
   );
 };
