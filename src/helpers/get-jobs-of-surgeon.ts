@@ -14,7 +14,7 @@ export const getJobsForSurgeon = async (
       'surgeonEmails.email': userEmail,
     })
       .select(
-        'title type date description surgeonEmails videoURLs createdBy patientId AttachmentUrls'
+        'title type date description surgeonEmails videoURLs createdBy patientId AttachmentUrls status'
       )
       .lean()
       .exec();
@@ -37,7 +37,7 @@ export const getJobsForSurgeon = async (
       ),
       AttachmentUrls: job.AttachmentUrls,
       createdBy: job.createdBy.toString(),
-      patientId: job.patientId.toString(),
+      patientId: job.patientId.toString(), status: job.status, 
     })) as JobData[];
   } catch (error) {
     console.error('Error fetching jobs:', error);

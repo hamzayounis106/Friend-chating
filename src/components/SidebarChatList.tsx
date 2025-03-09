@@ -287,7 +287,7 @@ const SidebarChatList: FC<SidebarChatListProps> = ({
                       <div className="flex items-center gap-1">
                         <MessageCircle className="h-3 w-3 text-gray-400" />
                         <p className="text-xs text-gray-500 truncate">
-                          {job.type}
+                        {job.title}
                         </p>
                       </div>
                       

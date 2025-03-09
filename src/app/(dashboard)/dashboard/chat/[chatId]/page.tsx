@@ -17,7 +17,7 @@ export interface ChatPartner {
 }
 
 async function getChatMessages(chatId: string) {
-  const [userId1, userId2] = chatId.split('--');
+  const [userId1, userId2, jobId3] = chatId.split('--');
   if (!userId1 || !userId2) throw new Error('Invalid chatId');
 
   const messages = await Message.find({
@@ -25,6 +25,7 @@ async function getChatMessages(chatId: string) {
       { sender: userId1, receiver: userId2 },
       { sender: userId2, receiver: userId1 },
     ],
+    jobId: jobId3,
   })
     .sort({ timestamp: -1 })
     .lean();

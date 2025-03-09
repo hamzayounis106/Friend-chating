@@ -74,8 +74,24 @@ export async function PATCH(
         await newSurgery.save();
         console.log('Surgery created successfully:', newSurgery._id);
         
-        // You could optionally update the job status here too
-        await Job.findByIdAndUpdate(job._id, { status: 'scheduled' });
+        const surgeonEmail = surgeon.email;
+
+        // Update the job with new surgeon statuses and overall job status
+        await Job.findByIdAndUpdate(
+          job._id, 
+          { 
+            status: 'scheduled',
+            $set: {
+              surgeonEmails: job.surgeonEmails.map((surgeon: any) => {
+                if (surgeon.email === surgeonEmail) {
+                  return { ...surgeon, status: "accepted" };
+                } else {
+                  return { ...surgeon, status: "declined" };
+                }
+              })
+            }
+          }
+        );
         
         // Also update any other offers for this job to 'declined'
         await Offer.updateMany(

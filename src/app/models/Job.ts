@@ -15,7 +15,7 @@ export interface IJob extends Document {
   description: string;
   surgeonEmails: {
     email: string;
-    status: 'accepted' | 'declined' | 'pending';
+    status: 'accepted' | 'declined' | 'pending' ;
   }[];
   AttachmentUrls?: string[];
   budget?: number;
