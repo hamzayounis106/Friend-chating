@@ -1,7 +1,18 @@
 'use client';
 
 import { Transition, Dialog } from '@headlessui/react';
-import { Menu, X, Home, Calendar, Settings, HelpCircle, PlusCircle, ClipboardList, Inbox, MessageSquare } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Home,
+  Calendar,
+  Settings,
+  HelpCircle,
+  PlusCircle,
+  ClipboardList,
+  Inbox,
+  MessageSquare,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FC, Fragment, useEffect, useState } from 'react';
@@ -36,14 +47,22 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
   // Helper function to get the appropriate icon
   const getIcon = (iconName: string) => {
     switch (iconName) {
-      case 'Home': return <Home className="h-4 w-4" />;
-      case 'Calendar': return <Calendar className="h-4 w-4" />;
-      case 'Settings': return <Settings className="h-4 w-4" />;
-      case 'HelpCircle': return <HelpCircle className="h-4 w-4" />;
-      case 'PlusCircle': return <PlusCircle className="h-4 w-4" />;
-      case 'ClipboardList': return <ClipboardList className="h-4 w-4" />;
-      case 'Inbox': return <Inbox className="h-4 w-4" />;
-      default: return <MessageSquare className="h-4 w-4" />;
+      case 'Home':
+        return <Home className='h-4 w-4' />;
+      case 'Calendar':
+        return <Calendar className='h-4 w-4' />;
+      case 'Settings':
+        return <Settings className='h-4 w-4' />;
+      case 'HelpCircle':
+        return <HelpCircle className='h-4 w-4' />;
+      case 'PlusCircle':
+        return <PlusCircle className='h-4 w-4' />;
+      case 'ClipboardList':
+        return <ClipboardList className='h-4 w-4' />;
+      case 'Inbox':
+        return <Inbox className='h-4 w-4' />;
+      default:
+        return <MessageSquare className='h-4 w-4' />;
     }
   };
 
@@ -116,22 +135,28 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                                       href={option.href}
                                       className='group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors'
                                     >
-                                      <span className={cn(
-                                        "flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors",
-                                        option.href === "/dashboard/requests" && unseenRequestCount > 0 && "bg-blue-50 text-blue-600 border-blue-200"
-                                      )}>
+                                      <span
+                                        className={cn(
+                                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors',
+                                          option.href ===
+                                            '/dashboard/requests' &&
+                                            unseenRequestCount > 0 &&
+                                            'bg-blue-50 text-blue-600 border-blue-200'
+                                        )}
+                                      >
                                         {getIcon(option.Icon)}
                                       </span>
                                       <span className='truncate'>
                                         {option.name}
                                       </span>
-                                      
+
                                       {/* Request badge */}
-                                      {option.href === "/dashboard/requests" && unseenRequestCount > 0 && (
-                                        <span className="inline-block ml-auto px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                                          {unseenRequestCount}
-                                        </span>
-                                      )}
+                                      {option.href === '/dashboard/requests' &&
+                                        unseenRequestCount > 0 && (
+                                          <span className='inline-block ml-auto px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800'>
+                                            {unseenRequestCount}
+                                          </span>
+                                        )}
                                     </Link>
                                   </li>
                                 ))}
@@ -155,12 +180,11 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                                 <div className='flex items-center gap-3'>
                                   <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
                                     <Image
-                                      fill
                                       referrerPolicy='no-referrer'
                                       className='object-cover'
                                       src={session.user.image || '/default.png'}
                                       alt='Your profile picture'
-                                      sizes='40px'
+                                      sizes='(max-width: 768px) 100vw, 24px'
                                     />
                                   </div>
                                   <div className='flex flex-col'>

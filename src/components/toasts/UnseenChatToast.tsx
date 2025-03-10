@@ -1,7 +1,6 @@
 import { chatHrefConstructor, cn } from '@/lib/utils';
 import { Session } from 'next-auth';
 import Image from 'next/image';
-import Link from 'next/link';
 import { FC } from 'react';
 import { toast, type Toast } from 'react-hot-toast';
 
@@ -41,7 +40,6 @@ const UnseenChatToast: FC<UnseenChatToastProps> = ({
           jobId,
           session
         )}`}
-      
         className='flex-1 w-0 p-4'
       >
         <div className='flex items-start'>

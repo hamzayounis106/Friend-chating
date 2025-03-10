@@ -31,7 +31,7 @@ async function getChatMessages(chatId: string) {
     .lean();
 
   return messages.map((msg: any) => ({
-    _id: msg._id.toString(),
+    id: msg._id.toString(),
     sender: msg.sender.toString(),
     receiver: msg.receiver.toString(),
     timestamp: new Date(msg.timestamp).toISOString(),

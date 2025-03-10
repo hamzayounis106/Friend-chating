@@ -50,7 +50,6 @@ const Chat = ({
               className='rounded-full object-cover'
               sizes='(max-width: 768px) 40px, 40px'
             />
-            
           </div>
           <div className='flex flex-col'>
             <span className='text-gray-800 font-medium leading-tight'>
@@ -60,9 +59,7 @@ const Chat = ({
           </div>
         </div>
 
-        <div className='flex items-center space-x-2'>
-         
-        </div>
+        <div className='flex items-center space-x-2'></div>
       </div>
 
       {/* Message Thread Area */}
@@ -72,7 +69,6 @@ const Chat = ({
           chatPartner={chatPartner}
           sessionImg={sessionUser.image}
           sessionId={sessionUser.id}
-          initialMessages={initialMessages}
         />
       </div>
 
