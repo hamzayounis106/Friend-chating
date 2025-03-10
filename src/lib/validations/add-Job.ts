@@ -59,7 +59,9 @@ export const addJobValidator = z.object({
   //     message: 'All URLs must be valid',
   //   }),
   AttachmentUrls: z.array(z.string().url()).optional(), // ✅ Make imageUrls optional
-  agreeToTerms: z.boolean(),
+  agreeToTerms: z.boolean().refine((val) => val === true, {
+    message: 'Please check this box to proceed', // Custom error message
+  }),
   budget: z
     .number()
     .min(0, 'Budget must be a positive number')

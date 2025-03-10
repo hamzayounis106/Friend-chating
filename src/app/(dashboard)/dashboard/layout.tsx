@@ -95,18 +95,18 @@ const Layout = async ({ children }: LayoutProps) => {
     },
   ];
 
-  const surgeonOptions: SidebarOption[] = [
-    {
-      id: 7,
-      name: 'Requests',
-      href: '/dashboard/requests',
-      Icon: 'Inbox',
-    },
-  ];
+  // const surgeonOptions: SidebarOption[] = [
+  //   {
+  //     id: 7,
+  //     name: 'Requests',
+  //     href: '/dashboard/requests',
+  //     Icon: 'Inbox',
+  //   },
+  // ];
 
   // Combine appropriate options based on user role
   const sidebarOptions: SidebarOption[] =
-    userRole === 'patient' ? [...patientOptions] : [...surgeonOptions];
+    userRole === 'patient' ? patientOptions : [];
 
   const unseenJobCount =
     userRole === 'surgeon'
@@ -193,9 +193,6 @@ const Layout = async ({ children }: LayoutProps) => {
             <div className='space-y-4'>
               {/* Main Menu */}
               <div>
-                <h3 className='px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
-                  Main Menu
-                </h3>
                 <ul className='mt-2 space-y-1'>
                   {sidebarOptions.map((option) => (
                     <li key={option.id}>

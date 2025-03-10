@@ -90,6 +90,7 @@ const OfferPage = async ({ params }: PageProps) => {
         offersData[0].createdBy
       ).lean<LeanUser>();
     }
+    // console.log('offer Data from the notification', offersData);
   }
 
   // Fetch the surgeon's created offer
@@ -112,6 +113,7 @@ const OfferPage = async ({ params }: PageProps) => {
         expectedSurgeoryDate: offer.date.toString(),
       }));
     }
+    console.log('surgeon offer Data from the notification', offersData);
   }
 
   // Find the accepted offer if job is scheduled
@@ -119,15 +121,14 @@ const OfferPage = async ({ params }: PageProps) => {
   if (isJobScheduled) {
     const acceptedOfferData = await Offer.findOne({
       jobId: jobId,
-      status: 'accepted'
+      status: 'accepted',
     }).lean<LeanOffer>();
 
-
-
-
     if (acceptedOfferData) {
-      const acceptedOfferSender = await User.findById(acceptedOfferData.createdBy).lean<LeanUser>();
-      
+      const acceptedOfferSender = await User.findById(
+        acceptedOfferData.createdBy
+      ).lean<LeanUser>();
+
       acceptedOffer = {
         _id: acceptedOfferData._id.toString(),
         cost: acceptedOfferData.cost,
@@ -140,34 +141,52 @@ const OfferPage = async ({ params }: PageProps) => {
       };
     }
   }
-  console.log("acceptedOffer", acceptedOffer);
+  console.log('acceptedOffer', acceptedOffer);
   const isThisUserCreatedOffer = user.id === acceptedOffer?.createdBy;
   return (
     <div className='p-4 space-y-6'>
       {isJobScheduled && (
-        <div className="rounded-md bg-green-50 p-4 mb-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" />
+        <div className='rounded-md bg-green-50 p-4 mb-4'>
+          <div className='flex'>
+            <div className='flex-shrink-0'>
+              <svg
+                className='h-5 w-5 text-green-400'
+                viewBox='0 0 20 20'
+                fill='currentColor'
+                aria-hidden='true'
+              >
+                <path
+                  fillRule='evenodd'
+                  d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z'
+                  clipRule='evenodd'
+                />
               </svg>
             </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-green-800">Offer Accepted</h3>
-              <div className="mt-2 text-sm text-green-700">
-                <p>An offer for this job has been accepted and a surgery has been scheduled.</p>
+            <div className='ml-3'>
+              <h3 className='text-sm font-medium text-green-800'>
+                Offer Accepted
+              </h3>
+              <div className='mt-2 text-sm text-green-700'>
+                <p>
+                  An offer for this job has been accepted and a surgery has been
+                  scheduled.
+                </p>
               </div>
             </div>
           </div>
         </div>
       )}
-      
+
       {userRole === 'surgeon' ? (
         <>
           {!isJobScheduled && (
-            <OfferForm chatPartner={chatPartner} jobId={jobId} userId={user.id} />
-          ) }
-          
+            <OfferForm
+              chatPartner={chatPartner}
+              jobId={jobId}
+              userId={user.id}
+            />
+          )}
+
           {surgeonOffers?.length > 0 && (
             <OfferDetails
               offerDetails={surgeonOffers}
@@ -186,14 +205,13 @@ const OfferPage = async ({ params }: PageProps) => {
           />
         ))
       ) : (
-        <p className="text-center p-4 text-gray-600">
-          {isJobScheduled 
-            ? "This job already has an accepted offer."
-            : "No offers available yet."
-          }
+        <p className='text-center p-4 text-gray-600'>
+          {isJobScheduled
+            ? 'This job already has an accepted offer.'
+            : 'No offers available yet.'}
         </p>
       )}
-{/* 
+      {/* 
       {isJobScheduled && acceptedOffer && isThisUserCreatedOffer && (
         <div className="mt-8 p-4 border border-green-200 rounded-lg bg-green-50">
           <h2 className="text-lg font-medium text-green-800 mb-4">Accepted Offer Details</h2>
