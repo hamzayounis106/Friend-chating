@@ -26,7 +26,7 @@ export async function PATCH(
     const body = await req.json();
     console.log('body', body);
     const { status } = body;
-    
+
     if (!['accepted', 'declined'].includes(status)) {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
@@ -69,36 +69,33 @@ export async function PATCH(
           status: 'scheduled',
           scheduledDate: updatedOffer.date, // Use the date from the offer
         });
-        
+
         // Save the surgery to the database
         await newSurgery.save();
         console.log('Surgery created successfully:', newSurgery._id);
-        
+
         const surgeonEmail = surgeon.email;
 
         // Update the job with new surgeon statuses and overall job status
-        await Job.findByIdAndUpdate(
-          job._id, 
-          { 
-            status: 'scheduled',
-            $set: {
-              surgeonEmails: job.surgeonEmails.map((surgeon: any) => {
-                if (surgeon.email === surgeonEmail) {
-                  return { ...surgeon, status: "accepted" };
-                } else {
-                  return { ...surgeon, status: "declined" };
-                }
-              })
-            }
-          }
-        );
-        
+        await Job.findByIdAndUpdate(job._id, {
+          status: 'scheduled',
+          $set: {
+            surgeonEmails: job.surgeonEmails.map((surgeon: any) => {
+              if (surgeon.email === surgeonEmail) {
+                return { ...surgeon, status: 'accepted' };
+              } else {
+                return { ...surgeon, status: 'declined' };
+              }
+            }),
+          },
+        });
+
         // Also update any other offers for this job to 'declined'
         await Offer.updateMany(
-          { 
-            _id: { $ne: offerId },  // Not this offer
-            jobId: job._id,         // But for the same job
-            status: 'pending'       // That are still pending
+          {
+            _id: { $ne: offerId }, // Not this offer
+            jobId: job._id, // But for the same job
+            status: 'pending', // That are still pending
           },
           { status: 'declined' }
         );
@@ -123,7 +120,7 @@ export async function PATCH(
         content: `Your offer for "${job.title}" has been ${status}`,
         timestamp: new Date().toISOString(),
         jobId: job._id.toString(),
-        type: 'offer',
+        type: 'offer_created',
       }
     );
 
@@ -131,7 +128,7 @@ export async function PATCH(
     try {
       let notificationMessage = '';
       let notificationType = '';
-      
+
       if (status === 'accepted') {
         notificationMessage = `Your offer for "${job.title}" has been accepted! A surgery has been scheduled.`;
         notificationType = 'offer_accepted';
@@ -148,7 +145,7 @@ export async function PATCH(
         receiverId: updatedOffer.createdBy,
         notificationType,
       });
-      
+
       await newNotification.save();
     } catch (error) {
       console.error('Failed to create notification:', error);

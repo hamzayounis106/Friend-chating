@@ -64,6 +64,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Patient not found' }, { status: 404 });
     }
 
+    console.log(
+      'mathc the date format is 😎😎😎😎😎😎😎😎😎',
+      newOffer.date.toISOString()
+    );
     // Send real-time notification via Pusher
     await pusherServer.trigger(
       toPusherKey(`user:${patient._id}:chats`),
@@ -79,10 +83,14 @@ export async function POST(req: NextRequest) {
         timestamp: new Date().toISOString(),
         jobId: job._id.toString(),
         type: 'offer_created',
-        dataToSend: newOffer,
+        cost: newOffer.cost,
+        createdAt: newOffer.createdAt,
+        location: newOffer.location,
+        expectedSurgeoryDate: new Date(newOffer.date).toString(),
+        status: newOffer.status,
+        _id: newOffer._id,
       }
     );
-
     // Create notification in database
     try {
       const notificationMessage = `A new offer has been created for your job "${

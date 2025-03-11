@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import UnseenChatToast from './toasts/UnseenChatToast';
 import { useParams, usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
+import { addOffer } from '@/store/slices/offerSlice';
 
 interface ToastProviderProps {
   session: Session | null;
@@ -22,28 +23,23 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
   useEffect(() => {
     if (!sessionId) return;
     const notificationChannel = toPusherKey(`user:${sessionId}:chats`);
+    if (pusherClient.channel(notificationChannel)) {
+      console.log('Already subscribed to channel:', notificationChannel);
+      return;
+    }
     pusherClient.subscribe(notificationChannel);
     console.log(
-      '✅ Expected backend channel:',
-      toPusherKey(`user:${sessionId}:chats`)
+      '✅ Subscribed to channel:',
+      notificationChannel
+      // toPusherKey(`user:${sessionId}:chats`)
     );
 
     const chatHandler = (message: any) => {
       if (message.receiver !== sessionId) return;
-
-      // console.log('✅ Received message: after condition', message);
-      // console.log('✅ Received jobId:', message.jobId);
-      // console.log('✅ Received receiver:', message.receiver);
-      // console.log('✅ Received sender:', message.sender);
-      // console.log('chatid', chatId);
-      // console.log('userId1', userId1_p);
-      // console.log('userId2_p', userId2_p);
-      // console.log('jobId_p', jobId_p);
-      // console.log('userId2');
-
       // If the message type is "offer", always show the toast
       if (message.type === 'offer_created') {
         console.log('��� Offer notification received!', message);
+        dispatch(addOffer(message));
         toast.custom((t) => (
           <UnseenChatToast
             t={t}
@@ -117,6 +113,7 @@ const ToastProvider = ({ session }: ToastProviderProps) => {
     return () => {
       pusherClient.unsubscribe(notificationChannel);
       pusherClient.unbind('notification_toast', chatHandler);
+      console.log('❌ Unsubscribed from channel:', notificationChannel);
     };
   }, [
     sessionId,

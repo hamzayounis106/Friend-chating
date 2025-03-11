@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { ClassValue, clsx } from 'clsx';
 
 import { twMerge } from 'tailwind-merge';
@@ -22,3 +23,21 @@ export function chatHrefConstructor(
   // return `${sortedIds[0]}--${sortedIds[1]}--${id3}`;
   return `${id1}--${id2}--${id3}`;
 }
+
+export const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
+
+export const formatDate = (dateString: string | Date) => {
+  try {
+    const date = new Date(dateString);
+    return format(date, 'MMM d, yyyy');
+  } catch (error) {
+    return 'Invalid date';
+  }
+};

@@ -10,7 +10,7 @@ import {
   AlertCircle,
   User,
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { formatCurrency, formatDate } from '@/lib/utils';
 
 const OfferDetails = ({
   offerDetails,
@@ -19,26 +19,6 @@ const OfferDetails = ({
   offerDetails: OfferType[];
   offerSender: Session['user'] | null;
 }) => {
-  // Format currency function
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  // Format date function
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return format(date, 'MMM d, yyyy');
-    } catch (error) {
-      return 'Invalid date';
-    }
-  };
-
   // Get status icon based on offer status
   const getStatusIcon = (status: string) => {
     switch (status.toLowerCase()) {
