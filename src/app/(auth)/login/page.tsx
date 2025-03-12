@@ -1,19 +1,29 @@
 'use client';
 
 import Button from '@/components/ui/Button';
-import { FC, useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { FC, useEffect, useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
 import LoginForm from '@/components/login/LoginFrom';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { handleLoginRedirect } from '@/lib/redirect';
 
 const Page: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
+  const router = useRouter();
+  const session = useSession();
+  const sessionRole = session?.data?.user?.role;
   async function loginWithGoogle() {
     setIsLoading(true);
     try {
-      await signIn('google');
+      const result = await signIn('google');
+      console.log('result', result);
+      if (result?.error) {
+        toast.error('Something went wrong with your login.');
+      } else {
+        handleLoginRedirect(router, sessionRole);
+      }
     } catch (error) {
       // display error message to user
       toast.error('Something went wrong with your login.');
@@ -21,6 +31,14 @@ const Page: FC = () => {
       setIsLoading(false);
     }
   }
+  useEffect(() => {
+    console.log(
+      'session statys before lgoin between 😎😎😎😎',
+      session.status,
+      sessionRole
+    );
+    handleLoginRedirect(router, sessionRole);
+  }, [session, sessionRole, router]);
 
   return (
     <>

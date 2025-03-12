@@ -19,9 +19,10 @@ const ChatInput: FC<ChatInputProps> = ({ chatPartner, chatId }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [input, setInput] = useState<string>('');
 
-  const dispatch = useDispatch(); // Use Redux dispatch
+  const dispatch = useDispatch();
+
   const sendMessage = async () => {
-    if (!input) return;
+    if (!input || isLoading) return;
     setIsLoading(true);
 
     try {

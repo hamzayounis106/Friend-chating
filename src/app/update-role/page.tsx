@@ -50,8 +50,11 @@ const UpdateRolePage = () => {
       } else {
         router.refresh();
       }
-
-      router.push('/dashboard');
+      if (data.role === 'patient') {
+        router.push('/dashboard/add');
+      } else {
+        router.push('/dashboard');
+      }
     } catch (err: any) {
       console.error(err);
       setError(err.message || 'Something went wrong');

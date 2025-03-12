@@ -1,16 +1,12 @@
-import { getServerSession } from 'next-auth/next';
-import { redirect } from 'next/navigation';
+'use client';
+
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
-import { authOptions } from '@/lib/auth';
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+export default function DashboardPage() {
+  const { data: session, status } = useSession();
 
-  if (!session) {
-    console.log("no session")
-    redirect('/login');
-  }
-
+  if (status === 'loading') return <div>Loading...</div>;
   return (
     <div className='container mx-auto px-4 py-8'>
       <h1 className='text-2xl font-bold mb-4'>Dashboard</h1>

@@ -139,14 +139,21 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
+    // async redirect({ url, baseUrl }) {
+    //   // Custom redirect logic from Bolt.new
+    //   if (url.startsWith('/')) {
+    //     return `${baseUrl}${url}`;
+    //   } else if (new URL(url).origin === baseUrl) {
+    //     return url;
+    //   }
+    //   return baseUrl + '/dashboard';
+    // },
     async redirect({ url, baseUrl }) {
-      // Custom redirect logic from Bolt.new
-      if (url.startsWith('/')) {
-        return `${baseUrl}${url}`;
-      } else if (new URL(url).origin === baseUrl) {
-        return url;
+      // Redirect to /dashboard after successful login
+      if (url.startsWith('/login')) {
+        return `${baseUrl}/dashboard/add`;
       }
-      return baseUrl + '/dashboard';
+      return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
   events: {

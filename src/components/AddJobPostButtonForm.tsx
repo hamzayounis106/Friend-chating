@@ -1,7 +1,7 @@
 'use client';
 
 import axios, { AxiosError } from 'axios';
-import { FC, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Button from './ui/Button';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
@@ -21,6 +21,7 @@ import {
   Check,
 } from 'lucide-react';
 import Image from 'next/image';
+import { jobTypes } from './home/HomeJobForm';
 
 interface AddJobButtonProps {}
 
@@ -63,6 +64,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       await axios.post('/api/Jobs/add', transformedData);
       setShowSuccessState(true);
       toast.success('Job successfully added!');
+      localStorage.removeItem('homeJobFormData');
 
       // Reset form after successful submission
       setTimeout(() => {
@@ -80,12 +82,12 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
 
       if (error instanceof AxiosError) {
         console.error('Axios Error Response:', error.response?.data);
-        setError('title', { message: error.response?.data || 'Server error.' });
+        // setError('title', { message: error.response?.data || 'Server error.' });
         toast.error(error.response?.data || 'Something went wrong.');
         return;
       }
 
-      setError('title', { message: 'Something went wrong.' });
+      // setError('title', { message: 'Something went wrong.' });
       toast.error('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
@@ -110,6 +112,17 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     addJob(data);
   };
 
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('homeJobFormData');
+    console.log('saved form data shoe here 😁😁😁😁', savedFormData);
+    if (savedFormData) {
+      const parsedData = JSON.parse(savedFormData);
+      Object.keys(parsedData).forEach((key) => {
+        setValue(key as keyof FormData, parsedData[key]);
+      });
+      setAttachmentUrls(parsedData.AttachmentUrls || []);
+    }
+  }, [setValue]);
   return (
     <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
       <div className='mb-6 text-center'>
@@ -125,7 +138,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         {/* Form Grid Layout */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Title */}
-          <div className='space-y-2'>
+          {/* <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <FileText className='w-4 h-4 mr-2 text-indigo-600' />
               Job Title
@@ -142,7 +155,9 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
                 {errors.title.message}
               </p>
             )}
-          </div>
+          </div> */}
+
+          {/* Type */}
 
           {/* Type */}
           <div className='space-y-2'>
@@ -150,12 +165,16 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               <FileText className='w-4 h-4 mr-2 text-indigo-600' />
               Job Type
             </label>
-            <input
+            <select
               {...register('type')}
-              type='text'
               className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-              placeholder='e.g., Facial Surgery'
-            />
+            >
+              {jobTypes.map((job, index) => (
+                <option key={index} value={job}>
+                  {job}
+                </option>
+              ))}
+            </select>
             {errors.type && (
               <p className='text-sm text-red-600 flex items-start'>
                 <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />

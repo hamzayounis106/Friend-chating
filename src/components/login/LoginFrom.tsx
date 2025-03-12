@@ -3,11 +3,12 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useEffect, useState, Suspense } from 'react';
-import { signIn } from 'next-auth/react';
+import { useEffect, useState, Suspense, FC } from 'react';
+import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
+import { handleLoginRedirect } from '@/lib/redirect';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -16,24 +17,29 @@ const loginSchema = z.object({
     .min(6, { message: 'Password must be at least 6 characters' }),
 });
 
-type LoginForminputs = z.infer<typeof loginSchema>;
+type LoginFormInputs = z.infer<typeof loginSchema>;
 
-const LoginForm = () => {
+interface LoginFormProps {
+  onSuccess: (role?: string) => void; // Accept role as an argument
+}
+
+const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [showResendButton, setShowResendButton] = useState(false);
-  const [emailToResend, setEmailToResend] = useState('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showResendButton, setShowResendButton] = useState<boolean>(false);
+  const [emailToResend, setEmailToResend] = useState<string>('');
   const searchParams = useSearchParams();
+  const session = useSession();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginForminputs>({
+  } = useForm<LoginFormInputs>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit: SubmitHandler<LoginForminputs> = async (data) => {
+  const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
     setIsLoading(true);
     setShowResendButton(false);
 
@@ -47,7 +53,6 @@ const LoginForm = () => {
       if (result?.error) {
         toast.error(result.error);
 
-        // Check if the error message indicates email is not verified
         if (result.error.includes('Email not verified')) {
           setShowResendButton(true);
           setEmailToResend(data.email);
@@ -57,7 +62,8 @@ const LoginForm = () => {
 
       if (result?.ok) {
         toast.success('Logged in successfully');
-        router.push('/dashboard');
+        console.log('result for the role ;;🤐🤐🤐🤐', result);
+        onSuccess(session?.data?.user?.role); // ✅ Now correctly passed
         router.refresh();
       }
     } catch (error) {
@@ -93,13 +99,15 @@ const LoginForm = () => {
   };
 
   useEffect(() => {
-    const params = Object.fromEntries(searchParams!.entries());
+    if (!searchParams) return;
+
+    const params = Object.fromEntries(searchParams.entries());
     if (params?.error === 'OAuthAccountNotLinked') {
       toast.error(
         'Your account is not associated with Google. Please log in with email and password.'
       );
-      // Clear the error query parameter after displaying the toast
-      const newSearchParams = new URLSearchParams(searchParams?.toString());
+
+      const newSearchParams = new URLSearchParams(searchParams.toString());
       newSearchParams.delete('error');
       router.replace(`?${newSearchParams.toString()}`);
     }
@@ -160,13 +168,18 @@ const LoginForm = () => {
   );
 };
 
-const Page = () => {
+const Page: FC = () => {
+  const router = useRouter();
+  const session = useSession();
+  const sessionRole = session?.data?.user?.role;
   return (
     <main className='pt-8'>
       <h1 className='font-bold text-5xl mb-8'>Login</h1>
       <div className='flex flex-col gap-4'>
         <Suspense fallback={<p>Loading...</p>}>
-          <LoginForm />
+          <LoginForm
+            onSuccess={() => handleLoginRedirect(router, sessionRole)}
+          />{' '}
         </Suspense>
       </div>
     </main>

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const addJobValidator = z.object({
-  title: z.string().min(5).max(100),
+  // title: z.string().min(5).max(100),
   type: z.string().min(1).max(50),
   date: z
     .string()

@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const {
-      title,
+      // title,
       type,
       date,
       description,
@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       AttachmentUrls,
       budget,
     } = body;
-    
+
     // Transform the 'surgeonEmails' array to just include email strings
     const validSurgeonEmails = [];
     for (const emailObj of surgeonEmails) {
@@ -62,7 +62,9 @@ export async function POST(req: Request) {
     if (!Array.isArray(AttachmentUrls)) {
       return new Response('Invalid image URLs format', { status: 400 });
     }
-    
+    const jobCount = await Job.countDocuments({ type });
+    const title = `${type} #${jobCount + 1}`;
+
     // Create the new job post
     const job = new Job({
       title,
@@ -80,11 +82,11 @@ export async function POST(req: Request) {
     });
 
     await job.save();
-console.log("validSurgeonEmails", validSurgeonEmails);
+    console.log('validSurgeonEmails', validSurgeonEmails);
     // Loop through each surgeon email and create notifications
     for (const emailObj of validSurgeonEmails) {
       const surgeon = await User.findOne({ email: emailObj.email });
-console.log("surgeon", surgeon);
+      console.log('surgeon', surgeon);
       if (surgeon) {
         // Send pusher notification
         await pusherServer.trigger(
@@ -110,35 +112,40 @@ console.log("surgeon", surgeon);
 
         // Create a notification entry in the database
         try {
-          console.log("Creating notification for job invite for user:", surgeon.email) ;
+          console.log(
+            'Creating notification for job invite for user:',
+            surgeon.email
+          );
           const notificationMessage = `You have a new job invitation: ${title}`;
           const notificationLink = `/dashboard/jobs/${job._id}`;
-          
+
           // Check if a similar notification already exists
           const existingNotification = await Notification.findOne({
             jobId: job._id,
             senderId: session.user.id,
             receiverId: surgeon._id,
-     
+
             notificationType: 'job_invite',
           });
 
           if (existingNotification) {
-            console.log("Updating existing notification for user:", surgeon.email);
+            console.log(
+              'Updating existing notification for user:',
+              surgeon.email
+            );
             // Update the existing notification
             await Notification.findByIdAndUpdate(existingNotification._id, {
               jobId: job._id,
               message: notificationMessage,
               isSeen: false,
-   
             });
           } else {
-            console.log("Creating new notification for user:", surgeon.email);
+            console.log('Creating new notification for user:', surgeon.email);
             // Create a new notification
             const newNotification = new Notification({
               jobId: job._id,
               message: notificationMessage,
-        
+
               isSeen: false,
               senderId: session.user.id,
               receiverId: surgeon._id,
@@ -147,7 +154,7 @@ console.log("surgeon", surgeon);
             await newNotification.save();
           }
         } catch (error) {
-          console.error("Failed to create/update notification:", error);
+          console.error('Failed to create/update notification:', error);
           // Continue execution even if notification creation fails
         }
       }
