@@ -8,7 +8,7 @@ export default withAuth(
 
     // Retrieve the token from the request
     const token = await getToken({ req });
-    console.log('Checking token:', token);
+    console.log('Checking token:');
 
     // Define public routes
     const publicRoutes = ['/', '/about', '/login', '/signup'];
@@ -20,6 +20,10 @@ export default withAuth(
       pathname.startsWith(route)
     );
 
+    if (token && token.role === 'pending' && isAccessingSensitiveRoute) {
+      console.log('condetion match in the middleware 😎😎😎😎');
+      return NextResponse.redirect(new URL('/update-role', req.url));
+    }
     const patientOnlyRoutes = ['/dashboard/myPosts', '/dashboard/add'];
     const isAccessingPatientOnlyRoute = patientOnlyRoutes.includes(pathname);
 
@@ -38,13 +42,11 @@ export default withAuth(
     }
     // If the user is not logged in and tries to access a sensitive route, redirect to login
     if (!token && isAccessingSensitiveRoute) {
+      console.log('get token on time in the middle ware 🤣🤣🤣🤣');
       return NextResponse.redirect(new URL('/login', req.url));
     }
 
     // If the user's role is "pending" and they access a sensitive route, redirect to update-role
-    if (token && token.role === 'pending' && isAccessingSensitiveRoute) {
-      return NextResponse.redirect(new URL('/update-role', req.url));
-    }
 
     // If the user's email is not verified and they access a sensitive route, redirect to login
     if (token && !token.isVerified && isAccessingSensitiveRoute) {

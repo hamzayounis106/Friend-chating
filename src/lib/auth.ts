@@ -5,6 +5,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import User from '@/app/models/User';
 import { CustomAdapterUser, MongoDBAdapter } from './mongodb-adapter';
 import { verifyPassword } from '@/lib/verifyPassword'; // Implement your password compare logic
+import { JWT } from 'next-auth/jwt';
 
 async function ensureDB() {
   // Await the connection; you can also check connection status if needed.
@@ -148,11 +149,43 @@ export const authOptions: NextAuthOptions = {
     //   }
     //   return baseUrl + '/dashboard';
     // },
-    async redirect({ url, baseUrl }) {
-      // Redirect to /dashboard after successful login
-      if (url.startsWith('/login')) {
-        return `${baseUrl}/dashboard/add`;
+    // async redirect({ url, baseUrl }) {
+    //   // Redirect to /dashboard after successful login
+    //   if (url.startsWith('/login')) {
+    //     return `${baseUrl}/dashboard/add`;
+    //   }
+    //   return url.startsWith(baseUrl) ? url : baseUrl;
+    // },
+    // async redirect({ url, baseUrl }) {
+    //   // Redirect to /update-role if the role is pending
+    //   if (url.startsWith('/login')) {
+    //     return `${baseUrl}/update-role`;
+    //   }
+    //   return url.startsWith(baseUrl) ? url : baseUrl;
+    // },
+
+    async redirect({
+      url,
+      baseUrl,
+      token,
+    }: {
+      url: string;
+      baseUrl: string;
+      token?: JWT;
+    }) {
+      const role = (token as JWT)?.role || 'pending';
+
+      if (url.includes('/login') || url.includes('/api/auth')) {
+        if (role === 'pending') {
+          return `${baseUrl}/update-role`;
+        } else if (role === 'surgeon') {
+          return `${baseUrl}/dashboard`;
+        } else if (role === 'patient') {
+          return `${baseUrl}/dashboard/add`;
+        }
+        return `${baseUrl}/dashboard`; // Default redirect
       }
+      // If not a login-related URL, respect the original URL or fallback to baseUrl
       return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },

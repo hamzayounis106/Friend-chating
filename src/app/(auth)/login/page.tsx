@@ -18,26 +18,19 @@ const Page: FC = () => {
     setIsLoading(true);
     try {
       const result = await signIn('google');
-      console.log('result', result);
       if (result?.error) {
         toast.error('Something went wrong with your login.');
-      } else {
-        handleLoginRedirect(router, sessionRole);
       }
     } catch (error) {
-      // display error message to user
       toast.error('Something went wrong with your login.');
     } finally {
       setIsLoading(false);
     }
   }
   useEffect(() => {
-    console.log(
-      'session statys before lgoin between 😎😎😎😎',
-      session.status,
-      sessionRole
-    );
-    handleLoginRedirect(router, sessionRole);
+    if (session.status === 'authenticated') {
+      handleLoginRedirect(router, sessionRole);
+    }
   }, [session, sessionRole, router]);
 
   return (

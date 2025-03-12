@@ -1,4 +1,3 @@
-// lib/redirect.ts
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 
 export const handleLoginRedirect = (
@@ -7,8 +6,10 @@ export const handleLoginRedirect = (
 ) => {
   if (role === 'surgeon') {
     router.replace('/dashboard');
+  } else if (role === 'pending') {
+    console.log('Route trigger role pending 😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊😊');
+    router.replace('/update-role');
   } else {
-    // For other roles or no role, check localStorage for homeJobFormData
     const formData = localStorage.getItem('homeJobFormData');
     if (formData) {
       router.replace('/dashboard/add');
