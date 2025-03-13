@@ -72,6 +72,7 @@ export async function POST(req: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
+    console.log("Session in /api/credit:", session); // Add this line
 
     if (!session || !session.user) {
       return NextResponse.json(
@@ -82,6 +83,8 @@ export async function POST(req: NextRequest) {
 
     // Verify user is a patient
     const user = await User.findOne({ email: session.user.email });
+    console.log("User in /api/credit:", user); // Add this line
+
     if (!user || user.role !== "patient") {
       return NextResponse.json(
         { error: "Only patients can purchase credits" },

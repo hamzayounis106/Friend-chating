@@ -1,3 +1,6 @@
+"use server";
+import { authOptions } from "@/lib/auth";
+import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { stripe } from "../../lib/stripe";
 
@@ -85,8 +88,44 @@ const STATUS_CONTENT_MAP = {
   },
 };
 
+async function purchaseCredits(quantity: number) {
+  const session = await getServerSession(authOptions);
+console.log('session inside calling api 🔔🔔🔔🔔 ',session)
+console.log('session inside calling api 🔔🔔🔔🔔 ',quantity)
+  if (!session || !session.user) {
+    console.error("No session found");
+    return;
+  }
+
+  try {
+    // Construct the absolute URL
+    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
+      : "http://localhost:3000"; // Fallback for local development
+    const absoluteUrl = `${baseUrl}/api/credit`;
+
+    const response = await fetch(absoluteUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ quantity }),
+    });
+
+    if (!response.ok) {
+      console.error("Failed to purchase credits:", response.statusText);
+      return;
+    }
+
+    const data = await response.json();
+    console.log("Credits purchased successfully:", data);
+  } catch (error) {
+    console.error("Error purchasing credits:", error);
+  }
+}
+
 export default async function SuccessPage({ searchParams }) {
-  const { payment_intent: paymentIntentId } = await searchParams;
+  const { payment_intent: paymentIntentId } = searchParams;
 
   if (!paymentIntentId) redirect("/");
 
@@ -94,8 +133,12 @@ export default async function SuccessPage({ searchParams }) {
 
   if (!paymentIntent) redirect("/");
 
-  const { status } = paymentIntent;
+  const { status, metadata } = paymentIntent;
   console.log("status", status);
+  if (status === "succeeded") {
+    // Call the purchaseCredits function after successful payment
+    await purchaseCredits(metadata?.credits);
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-6">
@@ -134,6 +177,21 @@ export default async function SuccessPage({ searchParams }) {
                     <td className="py-2 font-medium text-gray-700">Status</td>
                     <td className="py-2 text-gray-600">{status}</td>
                   </tr>
+                  <tr>
+                    <td className="py-2 font-medium text-gray-700">Type</td>
+                    <td className="py-2 text-gray-600">{metadata?.type}</td>{" "}
+                    {/* Access the type from metadata */}
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium text-gray-700">Credits</td>
+                    <td className="py-2 text-gray-600">{metadata?.credits}</td>{" "}
+                    {/* Access the credits from metadata */}
+                  </tr>
+                  <tr>
+                    <td className="py-2 font-medium text-gray-700">Title</td>
+                    <td className="py-2 text-gray-600">{metadata?.title}</td>{" "}
+                    {/* Access the title from metadata */}
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -141,7 +199,7 @@ export default async function SuccessPage({ searchParams }) {
         )}
 
         <div className="mt-6 flex flex-col space-y-3">
-          {paymentIntent && (
+          {/* {paymentIntent && (
             <a
               href={`https://dashboard.stripe.com/payments/${paymentIntentId}`}
               target="_blank"
@@ -150,7 +208,7 @@ export default async function SuccessPage({ searchParams }) {
             >
               View details in Stripe dashboard
             </a>
-          )}
+          )} */}
           <a
             href="/"
             className="block text-center py-3 px-4 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"

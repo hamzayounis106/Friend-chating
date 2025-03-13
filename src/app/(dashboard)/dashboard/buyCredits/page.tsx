@@ -58,41 +58,48 @@ export default function CreditPackages() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handlePurchase = async () => {
-    const pkg = packages.find((p) => p.id === selectedPackage);
-    if (!pkg) {
-      setError('Please select a package');
-      return;
-    }
+  // const handlePurchase = async () => {
+  //   const pkg = packages.find((p) => p.id === selectedPackage);
+  //   if (!pkg) {
+  //     setError('Please select a package');
+  //     return;
+  //   }
 
-    setLoading(true);
-    setError('');
-    setSuccessMessage('');
+  //   setLoading(true);
+  //   setError('');
+  //   setSuccessMessage('');
 
-    try {
-      const response = await fetch('/api/credit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          quantity: pkg.credits,
-        }),
-      });
+  //   try {
+  //     const response = await fetch('/api/credit', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         quantity: pkg.credits,
+  //       }),
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to purchase credits');
-      }
+  //     if (!response.ok) {
+  //       throw new Error(data.error || 'Failed to purchase credits');
+  //     }
 
-      setSuccessMessage(`Successfully purchased ${pkg.credits} credit(s)!`);
-      setSelectedPackage(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
+  //     setSuccessMessage(`Successfully purchased ${pkg.credits} credit(s)!`);
+  //     setSelectedPackage(null);
+  //   } catch (err: any) {
+  //     setError(err.message);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  console.log('pkg', packages[0]);
+  const handlePackageSelect = (pkg: any) => {
+    const {credits,title,price } = pkg
+    // Navigate to the checkout page with the selected package's data
+    router.push(`/checkout?package=${encodeURIComponent(JSON.stringify({credits,title,price , type: 'credit'}))}`);
   };
 
   if (status === 'loading') {
@@ -136,7 +143,7 @@ export default function CreditPackages() {
                 ? 'ring-4 ring-blue-400 transform scale-105'
                 : 'hover:shadow-lg'
             } cursor-pointer`}
-            onClick={() => setSelectedPackage(pkg.id)}
+            onClick={() => handlePackageSelect(pkg)}
           >
             <div className='flex justify-between items-start mb-4'>
               <div>
@@ -168,7 +175,7 @@ export default function CreditPackages() {
               </ul>
             </div>
 
-            <button
+            {/* <button
               className={`w-full py-2 px-4 rounded-md font-medium ${
                 selectedPackage === pkg.id
                   ? 'bg-blue-600 text-white'
@@ -177,64 +184,9 @@ export default function CreditPackages() {
               onClick={() => setSelectedPackage(pkg.id)}
             >
               {selectedPackage === pkg.id ? 'Selected' : 'Select Package'}
-            </button>
+            </button> */}
           </div>
         ))}
-      </div>
-
-      <div className='max-w-md mx-auto bg-white p-6 rounded-lg shadow-md'>
-        <h2 className='text-xl font-semibold text-gray-800 mb-4'>
-          Complete Your Purchase
-        </h2>
-
-        {selectedPackage && (
-          <div className='mb-6 p-3 bg-gray-50 rounded-md'>
-            <p className='font-medium text-gray-700'>
-              Selected Package:{' '}
-              <span className='text-blue-600'>
-                {packages.find((p) => p.id === selectedPackage)?.title}
-              </span>
-            </p>
-            <p className='text-gray-600'>
-              Credits: {packages.find((p) => p.id === selectedPackage)?.credits}{' '}
-              | Price: ${packages.find((p) => p.id === selectedPackage)?.price}
-            </p>
-          </div>
-        )}
-
-        <div className='mb-6'>
-          <h3 className='text-sm font-medium text-gray-700 mb-2'>
-            How Credits Work:
-          </h3>
-          <ul className='text-sm text-gray-600 space-y-1 pl-5 list-disc'>
-            <li>Credits can be used for any consultation with our surgeons</li>
-            <li>
-              Credits don&apos;t expire and remain in your account until used
-            </li>
-            <li>
-              You can assign credits to specific jobs when scheduling
-              consultations
-            </li>
-          </ul>
-        </div>
-
-        <button
-          onClick={handlePurchase}
-          disabled={!selectedPackage || loading}
-          className='w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center'
-        >
-          {loading ? (
-            <>
-              <Loader className='w-5 h-5 mr-2 animate-spin' />
-              Processing...
-            </>
-          ) : (
-            <>
-              <CreditCard className='w-5 h-5 mr-2' />
-              Purchase Credits
-            </>
-          )}
-        </button>
       </div>
     </div>
   );
