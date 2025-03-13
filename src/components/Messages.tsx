@@ -66,7 +66,10 @@ const Messages: FC<MessagesProps> = ({
         <div className='flex items-center justify-center h-full'>
           <div className='text-center p-6 rounded-lg bg-white border border-gray-200 shadow-sm max-w-sm'>
             <div className='bg-blue-50 rounded-full p-3 mx-auto mb-4 w-16 h-16 flex items-center justify-center'>
-              <svg
+
+{/* this was effecting the perfomance  of website site */}
+
+              {/* <svg
                 className='w-8 h-8 text-blue-500'
                 fill='none'
                 stroke='currentColor'
@@ -79,7 +82,7 @@ const Messages: FC<MessagesProps> = ({
                   strokeWidth='2'
                   d='M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z'
                 ></path>
-              </svg>
+              </svg> */}
             </div>
             <h3 className='text-lg font-medium text-gray-800 mb-2'>
               No messages yet
