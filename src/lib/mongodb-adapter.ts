@@ -13,6 +13,7 @@ type UserRole = 'patient' | 'surgeon' | 'pending';
 export interface CustomAdapterUser extends AdapterUser {
   role?: UserRole;
   isVerified?: boolean;
+  creditIds?: ObjectId[];
 }
 // Utility function to transform a MongoDB user document into an AdapterUser
 const transformUser = (user: any): CustomAdapterUser => ({
@@ -23,7 +24,6 @@ const transformUser = (user: any): CustomAdapterUser => ({
   image: user.image,
   role: user.role, // Include the role field
   creditIds: user.creditIds || [], // ✅ Ensure it exists
-
 });
 
 const transformSession = (session: any): AdapterSession & { id: string } => ({
@@ -40,6 +40,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         password?: string;
         role?: string;
         friends?: any[];
+        creditIds?: ObjectId[]; // ✅ Add this line to the type
       }
     ): Promise<CustomAdapterUser> {
       const client = await clientPromise;
@@ -55,7 +56,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         password: hashedPassword, // Use the hashed password
         role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
-        creditIds: user.creditIds || [],
+        creditIds: user.creditIds || [], //from here or
       };
 
       const result = await db.collection('users').insertOne(newUser);
@@ -99,7 +100,8 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
 
     // Accept a partial update object along with the required id.
     async updateUser(
-      user: Partial<AdapterUser> & Pick<AdapterUser, 'id'>
+      user: Partial<AdapterUser> &
+        Pick<AdapterUser, 'id'> & { creditIds?: ObjectId[] } // ✅ Add creditIds here
     ): Promise<AdapterUser> {
       const client = await clientPromise;
       const db = client.db();
@@ -108,7 +110,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         .collection('users')
         .updateOne({ _id: new ObjectId(user.id) }, { $set: user });
       // Optionally, return the merged user object.
-      return { ...user, creditIds: user.creditIds || [] } as AdapterUser;
+      return { ...user, creditIds: user.creditIds || [] } as AdapterUser; //here also
     },
 
     async deleteUser(id: string): Promise<void> {
