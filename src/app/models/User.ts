@@ -1,4 +1,4 @@
-import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
+import mongoose, { Document, InferSchemaType, Schema } from "mongoose";
 
 export interface IUser extends Document {
   _id: mongoose.Types.ObjectId;
@@ -8,10 +8,11 @@ export interface IUser extends Document {
   verificationToken: string;
   isVerified: boolean;
   image?: string;
-  role: 'patient' | 'surgeon' | 'pending';
+  role: "patient" | "surgeon" | "pending";
   friends: mongoose.Types.ObjectId[];
   resetToken?: string;
   resetTokenExpiry?: number;
+  creditIds: mongoose.Types.ObjectId[];
 }
 
 const userSchema: Schema = new mongoose.Schema(
@@ -24,25 +25,34 @@ const userSchema: Schema = new mongoose.Schema(
     image: String,
     role: {
       type: String,
-      enum: ['patient', 'surgeon', 'pending'],
-      default: 'pending',
+      enum: ["patient", "surgeon", "pending"],
+      default: "pending",
     },
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: "User",
       },
     ],
     resetToken: { type: String },
+    creditIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Credit", 
+        required: false,
+        default: [],
+      },
+    ],
     resetTokenExpiry: { type: Number },
   },
+
   {
     timestamps: true,
   }
 );
 
-export type LeanUser = Omit<InferSchemaType<typeof userSchema>, '_id'> & {
+export type LeanUser = Omit<InferSchemaType<typeof userSchema>, "_id"> & {
   _id: string;
 }; // ✅ Override _id as string
 export default mongoose.models.User ||
-  mongoose.model<IUser>('User', userSchema);
+  mongoose.model<IUser>("User", userSchema);

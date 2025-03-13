@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Messages from '@/components/Messages';
 import ChatInput from '@/components/ChatInput';
 import { MessageCircle, Phone, Video } from 'lucide-react';
+import { verifyIsCreditUsed } from '@/helpers/verify-is-credit-used';
 
 interface ChatProps {
   chatId: string;
@@ -31,6 +32,13 @@ const Chat = ({
   initialMessages,
 }: ChatProps) => {
   const dispatch = useDispatch();
+ 
+ useEffect(() => {
+   console.log("chatPartner.id", chatPartner.id);
+    console.log("job.id", chatId);
+
+// verifyIsCreditUsed(  chatPartner.id, job.id);
+  }, []);
 
   useEffect(() => {
     dispatch(setInitialMessages(initialMessages));

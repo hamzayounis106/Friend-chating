@@ -22,6 +22,8 @@ const transformUser = (user: any): CustomAdapterUser => ({
   emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
   image: user.image,
   role: user.role, // Include the role field
+  creditIds: user.creditIds || [], // ✅ Ensure it exists
+
 });
 
 const transformSession = (session: any): AdapterSession & { id: string } => ({
@@ -53,6 +55,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         password: hashedPassword, // Use the hashed password
         role: user.role || 'pending', // Default role if not provided
         friends: user.friends || [],
+        creditIds: user.creditIds || [],
       };
 
       const result = await db.collection('users').insertOne(newUser);
@@ -105,7 +108,7 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         .collection('users')
         .updateOne({ _id: new ObjectId(user.id) }, { $set: user });
       // Optionally, return the merged user object.
-      return { ...user } as AdapterUser;
+      return { ...user, creditIds: user.creditIds || [] } as AdapterUser;
     },
 
     async deleteUser(id: string): Promise<void> {

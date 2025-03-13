@@ -1,0 +1,178 @@
+// import dbConnect from "@/lib/db";
+// import User, { IUser } from "@/app/models/User"; // Assuming you have a Mongoose User model
+// import Job, { LeanJob } from "@/app/models/Job";
+// import Credit from "@/app/models/Credit";
+
+// export const useCreditToStartChat = async (
+//   jobId: string
+// ): Promise<IUser | null> => {
+//   try {
+//     await dbConnect(); // Ensure Mongoose connects
+
+//     console.log("DB connected successfully--------------in new handler");
+//     //getting credits where pateintid is session id
+//     const credits = await Credit.findmany({
+//       patientId: new mongoose.Types.ObjectId(session?.user.id),
+//     });
+//  if (!credits) {
+//       console.error("No credits found for this user");
+//       return null;
+//     }
+//  //
+
+//     const job = await Job.findById(jobId).lean<LeanJob>().exec();
+//     const surgeonEmails = job?.surgeonEmails;
+//     //geting all surgeons by emails fom the job
+//     if (!surgeonEmails) {
+//       console.error("No surgeons found for this job");
+//       return null;
+//     }
+
+//     const surgeons = await User.find({
+//       email: { $in: surgeonEmails.map((s) => s.email) },
+//     })
+//       .lean<IUser>()
+//       .exec();
+//      //using the most old credit
+//     const credit = credits[0];
+//     if (!credit) {
+//         console.error("No credits found for this user");
+//         return null;
+//         }
+//     //marking credit as used
+//     const useAbleCredit = await Credit.findByIdAndUpdate(
+//       credit._id,
+//         { isUsed: true },
+//         { new: true }
+//         );
+//     if (!useAbleCredit) {
+//         console.error("Error marking credit as used");
+//         return null;
+//         }
+
+//     //updating all surgeon user models and adding the credit id to the user model
+//     await User
+//       .updateMany(
+//         { email: { $in: surgeonEmails.map((s) => s.email) } },
+//         { $push: { creditIds: useAbleCredit._id } }
+//       )
+//         .exec();
+//     return null;
+//     } catch (error) {
+//     console.error("Error using credit to start chat:", error);
+//     }
+
+// //pushing the used credit id in the job
+//     await Job
+//       .findByIdAndUpdate(
+//         jobId,
+//         { $push: { creditIds: useAbleCredit._id } }
+//       )
+//         .exec();
+
+//     return null;
+//   } catch (error) {
+//     console.error("Error fetching user by email:", error);
+//     return null;
+//   }
+// };
+
+import dbConnect from "@/lib/db";
+import User, { IUser } from "@/app/models/User";
+import Job, { LeanJob } from "@/app/models/Job";
+import Credit from "@/app/models/Credit";
+import mongoose from "mongoose";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+
+export const useCreditToStartChat = async (
+  jobId: string
+): Promise<IUser | null> => {
+  try {
+    await dbConnect(); // Ensure Mongoose connects
+
+    // Get current session
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.id) {
+      console.error("No authenticated user");
+      return null;
+    }
+
+    console.log("DB connected successfully--------------in new handler");
+
+    // Getting credits where patientId is session id
+    // Fixed: findMany -> find (lowercase 'm')
+    const credits = await Credit.find({
+      patientId: new mongoose.Types.ObjectId(session.user.id),
+      isUsed: false, // Only get unused credits
+    });
+
+    if (!credits || credits.length === 0) {
+      console.error("No unused credits found for this user");
+      return null;
+    }
+
+    const job = await Job.findById(jobId).lean<LeanJob>().exec();
+    const surgeonEmails = job?.surgeonEmails;
+
+    // Getting all surgeons by emails from the job
+    if (!surgeonEmails || surgeonEmails.length === 0) {
+      console.error("No surgeons found for this job");
+      return null;
+    }
+
+    const surgeons = await User.find({
+      email: { $in: surgeonEmails.map((s) => s.email) },
+    })
+      .lean<IUser>()
+      .exec();
+
+    // Using the oldest credit
+    const credit = credits[0];
+    if (!credit) {
+      console.error("No credits found for this user");
+      return null;
+    }
+
+    // Marking credit as used
+    const useableCredit = await Credit.findByIdAndUpdate(
+      credit._id,
+      { isUsed: true },
+      { new: true }
+    );
+
+    if (!useableCredit) {
+      console.error("Error marking credit as used");
+      return null;
+    }
+
+    // Updating all surgeon user models and adding the credit id to the user model
+    await User.updateMany(
+      { email: { $in: surgeonEmails.map((s) => s.email) } },
+      { $push: { creditIds: useableCredit._id } }
+    ).exec();
+
+    // Pushing the used credit id in the job
+    await Job.findByIdAndUpdate(jobId, {
+      $push: { creditIds: useableCredit._id },
+    }).exec();
+
+    // Update patient user to track the used credit
+    await User.findByIdAndUpdate(session.user.id, {
+      $push: { usedCreditIds: useableCredit._id },
+    });
+
+    //update the job id and add the surgeon id in the surgeon ids array of the used credit
+
+    useableCredit.jobId = jobId;
+    //add ids of all the surgeons in the credit
+    useableCredit.surgeonIds = surgeonEmails.map((s) => s.email);
+    await useableCredit.save();
+
+    return null; // Return first surgeon or null
+  } catch (error) {
+    console.error("Error using credit to start chat:", error);
+    return null;
+  }
+};

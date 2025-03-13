@@ -1,11 +1,11 @@
-import mongoose, { Document, InferSchemaType, Schema } from 'mongoose';
-import { IUser } from './User';
+import mongoose, { Document, InferSchemaType, Schema } from "mongoose";
+import { IUser } from "./User";
 
 // Add job status enum
 export enum JobStatus {
-  CREATED = 'created',
-  STARTED = 'started',
-  CLOSED = 'closed',
+  CREATED = "created",
+  STARTED = "started",
+  CLOSED = "closed",
 }
 
 export interface IJob extends Document {
@@ -15,13 +15,14 @@ export interface IJob extends Document {
   description: string;
   surgeonEmails: {
     email: string;
-    status: 'accepted' | 'declined' | 'pending' ;
+    status: "accepted" | "declined" | "pending";
   }[];
   AttachmentUrls?: string[];
   budget?: number;
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
   status: JobStatus; // Add status field
+  creditIds: mongoose.Types.ObjectId[];
 }
 
 const jobSchema = new Schema<IJob>({
@@ -35,7 +36,7 @@ const jobSchema = new Schema<IJob>({
         email: { type: String, required: true },
         status: {
           type: String,
-          enum: ['accepted', 'declined', 'pending'],
+          enum: ["accepted", "declined", "pending"],
           required: true,
         },
       },
@@ -43,20 +44,28 @@ const jobSchema = new Schema<IJob>({
     required: true,
     _id: false, // Prevents Mongoose from adding _id to each object in the array
   },
+  creditIds: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Credit",
+      required: false,
+      default: [],
+    },
+  ],
   AttachmentUrls: { type: [String], default: undefined }, // ✅ Made optional
   budget: {
     type: Number,
-    min: [0, 'Budget cannot be negative'],
+    min: [0, "Budget cannot be negative"],
     default: undefined,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   patientId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
     required: true,
   },
   status: {
@@ -69,10 +78,10 @@ const jobSchema = new Schema<IJob>({
 
 export type LeanJob = Omit<
   InferSchemaType<typeof jobSchema>,
-  '_id' | 'patientId'
+  "_id" | "patientId"
 > & {
   _id: string;
   patientId?: IUser; // ✅ Ensuring patientId is either a full User or undefined
 };
 
-export default mongoose.models.Job || mongoose.model<IJob>('Job', jobSchema);
+export default mongoose.models.Job || mongoose.model<IJob>("Job", jobSchema);
