@@ -1,18 +1,7 @@
 'use client';
 
 import { Transition, Dialog } from '@headlessui/react';
-import {
-  Menu,
-  X,
-  Home,
-  Calendar,
-  Settings,
-  HelpCircle,
-  PlusCircle,
-  ClipboardList,
-  Inbox,
-  MessageSquare,
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { FC, Fragment, useEffect, useState } from 'react';
@@ -24,6 +13,7 @@ import Button, { buttonVariants } from '@/components/ui/Button';
 import { Session } from 'next-auth';
 import JobNotificationsSidebar from '@/components/JobNotificationsSidebar';
 import { cn } from '@/lib/utils';
+import ActiveLink from '@/components/ActiveLink'; // Import ActiveLink
 
 interface MobileChatLayoutProps {
   session: Session;
@@ -43,28 +33,6 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
-
-  // Helper function to get the appropriate icon
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Home':
-        return <Home className='h-4 w-4' />;
-      case 'Calendar':
-        return <Calendar className='h-4 w-4' />;
-      case 'Settings':
-        return <Settings className='h-4 w-4' />;
-      case 'HelpCircle':
-        return <HelpCircle className='h-4 w-4' />;
-      case 'PlusCircle':
-        return <PlusCircle className='h-4 w-4' />;
-      case 'ClipboardList':
-        return <ClipboardList className='h-4 w-4' />;
-      case 'Inbox':
-        return <Inbox className='h-4 w-4' />;
-      default:
-        return <MessageSquare className='h-4 w-4' />;
-    }
-  };
 
   return (
     <div className='fixed bg-white border-b border-gray-200 top-0 inset-x-0 py-2 px-4 z-50'>
@@ -101,7 +69,7 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                   leaveTo='-translate-x-full'
                 >
                   <Dialog.Panel className='pointer-events-auto w-screen max-w-md'>
-                    <div className='flex h-full flex-col overflow-hidden bg-white py-6 shadow-xl'>
+                    <div className='flex h-full flex-col overflow-auto bg-white py-6 shadow-xl'>
                       <div className='px-4 sm:px-6'>
                         <div className='flex items-start justify-between'>
                           <Dialog.Title className='text-base font-semibold leading-6 text-gray-900'>
@@ -131,77 +99,106 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
                               <ul role='list' className='-mx-2 mt-2 space-y-1'>
                                 {sidebarOptions.map((option) => (
                                   <li key={option.id}>
-                                    <Link
+                                    <ActiveLink
                                       href={option.href}
-                                      className='group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors'
+                                      unseenJobCount={
+                                        option.href === '/dashboard/requests'
+                                          ? unseenRequestCount
+                                          : 0
+                                      }
+                                      icon={option.Icon}
                                     >
-                                      <span
-                                        className={cn(
-                                          'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors',
-                                          option.href ===
-                                            '/dashboard/requests' &&
-                                            unseenRequestCount > 0 &&
-                                            'bg-blue-50 text-blue-600 border-blue-200'
-                                        )}
-                                      >
-                                        {getIcon(option.Icon)}
-                                      </span>
-                                      <span className='truncate'>
-                                        {option.name}
-                                      </span>
-
-                                      {/* Request badge */}
-                                      {option.href === '/dashboard/requests' &&
-                                        unseenRequestCount > 0 && (
-                                          <span className='inline-block ml-auto px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800'>
-                                            {unseenRequestCount}
-                                          </span>
-                                        )}
-                                    </Link>
+                                      {option.name}
+                                    </ActiveLink>
                                   </li>
                                 ))}
-
-                                {/* Show JobNotificationsSidebar for surgeons */}
-                                {userRole === 'surgeon' && (
-                                  <li>
-                                    <JobNotificationsSidebar
-                                      initialUnseenJobCount={unseenRequestCount}
-                                      sessionEmail={
-                                        session.user.email as string
-                                      }
-                                    />
-                                  </li>
-                                )}
                               </ul>
                             </li>
 
-                            <li className='-mx-6 mt-auto'>
-                              <div className='flex items-center justify-between bg-gray-50 p-3 mx-6 rounded-lg'>
-                                <div className='flex items-center gap-3'>
-                                  <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
-                                    <Image
-                                      referrerPolicy='no-referrer'
-                                      className='object-cover'
-                                      src={session.user.image || '/default.png'}
-                                      alt='Your profile picture'
-                                      sizes='(max-width: 768px) 100vw, 24px'
-                                    />
-                                  </div>
-                                  <div className='flex flex-col'>
-                                    <span className='text-sm font-semibold text-gray-800 truncate'>
-                                      {session.user.name}
-                                    </span>
-                                    <span className='text-xs text-gray-500 truncate max-w-[150px]'>
-                                      {session.user.email}
-                                    </span>
-                                  </div>
-                                </div>
-                                <SignOutButton className='ml-2' />
+                            {/* General Section */}
+                            {/* <li>
+                              <div className='text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider px-2'>
+                                General
                               </div>
-                            </li>
+                              <ul role='list' className='-mx-2 mt-2 space-y-1'>
+                                {[
+                                  {
+                                    id: 1,
+                                    name: 'Dashboard',
+                                    href: '/dashboard',
+                                    Icon: 'Home',
+                                  },
+                                  {
+                                    id: 2,
+                                    name: 'My Surgeries',
+                                    href: '/dashboard/surgeries',
+                                    Icon: 'Calendar',
+                                  },
+                                  {
+                                    id: 3,
+                                    name: 'Settings',
+                                    href: '/dashboard/settings',
+                                    Icon: 'Settings',
+                                  },
+                                  {
+                                    id: 4,
+                                    name: 'Help & Support',
+                                    href: '/dashboard/support',
+                                    Icon: 'HelpCircle',
+                                  },
+                                ].map((option) => (
+                                  <li key={option.id}>
+                                    <ActiveLink
+                                      href={option.href}
+                                      icon={option.Icon}
+                                    >
+                                      {option.name}
+                                    </ActiveLink>
+                                  </li>
+                                ))}
+                              </ul>
+                            </li> */}
+
+                            {/* Show JobNotificationsSidebar for surgeons */}
+                            {userRole === 'surgeon' && (
+                              <li>
+                                <JobNotificationsSidebar
+                                  initialUnseenJobCount={unseenRequestCount}
+                                  sessionEmail={session.user.email as string}
+                                />
+                              </li>
+                            )}
                           </ul>
                         </nav>
                       </div>
+
+                      {/* Profile & SignOut */}
+                      <li className='-mx-6 mt-auto'>
+                        <div className='flex items-center justify-between bg-gray-50 p-3 mx-6 rounded-lg'>
+                          <div className='flex items-center gap-3'>
+                            <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
+                              <Image
+                                referrerPolicy='no-referrer'
+                                className='object-cover'
+                                src={session.user.image || '/default.png'}
+                                alt='Your profile picture'
+                                width={24}
+                                height={24}
+                                sizes='(max-width: 768px) 100vw, 24px'
+                              />
+                            </div>
+                            <div className='flex flex-col'>
+                              <span className='text-sm font-semibold text-gray-800 truncate'>
+                                {session.user.name}
+                              </span>
+                              <span className='text-xs text-gray-500 truncate max-w-[150px]'>
+                                {session.user.email}
+                              </span>
+                            </div>
+                          </div>
+                          <SignOutButton className='ml-2' />
+                        </div>
+                      </li>
                     </div>
                   </Dialog.Panel>
                 </Transition.Child>

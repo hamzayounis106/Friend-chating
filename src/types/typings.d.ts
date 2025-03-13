@@ -1,17 +1,9 @@
 import { Icon } from '@/components/Icons';
+import { ElementType } from 'react';
 
 interface SidebarOption {
   id: number;
   name: string;
   href: string;
-  Icon:
-    | 'Logo'
-    | 'UserPlus'
-    | 'Home'
-    | 'Calendar'
-    | 'Settings'
-    | 'HelpCircle'
-    | 'PlusCircle'
-    | 'ClipboardList'
-    | 'Inbox';
+  Icon: string;
 }

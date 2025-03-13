@@ -17,7 +17,6 @@ import {
 } from '@/helpers/get-jobs-of-surgeon';
 import { getJobsByUserId } from '@/helpers/get-jobs-by-user-id';
 import { JobData } from './requests/page';
-import { cn } from '@/lib/utils';
 import {
   MessageSquare,
   PlusCircle,
@@ -28,6 +27,7 @@ import {
   HelpCircle,
   Inbox,
 } from 'lucide-react';
+import ActiveLink from '@/components/ActiveLink';
 
 interface LayoutProps {
   children: ReactNode;
@@ -91,6 +91,12 @@ const Layout = async ({ children }: LayoutProps) => {
       id: 6,
       name: 'My Posts',
       href: '/dashboard/myPosts',
+      Icon: 'ClipboardList',
+    },
+    {
+      id: 7,
+      name: 'Buy Credits',
+      href: '/dashboard/buyCredits',
       Icon: 'ClipboardList',
     },
   ];
@@ -196,7 +202,7 @@ const Layout = async ({ children }: LayoutProps) => {
                 <ul className='mt-2 space-y-1'>
                   {sidebarOptions.map((option) => (
                     <li key={option.id}>
-                      <Link
+                      {/* <Link
                         href={option.href}
                         className='group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors'
                       >
@@ -212,7 +218,6 @@ const Layout = async ({ children }: LayoutProps) => {
                         </span>
                         <span className='truncate'>{option.name}</span>
 
-                        {/* Request badge */}
                         {option.href === '/dashboard/requests' &&
                           unseenJobCount > 0 && (
                             <span className='inline-block ml-auto px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800'>
@@ -220,6 +225,18 @@ const Layout = async ({ children }: LayoutProps) => {
                             </span>
                           )}
                       </Link>
+                     */}
+                      <ActiveLink
+                        href={option.href}
+                        unseenJobCount={
+                          option.href === '/dashboard/requests'
+                            ? unseenJobCount
+                            : 0
+                        }
+                        icon={option.Icon}
+                      >
+                        {option.name}
+                      </ActiveLink>
                     </li>
                   ))}
                 </ul>
@@ -233,15 +250,22 @@ const Layout = async ({ children }: LayoutProps) => {
                 <ul className='mt-2 space-y-1'>
                   {bothUserOptions.map((option) => (
                     <li key={option.id}>
-                      <Link
-                        href={option.href}
-                        className='group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors'
-                      >
+                      {/* <ActiveLink href={option.href} icon={option.Icon}>
                         <span className='flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors'>
-                          {getIcon(option.Icon)}
                         </span>
                         <span className='truncate'>{option.name}</span>
-                      </Link>
+                      </ActiveLink> */}
+                      <ActiveLink
+                        href={option.href}
+                        unseenJobCount={
+                          option.href === '/dashboard/requests'
+                            ? unseenJobCount
+                            : 0
+                        }
+                        icon={option.Icon}
+                      >
+                        {option.name}
+                      </ActiveLink>
                     </li>
                   ))}
                 </ul>
