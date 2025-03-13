@@ -4,8 +4,14 @@ import React, { ReactNode, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import clsx from 'clsx';
-import { MessageSquare, Clipboard, CreditCard, ChevronLeft, Menu } from 'lucide-react';
-import Button from '@/components/ui/Button';
+import {
+  MessageSquare,
+  Clipboard,
+  CreditCard,
+  ChevronLeft,
+  Menu,
+} from 'lucide-react';
+import Button from '@/components/custom-ui/Button';
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,19 +36,19 @@ const ChatLayout = ({ children }: LayoutProps) => {
       label: 'Chat',
       path: `/dashboard/chat/${chatId}`,
       active: currentPage === '',
-      icon: <MessageSquare className="w-4 h-4" />
+      icon: <MessageSquare className='w-4 h-4' />,
     },
     {
       label: 'Job Details',
       path: `/dashboard/chat/${chatId}/job-detail`,
       active: currentPage === 'job-detail',
-      icon: <Clipboard className="w-4 h-4" />
+      icon: <Clipboard className='w-4 h-4' />,
     },
     {
       label: userRole === 'patient' ? 'See Offers' : 'Send Offer',
       path: `/dashboard/chat/${chatId}/offer`,
       active: currentPage === 'offer',
-      icon: <CreditCard className="w-4 h-4" />
+      icon: <CreditCard className='w-4 h-4' />,
     },
   ];
 
@@ -54,21 +60,22 @@ const ChatLayout = ({ children }: LayoutProps) => {
     <div className='flex flex-col h-screen bg-gray-50'>
       {/* Header */}
       <header className='px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center sticky top-0 z-10 shadow-sm'>
-        <div className="flex items-center">
-          <button 
+        <div className='flex items-center'>
+          <button
             onClick={handleBack}
-            className="mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors"
-            aria-label="Back to chat list"
+            className='mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors'
+            aria-label='Back to chat list'
           >
-            <ChevronLeft className="h-5 w-5 text-gray-600" />
+            <ChevronLeft className='h-5 w-5 text-gray-600' />
           </button>
           <h1 className='text-lg font-semibold text-gray-800'>
             {currentPage === '' && 'Conversation'}
             {currentPage === 'job-detail' && 'Job Details'}
-            {currentPage === 'offer' && (userRole === 'patient' ? 'Offers Received' : 'Send Offer')}
+            {currentPage === 'offer' &&
+              (userRole === 'patient' ? 'Offers Received' : 'Send Offer')}
           </h1>
         </div>
-        
+
         {/* Desktop Navigation */}
         <div className='hidden md:flex space-x-3'>
           {navItems.map(({ label, path, active, icon }) => (
@@ -89,22 +96,22 @@ const ChatLayout = ({ children }: LayoutProps) => {
         </div>
 
         {/* Mobile Navigation Toggle */}
-        <button 
-          className="md:hidden p-2 rounded-md border border-gray-200 bg-white"
+        <button
+          className='md:hidden p-2 rounded-md border border-gray-200 bg-white'
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
         >
-          <Menu className="h-5 w-5 text-gray-600" />
+          <Menu className='h-5 w-5 text-gray-600' />
         </button>
       </header>
 
       {/* Mobile Navigation Menu */}
-      <div 
+      <div
         className={clsx(
           'md:hidden bg-white border-b border-gray-200 transition-all duration-300 ease-in-out overflow-hidden',
           mobileMenuOpen ? 'max-h-60' : 'max-h-0'
         )}
       >
-        <nav className="px-4 py-2 space-y-2">
+        <nav className='px-4 py-2 space-y-2'>
           {navItems.map(({ label, path, active, icon }) => (
             <button
               key={label}
@@ -127,25 +134,23 @@ const ChatLayout = ({ children }: LayoutProps) => {
       </div>
 
       {/* Main Content */}
-      <main className='flex-1 overflow-auto'>
-        {children}
-      </main>
-      
+      <main className='flex-1 overflow-auto'>{children}</main>
+
       {/* Bottom navigation for mobile */}
-      <div className="md:hidden flex bg-white border-t border-gray-200 shadow-md">
+      <div className='md:hidden flex bg-white border-t border-gray-200 shadow-md'>
         {navItems.map(({ label, path, active, icon }) => (
           <button
             key={label}
             onClick={() => chatId && router.push(path)}
             className={clsx(
               'flex-1 py-3 flex flex-col items-center justify-center transition-colors',
-              active 
-                ? 'text-blue-600 border-t-2 border-blue-600' 
+              active
+                ? 'text-blue-600 border-t-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-800'
             )}
           >
-            {React.cloneElement(icon, { className: "w-5 h-5 mb-1" })}
-            <span className="text-xs">{label}</span>
+            {React.cloneElement(icon, { className: 'w-5 h-5 mb-1' })}
+            <span className='text-xs'>{label}</span>
           </button>
         ))}
       </div>

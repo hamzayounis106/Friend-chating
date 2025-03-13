@@ -8,7 +8,7 @@ export default withAuth(
 
     // Retrieve the token from the request
     const token = await getToken({ req });
-    console.log('Checking token:');
+    console.log('Checking token:', token);
 
     // Define public routes
     const publicRoutes = ['/', '/about', '/login', '/signup'];

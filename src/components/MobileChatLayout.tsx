@@ -9,11 +9,11 @@ import { Icons } from '@/components/Icons';
 import SignOutButton from '@/components/SignOutButton';
 import { SidebarOption } from '@/types/typings';
 import { usePathname } from 'next/navigation';
-import Button, { buttonVariants } from '@/components/ui/Button';
 import { Session } from 'next-auth';
 import JobNotificationsSidebar from '@/components/JobNotificationsSidebar';
 import { cn } from '@/lib/utils';
 import ActiveLink from '@/components/ActiveLink'; // Import ActiveLink
+import Button, { buttonVariants } from './custom-ui/Button';
 
 interface MobileChatLayoutProps {
   session: Session;

@@ -1,12 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import {
-  BellIcon,
-  CheckIcon,
-  EnvelopeIcon,
-  EnvelopeOpenIcon,
-} from '@heroicons/react/24/outline';
+import { Bell, Check, Mail, MailOpen } from 'lucide-react';
+
 import Link from 'next/link';
 import axios from 'axios';
 import { formatDistanceToNow } from 'date-fns';
@@ -287,7 +283,7 @@ const NotificationBell = () => {
               }
             }}
           >
-            <BellIcon
+            <Bell
               onClick={() => fetchNotifications()}
               className='h-6 w-6 text-gray-700'
             />
@@ -330,9 +326,9 @@ const NotificationBell = () => {
                         >
                           <div className='mr-3 mt-1'>
                             {notification.isSeen ? (
-                              <EnvelopeOpenIcon className='h-5 w-5 text-gray-400' />
+                              <Mail className='h-5 w-5 text-gray-400' />
                             ) : (
-                              <EnvelopeIcon className='h-5 w-5 text-indigo-600' />
+                              <MailOpen className='h-5 w-5 text-indigo-600' />
                             )}
                           </div>
                           <div className='flex-1 min-w-0'>
@@ -353,7 +349,7 @@ const NotificationBell = () => {
                             </p>
                           </div>
                           {notification.isSeen && (
-                            <CheckIcon className='h-4 w-4 text-green-500 mt-1 ml-2' />
+                            <Check className='h-4 w-4 text-green-500 mt-1 ml-2' />
                           )}
                         </div>
                       </Link>

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useMemo } from "react";
-import { useSession } from "next-auth/react";
-import axios from "axios";
-import { format } from "date-fns";
-import Image from "next/image";
+import { useState, useEffect, useMemo } from 'react';
+import { useSession } from 'next-auth/react';
+import axios from 'axios';
+import { format } from 'date-fns';
+import Image from 'next/image';
 import {
-  CalendarIcon,
-  MapPinIcon,
-  CurrencyDollarIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
-} from "@heroicons/react/24/outline";
+  Calendar,
+  MapPin,
+  DollarSign,
+  CheckCircle,
+  XCircle,
+  Clock,
+} from 'lucide-react';
 
 type Surgery = {
   _id: string;
@@ -41,7 +41,7 @@ type Surgery = {
     location: string;
     status: string;
   };
-  status: "scheduled" | "completed" | "cancelled";
+  status: 'scheduled' | 'completed' | 'cancelled';
   scheduledDate: string;
   createdAt: string;
   updatedAt: string;
@@ -49,8 +49,8 @@ type Surgery = {
 
 const LoadingSpinner = () => {
   return (
-    <div className="flex justify-center items-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+    <div className='flex justify-center items-center'>
+      <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500'></div>
     </div>
   );
 };
@@ -61,24 +61,24 @@ export default function SurgeriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    "scheduled" | "completed" | "cancelled"
-  >("scheduled");
+    'scheduled' | 'completed' | 'cancelled'
+  >('scheduled');
 
   useEffect(() => {
     const fetchSurgeries = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("/api/surgery");
+        const response = await axios.get('/api/surgery');
         setSurgeries(response.data.surgeries);
       } catch (err) {
-        console.error("Error fetching surgeries:", err);
-        setError("Failed to load surgeries. Please try again later.");
+        console.error('Error fetching surgeries:', err);
+        setError('Failed to load surgeries. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    if (status === "authenticated") {
+    if (status === 'authenticated') {
       fetchSurgeries();
     }
   }, [status]);
@@ -86,16 +86,16 @@ export default function SurgeriesPage() {
   // Group surgeries by status
   const groupedSurgeries = useMemo(() => {
     return {
-      scheduled: surgeries.filter((surgery) => surgery.status === "scheduled"),
-      completed: surgeries.filter((surgery) => surgery.status === "completed"),
-      cancelled: surgeries.filter((surgery) => surgery.status === "cancelled"),
+      scheduled: surgeries.filter((surgery) => surgery.status === 'scheduled'),
+      completed: surgeries.filter((surgery) => surgery.status === 'completed'),
+      cancelled: surgeries.filter((surgery) => surgery.status === 'cancelled'),
     };
   }, [surgeries]);
   const showCancelledTab = groupedSurgeries.cancelled.length > 0;
-  console.log("showCancelledTab", showCancelledTab);
-  if (status === "loading" || loading) {
+  console.log('showCancelledTab', showCancelledTab);
+  if (status === 'loading' || loading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className='flex justify-center items-center h-96'>
         <LoadingSpinner />
       </div>
     );
@@ -103,10 +103,10 @@ export default function SurgeriesPage() {
 
   if (error) {
     return (
-      <div className="text-center py-10">
-        <p className="text-red-500">{error}</p>
+      <div className='text-center py-10'>
+        <p className='text-red-500'>{error}</p>
         <button
-          className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
+          className='mt-4 bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700'
           onClick={() => window.location.reload()}
         >
           Try Again
@@ -117,10 +117,10 @@ export default function SurgeriesPage() {
 
   if (!surgeries.length) {
     return (
-      <div className="text-center py-10">
-        <h2 className="text-2xl font-semibold mb-2">No Surgeries Found</h2>
-        <p className="text-gray-600">
-          {session?.user.role === "patient"
+      <div className='text-center py-10'>
+        <h2 className='text-2xl font-semibold mb-2'>No Surgeries Found</h2>
+        <p className='text-gray-600'>
+          {session?.user.role === 'patient'
             ? "You don't have any surgeries yet. Accept an offer to schedule one."
             : "You don't have any surgeries yet."}
         </p>
@@ -130,22 +130,22 @@ export default function SurgeriesPage() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "scheduled":
+      case 'scheduled':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            <ClockIcon className="w-3 h-3 mr-1" /> Scheduled
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+            <Clock className='w-3 h-3 mr-1' /> Scheduled
           </span>
         );
-      case "completed":
+      case 'completed':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            <CheckCircleIcon className="w-3 h-3 mr-1" /> Completed
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+            <CheckCircle className='w-3 h-3 mr-1' /> Completed
           </span>
         );
-      case "cancelled":
+      case 'cancelled':
         return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-            <XCircleIcon className="w-3 h-3 mr-1" /> Cancelled
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'>
+            <XCircle className='w-3 h-3 mr-1' /> Cancelled
           </span>
         );
       default:
@@ -155,57 +155,57 @@ export default function SurgeriesPage() {
 
   const renderSurgeryCard = (surgery: Surgery) => {
     const otherPerson =
-      session?.user.role === "patient" ? surgery.surgeonId : surgery.patientId;
+      session?.user.role === 'patient' ? surgery.surgeonId : surgery.patientId;
 
     return (
       <div
         key={surgery._id}
-        className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200"
+        className='bg-white rounded-lg shadow-md overflow-hidden border border-gray-200'
       >
-        <div className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">{surgery.jobId.title}</h2>
+        <div className='p-6'>
+          <div className='flex items-center justify-between mb-4'>
+            <h2 className='text-xl font-semibold'>{surgery.jobId.title}</h2>
             {getStatusBadge(surgery.status)}
           </div>
 
-          <div className="flex items-center mb-6">
-            <div className="relative h-10 w-10 rounded-full overflow-hidden mr-3">
+          <div className='flex items-center mb-6'>
+            <div className='relative h-10 w-10 rounded-full overflow-hidden mr-3'>
               <Image
-                src={otherPerson?.image || "/default.png"}
-                alt={otherPerson?.name || "User"}
+                src={otherPerson?.image || '/default.png'}
+                alt={otherPerson?.name || 'User'}
                 fill
-                className="object-cover"
+                className='object-cover'
               />
             </div>
             <div>
-              <p className="font-medium">{otherPerson?.name}</p>
-              <p className="text-sm text-gray-500">{otherPerson?.email}</p>
+              <p className='font-medium'>{otherPerson?.name}</p>
+              <p className='text-sm text-gray-500'>{otherPerson?.email}</p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div className="flex items-center">
-              <CalendarIcon className="h-5 w-5 text-gray-400 mr-2" />
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
+            <div className='flex items-center'>
+              <Calendar className='h-5 w-5 text-gray-400 mr-2' />
               <span>
                 {format(
                   new Date(surgery.scheduledDate),
-                  "MMMM d, yyyy - h:mm a"
+                  'MMMM d, yyyy - h:mm a'
                 )}
               </span>
             </div>
 
-            <div className="flex items-center">
-              <MapPinIcon className="h-5 w-5 text-gray-400 mr-2" />
+            <div className='flex items-center'>
+              <MapPin className='h-5 w-5 text-gray-400 mr-2' />
               <span>{surgery.offerId.location}</span>
             </div>
 
-            <div className="flex items-center">
-              <CurrencyDollarIcon className="h-5 w-5 text-gray-400 mr-2" />
+            <div className='flex items-center'>
+              <DollarSign className='h-5 w-5 text-gray-400 mr-2' />
               <span>${surgery.offerId.cost.toLocaleString()}</span>
             </div>
           </div>
 
-          <p className="text-gray-700 my-4">
+          <p className='text-gray-700 my-4'>
             {surgery.jobId.description.length > 150
               ? `${surgery.jobId.description.substring(0, 150)}...`
               : surgery.jobId.description}
@@ -218,39 +218,39 @@ export default function SurgeriesPage() {
   const currentSurgeries = groupedSurgeries[activeTab] || [];
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">My Surgeries</h1>
+    <div className='container mx-auto px-4 py-8'>
+      <h1 className='text-2xl font-bold mb-6'>My Surgeries</h1>
 
       {/* Tab Navigation */}
-      <div className="flex border-b border-gray-200 mb-6">
+      <div className='flex border-b border-gray-200 mb-6'>
         <button
           className={`px-4 py-2 font-medium text-sm ${
-            activeTab === "scheduled"
-              ? "border-b-2 border-indigo-500 text-indigo-600"
-              : "text-gray-500 hover:text-gray-700"
+            activeTab === 'scheduled'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-gray-500 hover:text-gray-700'
           }`}
-          onClick={() => setActiveTab("scheduled")}
+          onClick={() => setActiveTab('scheduled')}
         >
           Scheduled ({groupedSurgeries.scheduled.length})
         </button>
         <button
           className={`px-4 py-2 font-medium text-sm ${
-            activeTab === "completed"
-              ? "border-b-2 border-indigo-500 text-indigo-600"
-              : "text-gray-500 hover:text-gray-700"
+            activeTab === 'completed'
+              ? 'border-b-2 border-indigo-500 text-indigo-600'
+              : 'text-gray-500 hover:text-gray-700'
           }`}
-          onClick={() => setActiveTab("completed")}
+          onClick={() => setActiveTab('completed')}
         >
           Completed ({groupedSurgeries.completed.length})
         </button>
         {showCancelledTab && (
           <button
             className={`px-4 py-2 font-medium text-sm ${
-              activeTab === "cancelled"
-                ? "border-b-2 border-indigo-500 text-indigo-600"
-                : "text-gray-500 hover:text-gray-700"
+              activeTab === 'cancelled'
+                ? 'border-b-2 border-indigo-500 text-indigo-600'
+                : 'text-gray-500 hover:text-gray-700'
             }`}
-            onClick={() => setActiveTab("cancelled")}
+            onClick={() => setActiveTab('cancelled')}
           >
             Cancelled ({groupedSurgeries.cancelled.length})
           </button>
@@ -258,12 +258,12 @@ export default function SurgeriesPage() {
       </div>
 
       {/* Surgery Cards */}
-      <div className="space-y-6">
+      <div className='space-y-6'>
         {currentSurgeries.length > 0 ? (
           currentSurgeries.map(renderSurgeryCard)
         ) : (
-          <div className="text-center py-10">
-            <p className="text-gray-600">No {activeTab} surgeries found.</p>
+          <div className='text-center py-10'>
+            <p className='text-gray-600'>No {activeTab} surgeries found.</p>
           </div>
         )}
       </div>

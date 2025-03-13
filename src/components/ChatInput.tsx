@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FC, useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import TextareaAutosize from 'react-textarea-autosize';
-import Button from './ui/Button';
+import Button from './custom-ui/Button';
 import { Message } from '@/lib/validations/message';
 import { addMessage } from '@/store/slices/chatSlice';
 import { useDispatch } from 'react-redux';

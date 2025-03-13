@@ -3,7 +3,7 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import Button from '@/components/ui/Button';
+import Button from '@/components/custom-ui/Button';
 import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';

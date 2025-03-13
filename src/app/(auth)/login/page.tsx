@@ -1,6 +1,5 @@
 'use client';
 
-import Button from '@/components/ui/Button';
 import { FC, useEffect, useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
@@ -8,6 +7,7 @@ import LoginForm from '@/components/login/LoginFrom';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { handleLoginRedirect } from '@/lib/redirect';
+import Button from '@/components/custom-ui/Button';
 
 const Page: FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);

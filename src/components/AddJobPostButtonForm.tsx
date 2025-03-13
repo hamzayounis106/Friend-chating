@@ -2,7 +2,7 @@
 
 import axios, { AxiosError } from 'axios';
 import { FC, useEffect, useState } from 'react';
-import Button from './ui/Button';
+import Button from './custom-ui/Button';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
