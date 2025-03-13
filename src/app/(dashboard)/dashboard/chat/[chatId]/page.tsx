@@ -95,7 +95,7 @@ const Page = async ({ params }: PageProps) => {
           Credits allow you to connect with specialists for consultations.
         </p>
         <a
-          href='/dashboard/credits'
+          href='/dashboard/buyCredits'
           className='flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors'
         >
           <CreditCard className='mr-2 h-5 w-5' />
