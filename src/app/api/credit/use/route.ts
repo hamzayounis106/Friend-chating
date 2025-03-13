@@ -203,13 +203,13 @@ export async function POST(req: NextRequest) {
       { new: true }
     );
     
-    // Update surgeons with credit ID
-    if (job.surgeonEmails && job.surgeonEmails.length > 0) {
-      await User.updateMany(
-        { email: { $in: job.surgeonEmails.map(s => s.email) } },
-        { $push: { creditIds: credit._id } }
-      );
-    }
+// Update surgeons with credit ID
+if (job.surgeonEmails && job.surgeonEmails.length > 0) {
+  await User.updateMany(
+    { email: { $in: job.surgeonEmails.map((s: { email: string }) => s.email) } },
+    { $push: { creditIds: credit._id } }
+  );
+}
     
     // Update job with credit ID
     await Job.findByIdAndUpdate(
