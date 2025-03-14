@@ -48,7 +48,11 @@ const OfferPageClient = ({
     );
     setMergedOffers([...offersDetails, ...filteredReduxOffers]);
   }, [reduxOffers, offersDetails]);
-
+  console.log('chat partner id second id', chatPartner.id);
+  const data = mergedOffers.filter(
+    (offer) => offer.createdBy === chatPartner.id
+  );
+  console.log('data to find available', data);
   return (
     <div className='p-4 space-y-6'>
       {isJobScheduled && userRole === 'surgeon' && (
@@ -101,14 +105,16 @@ const OfferPageClient = ({
           )}
         </>
       ) : mergedOffers.length > 0 ? (
-        mergedOffers.map((offer) => (
-          <OfferResponse
-            key={offer._id}
-            offerDetails={{
-              ...offer,
-            }}
-          />
-        ))
+        mergedOffers
+          .filter((offer) => offer.createdBy === chatPartner.id) // Filter offers where createdBy matches the second ID in params
+          .map((offer) => (
+            <OfferResponse
+              key={offer._id}
+              offerDetails={{
+                ...offer,
+              }}
+            />
+          ))
       ) : (
         <p className='text-center p-4 text-gray-600'>
           {isJobScheduled

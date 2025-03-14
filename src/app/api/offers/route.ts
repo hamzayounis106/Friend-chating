@@ -69,12 +69,15 @@ export async function POST(req: NextRequest) {
       newOffer.date.toISOString()
     );
     // Send real-time notification via Pusher
+    // console.log('updated offer.createdBy 🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️', updatedOffer.createdBy);
+    console.log('Patient idssssssssssss 🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️🚵🏽‍♀️', job?.patientId);
     await pusherServer.trigger(
       toPusherKey(`user:${patient._id}:chats`),
       'notification_toast',
       {
         receiver: patient._id.toString(),
         sender: session.user.id,
+        createdBy: session.user.id,
         senderName: session.user.name || 'Surgeon',
         senderImg: session.user.image || '/default.png',
         content: `A new offer has been created for your job ${

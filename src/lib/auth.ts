@@ -177,7 +177,7 @@ export const authOptions: NextAuthOptions = {
       // when there is first signup this is working correctly because the data is updated
       // the issue is when we signin again then this fuck up happens
       const role = (token as JWT)?.role;
-      console.log('token: is comming inside the redirects', token);
+      // console.log('token: is comming inside the redirects', token);
       if (url.includes('/login') || url.includes('/api/auth')) {
         if (role === 'pending') {
           return `${baseUrl}/update-role`;
