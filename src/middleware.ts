@@ -15,7 +15,7 @@ export default withAuth(
     const isPublicRoute = publicRoutes.includes(pathname);
 
     // Define sensitive routes
-    const sensitiveRoutes = ['/dashboard'];
+    const sensitiveRoutes = ['/dashboard', '/success'];
     const isAccessingSensitiveRoute = sensitiveRoutes.some((route) =>
       pathname.startsWith(route)
     );

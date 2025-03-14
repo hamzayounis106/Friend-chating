@@ -174,6 +174,7 @@ export default function SurgeriesPage() {
                 src={otherPerson?.image || '/default.png'}
                 alt={otherPerson?.name || 'User'}
                 fill
+                sizes='(max-width: 48px) 100vw'
                 className='object-cover'
               />
             </div>

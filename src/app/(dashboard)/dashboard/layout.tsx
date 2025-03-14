@@ -299,7 +299,7 @@ const Layout = async ({ children }: LayoutProps) => {
                     className='object-cover'
                     src={session.user.image || '/default.png'}
                     alt='Your profile picture'
-                    sizes='40px'
+                    sizes='(max-width: 48px) 100vw'
                   />
                 </div>
                 <div className='flex flex-col'>
