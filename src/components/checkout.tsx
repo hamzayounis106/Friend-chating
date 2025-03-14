@@ -1,19 +1,21 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import {
   PaymentElement,
   useStripe,
   useElements,
-  Elements
-} from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
-import { useSearchParams } from "next/navigation";
+  Elements,
+} from '@stripe/react-stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { useSearchParams } from 'next/navigation';
 
 // Make sure to call loadStripe outside of a component’s render to avoid
 // recreating the Stripe object on every render.
 // This is your test publishable API key.
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+const stripePromise = loadStripe(
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+);
 
 interface PaymentFormProps {
   amount: number;
@@ -42,20 +44,20 @@ function PaymentForm({ amount, type }: PaymentFormProps) {
     let confirmPaymentData = {
       elements,
       confirmParams: {
-        return_url: "http://localhost:3000/success",
+        return_url: 'http://localhost:3000/success',
       },
     };
 
     if (type === 'credit') {
       // Handle credit purchase logic
-      console.log("Processing credit purchase");
+      console.log('Processing credit purchase');
       // confirmPaymentData.confirmParams = {  // Remove this block
       //   ...confirmPaymentData.confirmParams,
       //   amount: amount * 100, // Stripe requires amount in cents
       // };
     } else if (type === 'offer') {
       // Handle offer purchase logic
-      console.log("Processing offer purchase");
+      console.log('Processing offer purchase');
       // Potentially different parameters or API calls for offers
     }
 
@@ -63,31 +65,31 @@ function PaymentForm({ amount, type }: PaymentFormProps) {
       const { error } = await stripe.confirmPayment(confirmPaymentData);
 
       if (error) {
-        console.error("Stripe confirmPayment error:", error);
+        console.error('Stripe confirmPayment error:', error);
         setErrorMessage(error.message);
       } else {
         // Payment succeeded!
-        console.log("Payment succeeded!");
-        setMessage("Payment succeeded!");
+        console.log('Payment succeeded!');
+        setMessage('Payment succeeded!');
       }
     } catch (err) {
-      console.error("Error during confirmPayment:", err);
-      setMessage("An unexpected error occurred.");
+      console.error('Error during confirmPayment:', err);
+      setMessage('An unexpected error occurred.');
     }
 
     setIsLoading(false);
   };
 
   const paymentElementOptions = {
-    layout: "tabs",
+    layout: 'tabs',
   };
 
   return (
-    <form id="payment-form" onSubmit={handleSubmit}>
-      <PaymentElement id="payment-element" options={paymentElementOptions} />
+    <form id='payment-form' onSubmit={handleSubmit}>
+      <PaymentElement id='payment-element' options={paymentElementOptions} />
       <button
         disabled={isLoading || !stripe || !elements}
-        id="submit"
+        id='submit'
         className={`
           w-full
           px-6
@@ -104,29 +106,29 @@ function PaymentForm({ amount, type }: PaymentFormProps) {
           }
         `}
       >
-        <span id="button-text" className="flex items-center justify-center">
+        <span id='button-text' className='flex items-center justify-center'>
           {isLoading ? (
-            <div className="spinner animate-spin rounded-full h-5 w-5 border-2 border-t-blue-50 border-b-blue-50 border-r-blue-50 border-l-white mr-2"></div>
+            <div className='spinner animate-spin rounded-full h-5 w-5 border-2 border-t-blue-50 border-b-blue-50 border-r-blue-50 border-l-white mr-2'></div>
           ) : (
-            "Pay now"
+            'Pay now'
           )}
         </span>
       </button>
       {/* Show any error or success messages */}
       {message && (
         <div
-          id="payment-message"
-          className="mt-4 py-3 px-4 bg-red-100 text-red-700 rounded-md text-sm"
-          role="alert"
+          id='payment-message'
+          className='mt-4 py-3 px-4 bg-red-100 text-red-700 rounded-md text-sm'
+          role='alert'
         >
           {message}
         </div>
       )}
       {errorMessage && (
         <div
-          id="payment-error-message"
-          className="mt-4 py-3 px-4 bg-red-100 text-red-700 rounded-md text-sm"
-          role="alert"
+          id='payment-error-message'
+          className='mt-4 py-3 px-4 bg-red-100 text-red-700 rounded-md text-sm'
+          role='alert'
         >
           {errorMessage}
         </div>
@@ -148,7 +150,7 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
 
   // Convert all query parameters into an object
   const queryParams = {};
-  searchParams.forEach((value, key) => {
+  searchParams?.forEach((value, key) => {
     queryParams[key] = value;
   });
 
@@ -156,7 +158,7 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
   const [packageData, setPackageData] = useState<any>(null);
 
   useEffect(() => {
-    if (queryParams.package) {
+    if (queryParams?.package) {
       try {
         // First, replace any erroneous double encoding
         const fixedJsonString = queryParams.package.replace(/%22/g, '"');
@@ -165,16 +167,16 @@ export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
         const parsedPackageData = JSON.parse(fixedJsonString);
         setPackageData(parsedPackageData);
       } catch (error) {
-        console.error("Error parsing package JSON:", error);
+        console.error('Error parsing package JSON:', error);
       }
     }
   }, [queryParams.package]);
 
-  console.log("All Query Params:", queryParams);
-  console.log("Parsed Package Data:", packageData);
-
   return (
-    <Elements stripe={stripePromise} options={{ appearance, clientSecret: clientSecret }}>
+    <Elements
+      stripe={stripePromise}
+      options={{ appearance, clientSecret: clientSecret }}
+    >
       {packageData && (
         <PaymentForm amount={packageData?.price} type={packageData?.type} />
       )}

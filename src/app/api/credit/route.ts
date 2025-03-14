@@ -1,33 +1,33 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
-import Credit from "@/app/models/Credit";
-import User from "@/app/models/User";
-import Job from "@/app/models/Job";
-import { getServerSession } from "next-auth";
+import Credit from '@/app/models/Credit';
+import User from '@/app/models/User';
+import Job from '@/app/models/Job';
+import { getServerSession } from 'next-auth';
 
-import mongoose from "mongoose";
-import dbConnect from "@/lib/db";
-import { authOptions } from "@/lib/auth";
+import mongoose from 'mongoose';
+import dbConnect from '@/lib/db';
+import { authOptions } from '@/lib/auth';
 
 // Get credits (with filtering options)
 export async function GET(req: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
-
+    console.log('session');
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: "Authentication required" },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
     // Get query parameters
     const url = new URL(req.url);
-    const surgeonId = url.searchParams.get("surgeonId");
-    const patientId = url.searchParams.get("patientId");
-    const jobId = url.searchParams.get("jobId");
-    const onlyUnused = url.searchParams.get("onlyUnused") === "true";
+    const surgeonId = url.searchParams.get('surgeonId');
+    const patientId = url.searchParams.get('patientId');
+    const jobId = url.searchParams.get('jobId');
+    const onlyUnused = url.searchParams.get('onlyUnused') === 'true';
 
     // Connect to database
     await dbConnect();
@@ -52,16 +52,17 @@ export async function GET(req: NextRequest) {
     }
 
     // Get credits based on query
-    const credits = await Credit.find(query).populate("jobId");
+    const credits = await Credit.find(query).populate('jobId');
 
     return NextResponse.json({
       success: true,
       credits,
+      session: session,
     });
   } catch (error: any) {
-    console.error("Error fetching credits:", error);
+    console.error('Error fetching credits:', error);
     return NextResponse.json(
-      { error: "Failed to fetch credits: " + error.message },
+      { error: 'Failed to fetch credits: ' + error.message },
       { status: 500 }
     );
   }
@@ -71,29 +72,33 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     // Check authentication
+    console.log('Request Headers:🤕🤕🤕🤕', req.headers);
+
     const session = await getServerSession(authOptions);
-    console.log("Session in /api/credit:", session); // Add this line
+
+    console.log('Session in /api/credit:😁😁😁😁😁 ', session); // Debugging
 
     if (!session || !session.user) {
       return NextResponse.json(
-        { error: "Authentication required" },
+        { error: 'Authentication required' },
         { status: 401 }
       );
     }
 
     // Verify user is a patient
     const user = await User.findOne({ email: session.user.email });
-    console.log("User in /api/credit:", user); // Add this line
+    console.log('User in /api/credit:', user); // Add this line
 
-    if (!user || user.role !== "patient") {
+    if (!user || user.role !== 'patient') {
       return NextResponse.json(
-        { error: "Only patients can purchase credits" },
+        { error: 'Only patients can purchase credits' },
         { status: 403 }
       );
     }
+    console.log('user from the api credit 😂😂😂', user);
 
     const { quantity = 1 } = await req.json();
-    console.log("quantity", quantity);
+    console.log('quantity', quantity);
     // Connect to database
     await dbConnect();
 
@@ -104,37 +109,37 @@ export async function POST(req: NextRequest) {
       isUsed: false,
     };
     const patientUser = await User.findOne({ email: session.user.email });
-    console.log("patientUser", patientUser);
+    console.log('patientUser', patientUser);
 
     const credits = [];
     for (let i = 0; i < quantity; i++) {
       credits.push(creditData);
     }
-    console.log("credits array ------------------------------->", credits);
+    console.log('credits array ------------------------------->', credits);
     // Insert credits
     let result;
     try {
-        result = await Credit.insertMany(credits);
-        
-        // Fix: Use spread operator to add all credit IDs to the array instead of nesting arrays
-        patientUser.creditIds = [
-          ...patientUser.creditIds,
-          ...result.map((credit) => credit._id)
-        ];
-        
-        await patientUser.save();
-        console.log(
-          "patientUser after saving results------------------------------->",
-          patientUser
-        );
-      } catch (error) {
-        console.log(
-          "error saving all the credits ------------------------------->",
-          error
-        );
-      }
+      result = await Credit.insertMany(credits);
+
+      // Fix: Use spread operator to add all credit IDs to the array instead of nesting arrays
+      patientUser.creditIds = [
+        ...patientUser.creditIds,
+        ...result.map((credit) => credit._id),
+      ];
+
+      await patientUser.save();
+      console.log(
+        'patientUser after saving results------------------------------->',
+        patientUser
+      );
+    } catch (error) {
+      console.log(
+        'error saving all the credits ------------------------------->',
+        error
+      );
+    }
     // const result = await Credit.insertMany(credits);
-    console.log("result------------------------------->", result);
+    console.log('result------------------------------->', result);
     return NextResponse.json(
       {
         success: true,
@@ -144,9 +149,9 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error: any) {
-    console.error("Error purchasing credits:", error);
+    console.error('Error purchasing credits:', error);
     return NextResponse.json(
-      { error: "Failed to purchase credits: " + error.message },
+      { error: 'Failed to purchase credits: ' + error.message },
       { status: 500 }
     );
   }

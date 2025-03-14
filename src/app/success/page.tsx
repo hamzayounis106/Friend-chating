@@ -1,150 +1,192 @@
-"use server";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { stripe } from "../../lib/stripe";
+'use server';
+import { authOptions } from '@/lib/auth';
+import axios from 'axios';
+import { getServerSession } from 'next-auth';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { stripe } from '../../lib/stripe';
 
 const SuccessIcon = (
   <svg
-    width="16"
-    height="14"
-    viewBox="0 0 16 14"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    width='16'
+    height='14'
+    viewBox='0 0 16 14'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
   >
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M15.4695 0.232963C15.8241 0.561287 15.8454 1.1149 15.5171 1.46949L6.14206 11.5945C5.97228 11.7778 5.73221 11.8799 5.48237 11.8748C5.23253 11.8698 4.99677 11.7582 4.83452 11.5681L0.459523 6.44311C0.145767 6.07557 0.18937 5.52327 0.556912 5.20951C0.924454 4.89575 1.47676 4.93936 1.79051 5.3069L5.52658 9.68343L14.233 0.280522C14.5613 -0.0740672 15.1149 -0.0953599 15.4695 0.232963Z"
-      fill="white"
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M15.4695 0.232963C15.8241 0.561287 15.8454 1.1149 15.5171 1.46949L6.14206 11.5945C5.97228 11.7778 5.73221 11.8799 5.48237 11.8748C5.23253 11.8698 4.99677 11.7582 4.83452 11.5681L0.459523 6.44311C0.145767 6.07557 0.18937 5.52327 0.556912 5.20951C0.924454 4.89575 1.47676 4.93936 1.79051 5.3069L5.52658 9.68343L14.233 0.280522C14.5613 -0.0740672 15.1149 -0.0953599 15.4695 0.232963Z'
+      fill='white'
     />
   </svg>
 );
 
 const ErrorIcon = (
   <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    width='16'
+    height='16'
+    viewBox='0 0 16 16'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
   >
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M1.25628 1.25628C1.59799 0.914573 2.15201 0.914573 2.49372 1.25628L8 6.76256L13.5063 1.25628C13.848 0.914573 14.402 0.914573 14.7437 1.25628C15.0854 1.59799 15.0854 2.15201 14.7437 2.49372L9.23744 8L14.7437 13.5063C15.0854 13.848 15.0854 14.402 14.7437 14.7437C14.402 15.0854 13.848 15.0854 13.5063 14.7437L8 9.23744L2.49372 14.7437C2.15201 15.0854 1.59799 15.0854 1.25628 14.7437C0.914573 14.402 0.914573 13.848 1.25628 13.5063L6.76256 8L1.25628 2.49372C0.914573 2.15201 0.914573 1.59799 1.25628 1.25628Z"
-      fill="white"
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M1.25628 1.25628C1.59799 0.914573 2.15201 0.914573 2.49372 1.25628L8 6.76256L13.5063 1.25628C13.848 0.914573 14.402 0.914573 14.7437 1.25628C15.0854 1.59799 15.0854 2.15201 14.7437 2.49372L9.23744 8L14.7437 13.5063C15.0854 13.848 15.0854 14.402 14.7437 14.7437C14.402 15.0854 13.848 15.0854 13.5063 14.7437L8 9.23744L2.49372 14.7437C2.15201 15.0854 1.59799 15.0854 1.25628 14.7437C0.914573 14.402 0.914573 13.848 1.25628 13.5063L6.76256 8L1.25628 2.49372C0.914573 2.15201 0.914573 1.59799 1.25628 1.25628Z'
+      fill='white'
     />
   </svg>
 );
 
 const InfoIcon = (
   <svg
-    width="14"
-    height="14"
-    viewBox="0 0 14 14"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
+    width='14'
+    height='14'
+    viewBox='0 0 14 14'
+    fill='none'
+    xmlns='http://www.w3.org/2000/svg'
   >
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M10 1.5H4C2.61929 1.5 1.5 2.61929 1.5 4V10C1.5 11.3807 2.61929 12.5 4 12.5H10C11.3807 12.5 12.5 11.3807 12.5 10V4C12.5 2.61929 11.3807 1.5 10 1.5ZM4 0C1.79086 0 0 1.79086 0 4V10C0 12.2091 1.79086 14 4 14H10C12.2091 14 14 12.2091 14 10V4C14 1.79086 12.2091 0 10 0H4Z"
-      fill="white"
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M10 1.5H4C2.61929 1.5 1.5 2.61929 1.5 4V10C1.5 11.3807 2.61929 12.5 4 12.5H10C11.3807 12.5 12.5 11.3807 12.5 10V4C12.5 2.61929 11.3807 1.5 10 1.5ZM4 0C1.79086 0 0 1.79086 0 4V10C0 12.2091 1.79086 14 4 14H10C12.2091 14 14 12.2091 14 10V4C14 1.79086 12.2091 0 10 0H4Z'
+      fill='white'
     />
     <path
-      fillRule="evenodd"
-      clipRule="evenodd"
-      d="M5.25 7C5.25 6.58579 5.58579 6.25 6 6.25H7.25C7.66421 6.25 8 6.58579 8 7V10.5C8 10.9142 7.66421 11.25 7.25 11.25C6.83579 11.25 6.5 10.9142 6.5 10.5V7.75H6C5.58579 7.75 5.25 7.41421 5.25 7Z"
-      fill="white"
+      fillRule='evenodd'
+      clipRule='evenodd'
+      d='M5.25 7C5.25 6.58579 5.58579 6.25 6 6.25H7.25C7.66421 6.25 8 6.58579 8 7V10.5C8 10.9142 7.66421 11.25 7.25 11.25C6.83579 11.25 6.5 10.9142 6.5 10.5V7.75H6C5.58579 7.75 5.25 7.41421 5.25 7Z'
+      fill='white'
     />
     <path
-      d="M5.75 4C5.75 3.31075 6.31075 2.75 7 2.75C7.68925 2.75 8.25 3.31075 8.25 4C8.25 4.68925 7.68925 5.25 7 5.25C6.31075 5.25 5.75 4.68925 5.75 4Z"
-      fill="white"
+      d='M5.75 4C5.75 3.31075 6.31075 2.75 7 2.75C7.68925 2.75 8.25 3.31075 8.25 4C8.25 4.68925 7.68925 5.25 7 5.25C6.31075 5.25 5.75 4.68925 5.75 4Z'
+      fill='white'
     />
   </svg>
 );
 
 const STATUS_CONTENT_MAP = {
   succeeded: {
-    text: "Payment succeeded",
-    iconColor: "#30B130",
+    text: 'Payment succeeded',
+    iconColor: '#30B130',
     icon: SuccessIcon,
   },
   processing: {
-    text: "Your payment is processing.",
-    iconColor: "#6D6E78",
+    text: 'Your payment is processing.',
+    iconColor: '#6D6E78',
     icon: InfoIcon,
   },
   requires_payment_method: {
-    text: "Your payment was not successful, please try again.",
-    iconColor: "#DF1B41",
+    text: 'Your payment was not successful, please try again.',
+    iconColor: '#DF1B41',
     icon: ErrorIcon,
   },
   default: {
-    text: "Something went wrong, please try again.",
-    iconColor: "#DF1B41",
+    text: 'Something went wrong, please try again.',
+    iconColor: '#DF1B41',
     icon: ErrorIcon,
   },
 };
 
+// async function purchaseCredits(quantity: number) {
+//   const session = await getServerSession(authOptions);
+//   console.log('session inside calling api 🔔🔔🔔🔔 ', session);
+//   console.log('session inside calling api 😎😎😎😎 ', quantity);
+
+//   if (!session || !session.user) {
+//     console.error('No session found');
+//     return;
+//   }
+
+//   try {
+//     // Construct the absolute URL
+//     const baseUrl = process.env.NEXTAUTH_URL
+//       ? `https://${process.env.NEXTAUTH_URL}`
+//       : 'http://localhost:3000'; // Fallback for local development
+//     const absoluteUrl = `${baseUrl}/api/credit`;
+
+//     const response = await axios.post(
+//       absoluteUrl,
+//       { quantity },
+//       {
+//         headers: {
+//           'Content-Type': 'application/json',
+//           Authorization: `Bearer ${session.accessToken}`, // Include the session token
+//         },
+//         withCredentials: true, // Ensure cookies are sent
+//       }
+//     );
+
+//     console.log('Credits purchased successfully:', response.data);
+//   } catch (error) {
+//     console.error('Error purchasing credits:', error);
+//   }
+// }
+
 async function purchaseCredits(quantity: number) {
   const session = await getServerSession(authOptions);
-console.log('session inside calling api 🔔🔔🔔🔔 ',session)
-console.log('session inside calling api 🔔🔔🔔🔔 ',quantity)
+  console.log('session inside calling api 🔔🔔🔔🔔 ', session);
+  console.log('session inside calling api 😎😎😎😎 ', quantity);
+
   if (!session || !session.user) {
-    console.error("No session found");
+    console.error('No session found');
     return;
   }
 
   try {
     // Construct the absolute URL
-    const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-      ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`
-      : "http://localhost:3000"; // Fallback for local development
+    const baseUrl = process.env.NEXTAUTH_URL
+      ? `${process.env.NEXTAUTH_URL}`
+      : 'http://localhost:3000'; // Fallback for local development
     const absoluteUrl = `${baseUrl}/api/credit`;
+    console.log('absoluteUrl', absoluteUrl);
+    const cookieHeader = cookies().toString();
 
     const response = await fetch(absoluteUrl, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
+        Cookie: cookieHeader,
       },
+      credentials: 'include',
       body: JSON.stringify({ quantity }),
     });
 
-    if (!response.ok) {
-      console.error("Failed to purchase credits:", response.statusText);
-      return;
-    }
-
     const data = await response.json();
-    console.log("Credits purchased successfully:", data);
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to purchase credits');
+    }
+    console.log('Credits purchased successfully:', data);
   } catch (error) {
-    console.error("Error purchasing credits:", error);
+    console.error('Error purchasing credits:', error);
   }
 }
 
 export default async function SuccessPage({ searchParams }) {
-  const { payment_intent: paymentIntentId } = searchParams;
+  const { payment_intent: paymentIntentId } = await searchParams;
 
-  if (!paymentIntentId) redirect("/");
-
+  if (!paymentIntentId) redirect('/');
+  console.log('payment intent id 😎😎😎😎😎😎😎😎😎😎', paymentIntentId);
   const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
 
-  if (!paymentIntent) redirect("/");
+  if (!paymentIntent) redirect('/');
 
   const { status, metadata } = paymentIntent;
-  console.log("status", status);
-  if (status === "succeeded") {
-    // Call the purchaseCredits function after successful payment
-    await purchaseCredits(metadata?.credits);
+  console.log('status', status);
+  if (status === 'succeeded') {
+    if (metadata.type === 'credit') {
+      await purchaseCredits(metadata?.credits);
+    }
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-6">
-        <div className="text-center">
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
+      <div className='max-w-md w-full bg-white rounded-lg shadow-xl p-6'>
+        <div className='text-center'>
           <div
-            className="inline-flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full"
+            className='inline-flex items-center justify-center w-16 h-16 mx-auto mb-4 rounded-full'
             style={{
               backgroundColor:
                 STATUS_CONTENT_MAP[status]?.iconColor ||
@@ -154,42 +196,48 @@ export default async function SuccessPage({ searchParams }) {
             {STATUS_CONTENT_MAP[status]?.icon ||
               STATUS_CONTENT_MAP.default.icon}
           </div>
-          <h2 className="text-2xl font-semibold text-gray-800">
+          <h2 className='text-2xl font-semibold text-gray-800'>
             {STATUS_CONTENT_MAP[status]?.text ||
               STATUS_CONTENT_MAP.default.text}
           </h2>
         </div>
 
         {paymentIntent && (
-          <div className="mt-4">
-            <div className="bg-gray-50 rounded-md p-4">
-              <table className="w-full">
+          <div className='mt-4'>
+            <div className='bg-gray-50 rounded-md p-4'>
+              <table className='w-full'>
                 <tbody>
-                  <tr className="border-b border-gray-200">
-                    <td className="py-2 font-medium text-gray-700">
+                  <tr className='border-b border-gray-200'>
+                    <td className='py-2 font-medium text-gray-700'>
                       Payment ID
                     </td>
-                    <td className="py-2 text-gray-600 break-all">
+                    <td className='py-2 text-gray-600 break-all'>
                       {paymentIntentId}
                     </td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium text-gray-700">Status</td>
-                    <td className="py-2 text-gray-600">{status}</td>
+                    <td className='py-2 font-medium text-gray-700'>Status</td>
+                    <td className='py-2 text-gray-600'>{status}</td>
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium text-gray-700">Type</td>
-                    <td className="py-2 text-gray-600">{metadata?.type}</td>{" "}
+                    <td className='py-2 font-medium text-gray-700'>Type</td>
+                    <td className='py-2 text-gray-600'>
+                      {metadata?.type}
+                    </td>{' '}
                     {/* Access the type from metadata */}
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium text-gray-700">Credits</td>
-                    <td className="py-2 text-gray-600">{metadata?.credits}</td>{" "}
+                    <td className='py-2 font-medium text-gray-700'>Credits</td>
+                    <td className='py-2 text-gray-600'>
+                      {metadata?.credits}
+                    </td>{' '}
                     {/* Access the credits from metadata */}
                   </tr>
                   <tr>
-                    <td className="py-2 font-medium text-gray-700">Title</td>
-                    <td className="py-2 text-gray-600">{metadata?.title}</td>{" "}
+                    <td className='py-2 font-medium text-gray-700'>Title</td>
+                    <td className='py-2 text-gray-600'>
+                      {metadata?.title}
+                    </td>{' '}
                     {/* Access the title from metadata */}
                   </tr>
                 </tbody>
@@ -198,7 +246,7 @@ export default async function SuccessPage({ searchParams }) {
           </div>
         )}
 
-        <div className="mt-6 flex flex-col space-y-3">
+        <div className='mt-6 flex flex-col space-y-3'>
           {/* {paymentIntent && (
             <a
               href={`https://dashboard.stripe.com/payments/${paymentIntentId}`}
@@ -210,8 +258,8 @@ export default async function SuccessPage({ searchParams }) {
             </a>
           )} */}
           <a
-            href="/"
-            className="block text-center py-3 px-4 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50"
+            href='/'
+            className='block text-center py-3 px-4 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50'
           >
             Return to homepage
           </a>
