@@ -11,44 +11,7 @@ import {
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-
-const packages = [
-  {
-    id: 'bronze',
-    title: 'Bronze',
-    icon: <Package className='w-10 h-10 text-amber-700' />,
-    credits: 1,
-    price: 90,
-    color: 'bg-amber-100 border-amber-300',
-    textColor: 'text-amber-800',
-    features: ['Basic access', 'Single consultation'],
-  },
-  {
-    id: 'silver',
-    title: 'Silver',
-    icon: <Shield className='w-10 h-10 text-slate-500' />,
-    credits: 2,
-    price: 180,
-    color: 'bg-slate-100 border-slate-300',
-    textColor: 'text-slate-700',
-    features: ['Priority access', 'Two consultations', '10% discount'],
-  },
-  {
-    id: 'gold',
-    title: 'Gold',
-    icon: <Crown className='w-10 h-10 text-yellow-500' />,
-    credits: 3,
-    price: 279,
-    color: 'bg-yellow-50 border-yellow-300',
-    textColor: 'text-yellow-700',
-    features: [
-      'VIP access',
-      'Three consultations',
-      'Priority scheduling',
-      '15% discount',
-    ],
-  },
-];
+import { packages } from '@/lib/packages';
 
 export default function CreditPackages() {
   const { data: session, status } = useSession();
@@ -97,9 +60,13 @@ export default function CreditPackages() {
 
   console.log('pkg', packages[0]);
   const handlePackageSelect = (pkg: any) => {
-    const {credits,title,price } = pkg
+    const { credits, title, price } = pkg;
     // Navigate to the checkout page with the selected package's data
-    router.push(`/checkout?package=${encodeURIComponent(JSON.stringify({credits,title,price , type: 'credit'}))}`);
+    router.push(
+      `/checkout?package=${encodeURIComponent(
+        JSON.stringify({ credits, title, price, type: 'credit' })
+      )}`
+    );
   };
 
   if (status === 'loading') {

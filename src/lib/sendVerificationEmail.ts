@@ -15,7 +15,7 @@ export async function sendVerificationEmail(user: any) {
   user.verificationToken = verificationToken;
   await user.save();
 
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/verify-email?token=${verificationToken}`;
+  const verificationUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verify-email?token=${verificationToken}`;
   const recipients = [{ email: user.email }];
 
   try {

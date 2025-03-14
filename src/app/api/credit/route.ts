@@ -8,6 +8,7 @@ import { getServerSession } from 'next-auth';
 import mongoose from 'mongoose';
 import dbConnect from '@/lib/db';
 import { authOptions } from '@/lib/auth';
+import CreditPayment from '@/app/models/CreditPayment';
 
 // Get credits (with filtering options)
 export async function GET(req: NextRequest) {
@@ -72,11 +73,10 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     // Check authentication
-    console.log('Request Headers:🤕🤕🤕🤕', req.headers);
 
     const session = await getServerSession(authOptions);
 
-    console.log('Session in /api/credit:😁😁😁😁😁 ', session); // Debugging
+    console.log('Session in /api/credit:🙄🙄🙄🙄🙄🙄🙄🙄 ', session); // Debugging
 
     if (!session || !session.user) {
       return NextResponse.json(
@@ -95,17 +95,22 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
-    console.log('user from the api credit 😂😂😂', user);
 
-    const { quantity = 1 } = await req.json();
+    const { quantity = 1, paymentIntentId, amount } = await req.json();
     console.log('quantity', quantity);
+    const existingPayment = await CreditPayment.findOne({
+      paymentIntentId,
+    }); // Updated model name
+    if (existingPayment) {
+      console.log('Payment already processed');
+      return;
+    }
     // Connect to database
     await dbConnect();
 
     // Create credits
     const creditData = {
       patientId: user._id,
-
       isUsed: false,
     };
     const patientUser = await User.findOne({ email: session.user.email });
