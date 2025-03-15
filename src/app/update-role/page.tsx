@@ -23,6 +23,7 @@ const UpdateRolePage = () => {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { update } = useSession();
+
   // React Hook Form setup
   const {
     register,
@@ -50,6 +51,7 @@ const UpdateRolePage = () => {
       } else {
         router.refresh();
       }
+
       if (data.role === 'patient') {
         router.push('/dashboard/add');
       } else {
@@ -64,29 +66,69 @@ const UpdateRolePage = () => {
   };
 
   return (
-    <div className='container mx-auto p-4'>
-      <h1 className='text-2xl font-bold mb-4'>Update Your Role</h1>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className='flex flex-col gap-4 max-w-sm'
-      >
-        <label className='flex flex-col'>
-          Choose your role:
-          <select {...register('role')} className='mt-1 p-2 border rounded'>
-            <option value='patient'>Patient</option>
-            <option value='surgeon'>Surgeon</option>
-          </select>
-          {errors.role && <p className='text-red-500'>{errors.role.message}</p>}
-        </label>
-        {error && <p className='text-red-500'>{error}</p>}
-        <button
-          type='submit'
-          disabled={loading}
-          className='px-4 py-2 bg-blue-500 text-white rounded disabled:opacity-50'
-        >
-          {loading ? 'Updating...' : 'Update Role'}
-        </button>
-      </form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+        <h1 className="text-3xl font-semibold text-gray-800 mb-6 text-center">
+         How would you like to join our platform?
+        </h1>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Choose your role:
+            </label>
+            <div className="space-y-2">
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="patient"
+                  value="patient"
+                  className="mr-2"
+                  {...register('role')}
+                />
+                <label htmlFor="patient" className="text-gray-700">
+                  I am a patient
+                </label>
+              </div>
+              <div className="flex items-center">
+                <input
+                  type="radio"
+                  id="surgeon"
+                  value="surgeon"
+                  className="mr-2"
+                  {...register('role')}
+                />
+                <label htmlFor="surgeon" className="text-gray-700">
+                  I am a surgeon
+                </label>
+              </div>
+            </div>
+            {errors.role && (
+              <p className="text-red-500 text-xs italic mt-1">
+                {errors.role.message}
+              </p>
+            )}
+          </div>
+
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+              <strong className="font-bold">Error!</strong>
+              <span className="block sm:inline">{error}</span>
+            </div>
+          )}
+
+          <div>
+            <button
+              type="submit"
+              disabled={loading}
+              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded focus:outline-none focus:shadow-outline transition-colors duration-200 w-full ${
+                loading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
+            >
+              {loading ? 'Updating...' : 'Update Role'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

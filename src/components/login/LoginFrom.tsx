@@ -116,16 +116,20 @@ const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className='space-y-4 w-full max-w-sm'
+      className='space-y-5 w-full max-w-sm'
     >
       <div className='space-y-2'>
-        <label htmlFor='email'>Email</label>
+        <label htmlFor='email' className='block text-sm font-medium text-gray-700'>
+          Email
+        </label>
         <input
           id='email'
           type='email'
           {...register('email')}
           placeholder='Enter your email'
-          className={errors.email ? 'border-red-500' : ''}
+          className={`w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+            errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+          }`}
         />
         {errors.email && (
           <p className='text-sm text-red-500'>{errors.email.message}</p>
@@ -133,31 +137,39 @@ const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
       </div>
 
       <div className='space-y-2'>
-        <label htmlFor='password'>Password</label>
+        <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
+          Password
+        </label>
         <input
           id='password'
           type='password'
           {...register('password')}
           placeholder='Enter your password'
-          className={errors.password ? 'border-red-500' : ''}
+          className={`w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+            errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+          }`}
         />
         {errors.password && (
           <p className='text-sm text-red-500'>{errors.password.message}</p>
         )}
       </div>
 
-      <button type='submit' className='w-full' disabled={isLoading}>
+      <button 
+        type='submit' 
+        className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200'
+        disabled={isLoading}
+      >
         {isLoading ? 'Signing in...' : 'Sign In'}
       </button>
 
-      <div className='flex justify-between'>
-        <Link href='/forgot-password' className='text-blue-600'>
+      <div className='flex justify-between text-sm'>
+        <Link href='/forgot-password' className='text-blue-600 hover:text-blue-800 transition-colors'>
           Forgot Password?
         </Link>
         {showResendButton && (
           <button
             type='button'
-            className='text-blue-600'
+            className='text-blue-600 hover:text-blue-800 transition-colors'
             onClick={resendVerificationEmail}
           >
             Resend Verification Email
