@@ -29,11 +29,7 @@ const OfferResponse = ({
   const handleStatusChange = async (newStatus: 'accepted' | 'declined') => {
     if (!offerDetails) return;
     if (newStatus === 'accepted') {
-      router.push(
-        `/checkout/offer?offer=${encodeURIComponent(
-          JSON.stringify(offerDetails)
-        )}`
-      );
+      router.push(`/checkout/offer?offer=${offerDetails._id}`);
       return;
     }
     setLoading(true);

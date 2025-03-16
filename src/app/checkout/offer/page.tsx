@@ -17,12 +17,26 @@ function OfferCheckoutContent() {
   const [offerData, setOfferData] = useState<any>(null);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
+  // ✅ Move function outside useEffect
+  const fetchOfferDetails = async (offerId: string) => {
+    try {
+      const response = await fetch(`/api/offers/${offerId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch offer details');
+      }
+      const data = await response.json();
+      console.log('data inside the offer details 😁😁😁😁', data);
+      setOfferData(data);
+    } catch (error) {
+      console.error('Error fetching offer details:', error);
+    }
+  };
+
   useEffect(() => {
     const offerParam = searchParams?.get('offer');
     if (offerParam) {
       try {
-        const parsedData = JSON.parse(decodeURIComponent(offerParam));
-        setOfferData(parsedData);
+        fetchOfferDetails(offerParam); // ✅ Now call the function here
       } catch (error) {
         console.error('Error parsing offer data:', error);
       }
@@ -46,9 +60,9 @@ function OfferCheckoutContent() {
               amount: calculateOrderAmount(),
               type: 'offer',
               offerId: offerData._id,
-              jobId: offerData.jobId,
+              jobId: offerData.jobId?._id,
               location: offerData.location,
-              expectedSurgeryDate: offerData.expectedSurgeoryDate,
+              expectedSurgeryDate: offerData.date,
             }),
           });
 
@@ -94,9 +108,7 @@ function OfferCheckoutContent() {
             </div>
             <div className='flex justify-between py-2 border-b border-gray-200'>
               <span className='text-gray-600'>Expected Surgery Date</span>
-              <span className='font-medium'>
-                {formatDate(offerData.expectedSurgeoryDate)}
-              </span>
+              <span className='font-medium'>{formatDate(offerData.date)}</span>
             </div>
             <div className='flex justify-between py-3 text-lg font-bold'>
               <span>Total</span>

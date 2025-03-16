@@ -14,7 +14,7 @@ const Page: FC = () => {
   const router = useRouter();
   const session = useSession();
   const sessionRole = session?.data?.user?.role;
-  
+
   async function loginWithGoogle() {
     setIsLoading(true);
     try {
@@ -28,7 +28,7 @@ const Page: FC = () => {
       setIsLoading(false);
     }
   }
-  
+
   useEffect(() => {
     if (session.status === 'authenticated') {
       handleLoginRedirect(router, sessionRole);
@@ -41,11 +41,22 @@ const Page: FC = () => {
         <div className='flex flex-col items-center gap-6'>
           <div className='w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-gray-400'>
             {/* Logo placeholder */}
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <svg
+              xmlns='http://www.w3.org/2000/svg'
+              className='h-12 w-12'
+              fill='none'
+              viewBox='0 0 24 24'
+              stroke='currentColor'
+            >
+              <path
+                strokeLinecap='round'
+                strokeLinejoin='round'
+                strokeWidth={2}
+                d='M12 6v6m0 0v6m0-6h6m-6 0H6'
+              />
             </svg>
           </div>
-          
+
           <h2 className='text-center text-3xl font-extrabold text-gray-900'>
             Welcome Back
           </h2>
@@ -53,9 +64,9 @@ const Page: FC = () => {
             Sign in to your account to continue
           </p>
         </div>
-        
+
         <LoginForm />
-        
+
         <div className='relative w-full'>
           <div className='absolute inset-0 flex items-center'>
             <div className='w-full border-t border-gray-300'></div>
@@ -66,7 +77,7 @@ const Page: FC = () => {
             </span>
           </div>
         </div>
-        
+
         <Button
           isLoading={isLoading}
           type='button'
@@ -107,8 +118,11 @@ const Page: FC = () => {
         </Button>
 
         <div className='text-center text-sm text-gray-600 mt-4'>
-          Don't have an account?{' '}
-          <Link href={'signup'} className='font-medium text-blue-600 hover:text-blue-500 transition-colors'>
+          Don&apos;t have an account?{' '}
+          <Link
+            href={'signup'}
+            className='font-medium text-blue-600 hover:text-blue-500 transition-colors'
+          >
             Sign up here
           </Link>
         </div>

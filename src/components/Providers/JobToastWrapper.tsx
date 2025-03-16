@@ -14,8 +14,6 @@ const JobToastWrapper = () => {
     userEmail ? state.jobs.latestJobsBySurgeon[userEmail] : null
   );
 
-  console.log('Latest job from JobToastWrapper:', latestJob);
-
   useEffect(() => {
     if (latestJob) {
       toast.custom((t) => <JobToast t={t} job={latestJob} />, {

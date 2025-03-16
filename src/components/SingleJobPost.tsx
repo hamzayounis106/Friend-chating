@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import format from 'date-fns/format';
+import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 
-export default function SingleJobPost({ jobData }) {
+export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
@@ -17,6 +18,7 @@ export default function SingleJobPost({ jobData }) {
         session.user.role === 'patient' &&
         jobData?.patientId?._id !== session.user.id
       ) {
+        console.log('you have not created this post ');
         router.push('/job-post');
       }
     }
@@ -27,9 +29,10 @@ export default function SingleJobPost({ jobData }) {
     // chat/67d5f5329feb50bb1c5b68d2--67d5f4ac9feb50bb1c5b6894--67d5f63c9feb50bb1c5b6909
     setLoading(true);
     setError(null);
-    router.push(`/dashboard/chat/${jobData.patientId?._id}--${session?.user?.id}--${jobData._id}`);
-    // Add 
-
+    router.push(
+      `/dashboard/chat/${jobData.patientId?._id}--${session?.user?.id}--${jobData._id}`
+    );
+    // Add
   };
 
   if (status === 'loading' || loading) {
@@ -55,6 +58,7 @@ export default function SingleJobPost({ jobData }) {
       </div>
     );
   }
+  console.log('job post data for single', error);
 
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';
@@ -117,9 +121,11 @@ export default function SingleJobPost({ jobData }) {
                 Attachments
               </h3>
               <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6'>
-                              {jobData.AttachmentUrls.map((url, idx) => {
-                  const isVideo = url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm');
-                
+                {jobData.AttachmentUrls.map((url, idx) => {
+                  const isVideo =
+                    url.toLowerCase().endsWith('.mp4') ||
+                    url.toLowerCase().endsWith('.webm');
+
                   return (
                     <div
                       key={idx}

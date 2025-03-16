@@ -7,13 +7,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 interface RequestBody {
   amount: number;
-  type: string; // 'credit' or 'offer'
-  credits?: number; // Only for packages
-  title?: string; // Only for packages
-  offerId?: string; // Only for offers
-  jobId?: string; // Only for offers
-  location?: string; // Only for offers
-  expectedSurgeryDate?: string; // Only for offers
+  type: string;
+  credits?: number;
+  title?: string;
+  offerId?: string;
+  jobId?: string;
+  location?: string;
+  expectedSurgeryDate?: string;
 }
 
 export async function POST(request: Request) {
