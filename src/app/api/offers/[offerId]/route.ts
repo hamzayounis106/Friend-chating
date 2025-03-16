@@ -50,7 +50,12 @@ export async function PATCH(
     if (!job) {
       return NextResponse.json({ error: 'Job not found' }, { status: 404 });
     }
-
+    if (job.status === 'scheduled') {
+      return NextResponse.json(
+        { error: 'Job Already Accepted' },
+        { status: 405 }
+      );
+    }
     // Get surgeon info
     const surgeon = await User.findById(updatedOffer.createdBy);
     if (!surgeon) {
@@ -101,8 +106,6 @@ export async function PATCH(
         );
       } catch (surgeryError) {
         console.error('Error creating surgery:', surgeryError);
-        // We'll continue even if surgery creation fails
-        // You might want to handle this differently in production
       }
     }
 

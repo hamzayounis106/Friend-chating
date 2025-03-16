@@ -1,32 +1,25 @@
+// components/StripePayment.tsx
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState } from 'react';
 import {
   PaymentElement,
   useStripe,
   useElements,
-  Elements,
 } from '@stripe/react-stripe-js';
-import {
-  Appearance,
-  loadStripe,
-  StripePaymentElementOptions,
-} from '@stripe/stripe-js';
-import { useSearchParams } from 'next/navigation';
-import { packages, PackageType } from '@/lib/packages';
+import { StripePaymentElementOptions } from '@stripe/stripe-js';
 
-// Make sure to call loadStripe outside of a component’s render to avoid
-// recreating the Stripe object on every render.
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
-
-interface PaymentFormProps {
-  amount: number;
-  type: string;
+interface StripePaymentProps {
+  clientSecret: string;
+  onSuccess?: () => void;
+  onError?: (error: string) => void;
 }
 
-function PaymentForm({ amount, type }: PaymentFormProps) {
+export function StripePayment({
+  clientSecret,
+  onSuccess,
+  onError,
+}: StripePaymentProps) {
   const stripe = useStripe();
   const elements = useElements();
   const [message, setMessage] = useState<string | null>(null);
@@ -57,12 +50,15 @@ function PaymentForm({ amount, type }: PaymentFormProps) {
       if (error) {
         console.error('Stripe confirmPayment error:', error);
         setErrorMessage(error.message ?? 'An unknown error occurred.');
+        onError?.(error.message ?? 'An unknown error occurred.');
       } else {
         setMessage('Payment succeeded!');
+        onSuccess?.();
       }
     } catch (err) {
       console.error('Error during confirmPayment:', err);
       setMessage('An unexpected error occurred.');
+      onError?.('An unexpected error occurred.');
     }
 
     setIsLoading(false);
@@ -123,59 +119,5 @@ function PaymentForm({ amount, type }: PaymentFormProps) {
         </div>
       )}
     </form>
-  );
-}
-
-interface CheckoutFormProps {
-  clientSecret: string;
-}
-
-function CheckoutFormContent({ clientSecret }: CheckoutFormProps) {
-  const searchParams = useSearchParams();
-
-  // Convert all query parameters into an object
-  const queryParams: Record<string, string> = {};
-  searchParams?.forEach((value, key) => {
-    queryParams[key] = value;
-  });
-
-  // Decode and safely parse the "package" parameter
-  const [packageData, setPackageData] = useState<PackageType | null>(null);
-
-  useEffect(() => {
-    if (queryParams?.package) {
-      try {
-        const fixedJsonString = queryParams.package.replace(/%22/g, '"');
-        const parsedPackageData = JSON.parse(fixedJsonString);
-        setPackageData(parsedPackageData);
-      } catch (error) {
-        console.error('Error parsing package JSON:', error);
-      }
-    }
-  }, [queryParams.package]);
-
-  const FilterDataParams = packages.find(
-    (p) => p.title.toLowerCase() === packageData?.title.toLowerCase()
-  );
-  if (!FilterDataParams) {
-    return <h1>No filterDataParams found</h1>;
-  }
-  return (
-    <Elements
-      stripe={stripePromise}
-      options={{ clientSecret, appearance: { theme: 'stripe' } }}
-    >
-      {FilterDataParams && (
-        <PaymentForm amount={FilterDataParams.price} type='credit' />
-      )}
-    </Elements>
-  );
-}
-
-export default function CheckoutForm({ clientSecret }: CheckoutFormProps) {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <CheckoutFormContent clientSecret={clientSecret} />
-    </Suspense>
   );
 }

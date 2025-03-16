@@ -1,5 +1,7 @@
 // app/success/SuccessPageContent.tsx
 'use client';
+
+import { formatDate } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 import { Stripe } from 'stripe';
 import { STATUS_CONTENT_MAP } from './statusContentMap';
@@ -10,19 +12,6 @@ export default function SuccessPageContent({
   paymentIntent: Stripe.PaymentIntent;
 }) {
   const searchParams = useSearchParams();
-
-  // Handle the case where searchParams is null
-  if (!searchParams) {
-    return <div>Loading...</div>; // Or any other fallback UI
-  }
-
-  const paymentIntentId = searchParams.get('payment_intent');
-
-  // Handle the case where paymentIntentId is missing
-  if (!paymentIntentId) {
-    return <div>Invalid payment intent.</div>; // Or redirect to a fallback page
-  }
-
   const { status, metadata } = paymentIntent;
 
   return (
@@ -52,7 +41,7 @@ export default function SuccessPageContent({
                       Payment ID
                     </td>
                     <td className='py-2 text-gray-600 break-all'>
-                      {paymentIntentId}
+                      {paymentIntent.id}
                     </td>
                   </tr>
                   <tr>
@@ -63,14 +52,62 @@ export default function SuccessPageContent({
                     <td className='py-2 font-medium text-gray-700'>Type</td>
                     <td className='py-2 text-gray-600'>{metadata?.type}</td>
                   </tr>
-                  <tr>
-                    <td className='py-2 font-medium text-gray-700'>Credits</td>
-                    <td className='py-2 text-gray-600'>{metadata?.credits}</td>
-                  </tr>
-                  <tr>
-                    <td className='py-2 font-medium text-gray-700'>Title</td>
-                    <td className='py-2 text-gray-600'>{metadata?.title}</td>
-                  </tr>
+                  {metadata?.type === 'credit' && (
+                    <>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Credits
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {metadata?.credits}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Title
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {metadata?.title}
+                        </td>
+                      </tr>
+                    </>
+                  )}
+                  {metadata?.type === 'offer' && (
+                    <>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Offer ID
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {metadata?.offerId}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Job ID
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {metadata?.jobId}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Location
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {metadata?.location}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Expected Surgery Date
+                        </td>
+                        <td className='py-2 text-gray-600'>
+                          {formatDate(metadata?.expectedSurgeryDate)}
+                        </td>
+                      </tr>
+                    </>
+                  )}
                 </tbody>
               </table>
             </div>

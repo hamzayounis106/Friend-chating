@@ -16,7 +16,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { OfferType } from '@/app/(dashboard)/dashboard/chat/[chatId]/offer/page';
-import { useRouter } from "next/navigation";
+import { useRouter } from 'next/navigation';
 
 const OfferResponse = ({
   offerDetails,
@@ -24,17 +24,19 @@ const OfferResponse = ({
   offerDetails: OfferType | null;
 }) => {
   const [loading, setLoading] = useState(false);
-  const dispatch = useAppDispatch();
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const handleStatusChange = async (newStatus: 'accepted' | 'declined') => {
     if (!offerDetails) return;
 
-        if (newStatus === 'accepted') {
+    if (newStatus === 'accepted') {
       router.push(
-        `/checkout?offer=${encodeURIComponent(JSON.stringify(offerDetails))}`
+        `/checkout/offer?offer=${encodeURIComponent(
+          JSON.stringify(offerDetails)
+        )}`
       );
-      return
+      return;
     }
 
     setLoading(true);

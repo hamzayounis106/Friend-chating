@@ -21,49 +21,12 @@ export default function CreditPackages() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  // const handlePurchase = async () => {
-  //   const pkg = packages.find((p) => p.id === selectedPackage);
-  //   if (!pkg) {
-  //     setError('Please select a package');
-  //     return;
-  //   }
-
-  //   setLoading(true);
-  //   setError('');
-  //   setSuccessMessage('');
-
-  //   try {
-  //     const response = await fetch('/api/credit', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         quantity: pkg.credits,
-  //       }),
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (!response.ok) {
-  //       throw new Error(data.error || 'Failed to purchase credits');
-  //     }
-
-  //     setSuccessMessage(`Successfully purchased ${pkg.credits} credit(s)!`);
-  //     setSelectedPackage(null);
-  //   } catch (err: any) {
-  //     setError(err.message);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   console.log('pkg', packages[0]);
   const handlePackageSelect = (pkg: any) => {
     const { credits, title, price } = pkg;
     // Navigate to the checkout page with the selected package's data
     router.push(
-      `/checkout?package=${encodeURIComponent(
+      `/checkout/package?package=${encodeURIComponent(
         JSON.stringify({ credits, title, price, type: 'credit' })
       )}`
     );
