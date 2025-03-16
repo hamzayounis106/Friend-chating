@@ -26,10 +26,8 @@ const OfferResponse = ({
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const dispatch = useAppDispatch();
-
   const handleStatusChange = async (newStatus: 'accepted' | 'declined') => {
     if (!offerDetails) return;
-
     if (newStatus === 'accepted') {
       router.push(
         `/checkout/offer?offer=${encodeURIComponent(
@@ -38,7 +36,6 @@ const OfferResponse = ({
       );
       return;
     }
-
     setLoading(true);
     try {
       const response = await axios.patch(`/api/offers/${offerDetails._id}`, {
