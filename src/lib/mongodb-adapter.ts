@@ -14,6 +14,11 @@ export interface CustomAdapterUser extends AdapterUser {
   role?: UserRole;
   isVerified?: boolean;
   creditIds?: ObjectId[];
+  phone?: string;
+  city?: string;
+  country?: string;
+  description?: string;
+  address?: string;
 }
 // Utility function to transform a MongoDB user document into an AdapterUser
 const transformUser = (user: any): CustomAdapterUser => ({
@@ -23,7 +28,12 @@ const transformUser = (user: any): CustomAdapterUser => ({
   emailVerified: user.emailVerified ? new Date(user.emailVerified) : null,
   image: user.image,
   role: user.role, // Include the role field
-  creditIds: user.creditIds || [], // ✅ Ensure it exists
+  creditIds: user.creditIds || [],
+  phone: user.phone || '',
+  city: user.city || '',
+  country: user.country || '',
+  description: user.description || '',
+  address: user.address || '',
 });
 
 const transformSession = (session: any): AdapterSession & { id: string } => ({
@@ -41,6 +51,11 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
         role?: string;
         friends?: any[];
         creditIds?: ObjectId[]; // ✅ Add this line to the type
+        phone?: string;
+        city?: string;
+        country?: string;
+        description?: string;
+        address?: string;
       }
     ): Promise<CustomAdapterUser> {
       const client = await clientPromise;
@@ -99,18 +114,52 @@ export function MongoDBAdapter(clientPromise: Promise<MongoClient>): Adapter {
     },
 
     // Accept a partial update object along with the required id.
+    // async updateUser(
+    //   user: Partial<AdapterUser> &
+    //     Pick<AdapterUser, 'id'> & { creditIds?: ObjectId[] } // ✅ Add creditIds here
+    // ): Promise<AdapterUser> {
+    //   const client = await clientPromise;
+    //   const db = client.db();
+    //   // Use $set to update only the provided fields.
+    //   await db
+    //     .collection('users')
+    //     .updateOne({ _id: new ObjectId(user.id) }, { $set: user });
+    //   // Optionally, return the merged user object.
+    //   return { ...user, creditIds: user.creditIds || [] } as AdapterUser; //here also
+    // },
     async updateUser(
-      user: Partial<AdapterUser> &
-        Pick<AdapterUser, 'id'> & { creditIds?: ObjectId[] } // ✅ Add creditIds here
-    ): Promise<AdapterUser> {
+      user: Partial<CustomAdapterUser> & Pick<CustomAdapterUser, 'id'>
+    ): Promise<CustomAdapterUser> {
       const client = await clientPromise;
       const db = client.db();
-      // Use $set to update only the provided fields.
+
+      // Find existing user to merge data properly
+      const existingUser = await db
+        .collection('users')
+        .findOne({ _id: new ObjectId(user.id) });
+
+      if (!existingUser) {
+        throw new Error(`User with id ${user.id} not found.`);
+      }
+
+      // Ensure creditIds and other fields are properly merged
+      const updatedUser = {
+        ...existingUser,
+        ...user,
+        creditIds: user.creditIds ?? existingUser.creditIds ?? [],
+        phone: user.phone ?? existingUser.phone ?? '',
+        city: user.city ?? existingUser.city ?? '',
+        country: user.country ?? existingUser.country ?? '',
+        description: user.description ?? existingUser.description ?? '',
+        address: user.address ?? existingUser.address ?? '',
+      };
+
+      // Update the user in the database
       await db
         .collection('users')
-        .updateOne({ _id: new ObjectId(user.id) }, { $set: user });
-      // Optionally, return the merged user object.
-      return { ...user, creditIds: user.creditIds || [] } as AdapterUser; //here also
+        .updateOne({ _id: new ObjectId(user.id) }, { $set: updatedUser });
+
+      return transformUser(updatedUser);
     },
 
     async deleteUser(id: string): Promise<void> {

@@ -122,9 +122,14 @@ export const authOptions: NextAuthOptions = {
         id: dbUser._id.toString(),
         name: dbUser.name,
         email: dbUser.email,
-        picture: dbUser.image, // Keep your existing field
-        role: dbUser.role, // include the role field
-        isVerified: true, // include the isVerified field
+        picture: dbUser.image,
+        role: dbUser.role,
+        isVerified: true,
+        phone: dbUser?.phone,
+        city: dbUser?.city,
+        country: dbUser?.country,
+        description: dbUser?.description,
+        address: dbUser?.address,
       };
     },
     async session({ session, token }) {
@@ -134,35 +139,17 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id;
         session.user.name = token.name;
         session.user.email = token.email;
-        session.user.image = token.picture; // Keep your existing field
-        session.user.role = token.role; // pass role to session
-        session.user.isVerified = token.isVerified; // include the isVerified field
+        session.user.image = token.picture;
+        session.user.role = token.role;
+        session.user.isVerified = token.isVerified;
+        session.user.phone = token.phone;
+        session.user.city = token.city;
+        session.user.country = token.country;
+        session.user.description = token.description;
+        session.user.address = token.address;
       }
       return session;
     },
-    // async redirect({ url, baseUrl }) {
-    //   // Custom redirect logic from Bolt.new
-    //   if (url.startsWith('/')) {
-    //     return `${baseUrl}${url}`;
-    //   } else if (new URL(url).origin === baseUrl) {
-    //     return url;
-    //   }
-    //   return baseUrl + '/dashboard';
-    // },
-    // async redirect({ url, baseUrl }) {
-    //   // Redirect to /dashboard after successful login
-    //   if (url.startsWith('/login')) {
-    //     return `${baseUrl}/dashboard/add`;
-    //   }
-    //   return url.startsWith(baseUrl) ? url : baseUrl;
-    // },
-    // async redirect({ url, baseUrl }) {
-    //   // Redirect to /update-role if the role is pending
-    //   if (url.startsWith('/login')) {
-    //     return `${baseUrl}/update-role`;
-    //   }
-    //   return url.startsWith(baseUrl) ? url : baseUrl;
-    // },
 
     async redirect({
       url,
