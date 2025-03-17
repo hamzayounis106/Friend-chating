@@ -4,6 +4,8 @@ import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import SingleCloudinaryUpload from '@/components/cloudinary/SingleCloudinaryUpload';
 
 export interface OptionalTypes {
   name: string;
@@ -12,18 +14,22 @@ export interface OptionalTypes {
   country: string;
   description: string;
   address: string;
+  image: string;
 }
 
 export default function ProfilePage() {
   const { data: session, update } = useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const { register, handleSubmit, setValue } = useForm<OptionalTypes>();
+  const { register, handleSubmit, setValue, watch } = useForm<OptionalTypes>();
 
-  console.log('session ure', session);
+  // Watch for image updates
+  const imageUrl = watch('image');
+
   useEffect(() => {
     if (session?.user) {
       setValue('name', session.user.name || '');
+      setValue('image', session.user.image || '');
       setValue('phone', session.user.phone || '');
       setValue('city', session.user.city || '');
       setValue('country', session.user.country || '');
@@ -52,6 +58,11 @@ export default function ProfilePage() {
             ...updatedUser,
           },
         });
+
+        router.refresh();
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 500);
       } else {
         console.error('Failed to update profile');
       }
@@ -102,9 +113,31 @@ export default function ProfilePage() {
             className='w-full p-2 border rounded'
           />
         </div>
+
+        <div className='mb-4 w-48 relative group cursor-pointer'>
+          <label className='block font-medium'>Profile Image</label>
+          <div className=' w-64 h-64 rounded-full overflow-hidden'>
+            {imageUrl && (
+              <Image
+                src={imageUrl || '/default.png'}
+                alt='Profile'
+                width={96}
+                height={96}
+                className='w-full h-full rounded-full object-cover transition-opacity duration-300 '
+              />
+            )}
+          </div>
+        </div>
+
+        <SingleCloudinaryUpload
+          onUpload={(url) => {
+            setValue('image', url); // Set only a single image
+          }}
+        />
+
         <button
           type='submit'
-          className='bg-blue-500 text-white px-4 py-2 rounded'
+          className='bg-blue-500 text-white px-4 py-2 rounded mt-4'
           disabled={loading}
         >
           {loading ? 'Updating...' : 'Update Profile'}

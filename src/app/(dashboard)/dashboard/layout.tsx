@@ -66,16 +66,11 @@ const Layout = async ({ children }: LayoutProps) => {
       href: '/dashboard/surgeries',
       Icon: 'Calendar',
     },
+
     {
-      id: 3,
-      name: 'Settings',
-      href: '/dashboard/settings',
-      Icon: 'Settings',
-    },
-    {
-      id: 4,
-      name: 'Help & Support',
-      href: '/dashboard/support',
+      id: 5,
+      name: 'Update Profile',
+      href: '/dashboard/update-profile',
       Icon: 'HelpCircle',
     },
   ];
