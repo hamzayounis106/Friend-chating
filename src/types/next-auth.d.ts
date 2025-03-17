@@ -8,11 +8,6 @@ declare module 'next-auth/jwt' {
     id: UserId;
     role?: 'patient' | 'surgeon' | 'pending';
     isVerified?: boolean;
-    phone?: string;
-    city?: string;
-    country?: string;
-    description?: string;
-    address?: string;
   }
 }
 

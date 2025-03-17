@@ -84,12 +84,11 @@ export const authOptions: NextAuthOptions = {
           if (!isValid) {
             throw new Error('Invalid email or password');
           }
+          console.log('Email verified user from the authozide', user);
 
           // Return a simplified user object
           return {
             id: user._id.toString(), // Convert ObjectId to string
-            name: user.name,
-            email: user.email,
             role: user.role, // Include any additional fields you need
             isVerified: user.isVerified,
           } as CustomAdapterUser; // Cast to CustomAdapterUser
@@ -105,52 +104,55 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       await ensureDB();
       if (user) {
         token.id = user.id.toString();
         token.role = (user as CustomAdapterUser).role;
         token.isVerified = (user as CustomAdapterUser).isVerified; // Set isVerified from user object
       }
-
-      // Fetch additional user data from the database
+      console.log('htis run everytiime ');
       const dbUser = await User.findById(token.id);
-      if (!dbUser) {
-        return token;
+      if (dbUser && token.role !== dbUser.role) {
+        token.role = dbUser.role;
+        token.isVerified = dbUser.isVerified;
+      }
+
+      if (trigger === 'signIn') {
+        const freshUser = await User.findById(token.id);
+        if (freshUser) {
+          token.role = freshUser.role;
+          token.isVerified = freshUser.isVerified;
+        }
       }
       return {
-        id: dbUser._id.toString(),
-        name: dbUser.name,
-        email: dbUser.email,
-        picture: dbUser.image,
-        role: dbUser.role,
-        isVerified: true,
-        phone: dbUser?.phone,
-        city: dbUser?.city,
-        country: dbUser?.country,
-        description: dbUser?.description,
-        address: dbUser?.address,
+        id: token.id,
+        role: token.role,
+        isVerified: token.isVerified,
       };
     },
+
     async session({ session, token }) {
       await ensureDB();
+      const dbUser = await User.findById(token.id).select('-password'); // Exclude password
 
-      if (token) {
-        session.user.id = token.id;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture;
-        session.user.role = token.role;
-        session.user.isVerified = token.isVerified;
-        session.user.phone = token.phone;
-        session.user.city = token.city;
-        session.user.country = token.country;
-        session.user.description = token.description;
-        session.user.address = token.address;
+      if (dbUser) {
+        session.user = {
+          id: dbUser._id.toString(),
+          name: dbUser.name,
+          email: dbUser.email,
+          image: dbUser.image,
+          role: dbUser.role,
+          isVerified: dbUser.isVerified, // Include isVerified
+          phone: dbUser.phone,
+          city: dbUser.city,
+          country: dbUser.country,
+          description: dbUser.description,
+          address: dbUser.address,
+        };
       }
       return session;
     },
-
     async redirect({
       url,
       baseUrl,
@@ -160,9 +162,6 @@ export const authOptions: NextAuthOptions = {
       baseUrl: string;
       token?: JWT;
     }) {
-      //  the token is underfined here why i dont know but it is
-      // when there is first signup this is working correctly because the data is updated
-      // the issue is when we signin again then this fuck up happens
       const role = (token as JWT)?.role;
       // console.log('token: is comming inside the redirects', token);
       if (url.includes('/login') || url.includes('/api/auth')) {
