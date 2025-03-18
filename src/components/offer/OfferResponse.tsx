@@ -55,7 +55,8 @@ const OfferResponse = ({
     }
     setLoading(false);
   };
-
+  
+// asdsadsad
   const getStatusBadge = () => {
     switch (offerDetails?.status?.toLowerCase()) {
       case 'accepted':

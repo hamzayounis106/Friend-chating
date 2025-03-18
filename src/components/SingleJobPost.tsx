@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import format from 'date-fns/format';
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
@@ -23,16 +25,93 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
       }
     }
   }, [jobData, session, router]);
-
-  const handleReplyToJob = () => {
-    console.log('Replying to job...');
-    // chat/67d5f5329feb50bb1c5b68d2--67d5f4ac9feb50bb1c5b6894--67d5f63c9feb50bb1c5b6909
+  const handleReplyToJob = async () => {
     setLoading(true);
-    setError(null);
-    router.push(
-      `/dashboard/chat/${jobData.patientId?._id}--${session?.user?.id}--${jobData._id}`
-    );
-    // Add
+    try {
+      const currentUserEmail = session?.user?.email;
+      
+      if (!currentUserEmail) {
+        toast.error("You must be logged in");
+        return;
+      }
+      
+      // Check if user has already accepted this job
+      const isAccepted = jobData.surgeonEmails.some(
+        (surgeon) => surgeon.email === currentUserEmail && surgeon.status === 'accepted'
+      );
+  
+      if (isAccepted) {
+        // User already accepted, just navigate to chat
+        console.log('Already accepted this job, navigating to chat');
+        router.push(
+          `/dashboard/chat/${session?.user?.id}--${jobData.patientId?._id}--${jobData._id}`
+        );
+        return;
+      }
+      
+      // Check if user is invited but hasn't accepted yet
+      const isPendingInvitation = jobData.surgeonEmails.some(
+        (surgeon) => surgeon.email === currentUserEmail && surgeon.status === 'pending'
+      );
+  
+      if (isPendingInvitation) {
+        console.log('Found pending invitation, accepting it');
+        
+        // Accept the invitation
+        const acceptRes = await axios.post('/api/Jobs/accept', {
+          id: jobId,
+          currentUserEmail,
+        });
+        
+        if (acceptRes.status !== 200) {
+          toast.error('Failed to accept invitation');
+          return;
+        }
+        
+        // Successfully accepted, now navigate to chat
+        console.log('Successfully accepted invitation');
+        router.push(
+          `/dashboard/chat/${session?.user?.id}--${jobData.patientId?._id}--${jobData._id}`
+        );
+        return;
+      }
+      
+      // Not invited yet, send an invite to self
+      console.log('Not invited yet, sending invitation');
+      const inviteRes = await axios.post('/api/Jobs/send-invite', {
+        id: jobId,
+        currentUserEmail,
+      });
+      
+      if (inviteRes.status !== 200) {
+        toast.error('Failed to send invitation');
+        return;
+      }
+      
+      // Now accept the invitation we just sent
+      console.log('Invitation sent, now accepting it');
+      const acceptRes = await axios.post('/api/Jobs/accept', {
+        id: jobId,
+        currentUserEmail,
+      });
+      
+      if (acceptRes.status !== 200) {
+        toast.error('Failed to accept invitation');
+        return;
+      }
+      
+      // Successfully sent and accepted invitation, navigate to chat
+      console.log('Successfully sent and accepted invitation');
+      router.push(
+        `/dashboard/chat/${session?.user?.id}--${jobData.patientId?._id}--${jobData._id}`
+      );
+      
+    } catch (error) {
+      console.error('Error in handleReplyToJob:', error);
+      toast.error('An error occurred while processing your request');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (status === 'loading' || loading) {
@@ -58,7 +137,7 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
       </div>
     );
   }
-  console.log('job post data for single', error);
+  console.log('job post data for single', jobData);
 
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';
@@ -207,12 +286,12 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
           {/* Patient who created the job */}
           {isCreator && (
             <>
-              <button
+              {/* <button
                 className='px-5 py-3 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors duration-200'
                 onClick={() => router.push(`/job-post/${jobId}/edit`)}
               >
                 Edit Job
-              </button>
+              </button> */}
               <button
                 className='px-5 py-3 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors duration-200'
                 onClick={() => {
@@ -221,7 +300,7 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
                   }
                 }}
               >
-                Delete Job
+                Close Job
               </button>
             </>
           )}
@@ -240,7 +319,7 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
               This job is closed for new applications
             </p>
           )}
-          {!isSurgeon && (
+          {!session && (
             <p className='text-gray-500 text-sm'>
               Login as a surgeon to reply to the job
             </p>

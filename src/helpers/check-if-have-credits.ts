@@ -33,7 +33,7 @@ export const checkIfHaveCredits = async (): Promise<CreditsCheckResult> => {
     }).exec();
 
     if (!availableCredits || availableCredits.length === 0) {
-      console.error("No credits found for this user");
+      // console.error("No credits found for this user");
       return {
         success: false,
       };

@@ -54,7 +54,7 @@ export const verifyIsCreditUsed = async (
       return true;
     }
 
-    console.error("No credit found for this job in use by this surgeon");
+    console.log("No credit found for this job in use by this surgeon");
     return false;
   } catch (error) {
     console.error("Error verifying credit usage:", error);

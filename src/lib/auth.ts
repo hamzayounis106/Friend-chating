@@ -111,7 +111,7 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as CustomAdapterUser).role;
         token.isVerified = (user as CustomAdapterUser).isVerified; // Set isVerified from user object
       }
-      console.log('htis run everytiime ');
+ 
       const dbUser = await User.findById(token.id);
       if (dbUser && token.role !== dbUser.role) {
         token.role = dbUser.role;
