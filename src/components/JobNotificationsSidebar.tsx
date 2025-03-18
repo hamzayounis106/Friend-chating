@@ -25,7 +25,6 @@ const JobNotificationsSidebar: FC<JobNotificationsSidebarProps> = ({
   const unseenJobCount = useAppSelector(
     (state) => state.jobs.unseenJobCounts[sessionEmail] || 0
   );
-  console.log('unseenJobCount from the job notificaiotn', unseenJobCount);
   useEffect(() => {
     dispatch(
       setUnseenJobCount({

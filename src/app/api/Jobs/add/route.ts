@@ -26,6 +26,7 @@ export async function POST(req: Request) {
       createdBy,
       patientId,
       AttachmentUrls,
+      location,
       budget,
     } = body;
 
@@ -65,6 +66,7 @@ export async function POST(req: Request) {
     const jobCount = await Job.countDocuments({ type });
     const title = `${type} #${jobCount + 1}`;
 
+    console.log('location inside the db ', location);
     // Create the new job post
     const job = new Job({
       title,
@@ -79,6 +81,7 @@ export async function POST(req: Request) {
       createdBy: session.user.id,
       patientId,
       budget: body.budget || undefined,
+      location: body.location,
     });
 
     await job.save();
@@ -101,6 +104,7 @@ export async function POST(req: Request) {
             surgeonEmails: validSurgeonEmails,
             createdBy: session.user.email,
             patientId: session.user.id,
+            location,
             AttachmentUrls:
               Array.isArray(AttachmentUrls) && AttachmentUrls.length > 0
                 ? AttachmentUrls
@@ -117,7 +121,6 @@ export async function POST(req: Request) {
             surgeon.email
           );
           const notificationMessage = `You have a new job invitation: ${title}`;
-          const notificationLink = `/dashboard/jobs/${job._id}`;
 
           // Check if a similar notification already exists
           const existingNotification = await Notification.findOne({
@@ -155,18 +158,24 @@ export async function POST(req: Request) {
           }
         } catch (error) {
           console.error('Failed to create/update notification:', error);
-          // Continue execution even if notification creation fails
         }
       }
     }
 
     return new Response('Job post created successfully', { status: 201 });
   } catch (error) {
-    console.error('Error:', error);
+    if (error instanceof Error && error.name === 'ValidationError') {
+      console.error('Mongoose Validation Error:', error.message);
+      return new Response(`Database validation failed: ${error.message}`, {
+        status: 400,
+      });
+    }
 
-    if (error instanceof z.ZodError) {
-      return new Response(`Invalid request payload: ${error.message}`, {
-        status: 422,
+    // Add CastError handling
+    if (error instanceof Error && error.name === 'CastError') {
+      console.error('Mongoose Cast Error:', error.message);
+      return new Response(`Data type mismatch: ${error.message}`, {
+        status: 400,
       });
     }
 

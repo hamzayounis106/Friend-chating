@@ -23,7 +23,6 @@ const JobDetailPage = async ({ params }: PageProps) => {
 
   if (!rawJob) notFound();
 
-  console.log('req job', rawJob);
   const relatedJob = {
     _id: rawJob._id?.toString(),
     title: rawJob.title,

@@ -19,6 +19,7 @@ import {
   Users,
   DollarSign,
   Check,
+  LocateIcon,
 } from 'lucide-react';
 import Image from 'next/image';
 import { jobTypes } from './home/HomeJobForm';
@@ -50,6 +51,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   const session = useSession();
 
   const addJob = async (data: FormData) => {
+    console.log('location inside the data ', data.location);
     try {
       setLoading(true);
       const transformedData = {
@@ -59,6 +61,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         patientId: session?.data?.user?.id,
         surgeonEmails: data.surgeonEmails,
         AttachmentUrls: AttachmentUrls,
+        location: data.location,
       };
 
       await axios.post('/api/Jobs/add', transformedData);
@@ -137,28 +140,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
         {/* Form Grid Layout */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {/* Title */}
-          {/* <div className='space-y-2'>
-            <label className='flex items-center text-sm font-medium text-gray-700'>
-              <FileText className='w-4 h-4 mr-2 text-indigo-600' />
-              Job Title
-            </label>
-            <input
-              {...register('title')}
-              type='text'
-              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-              placeholder='e.g., Rhinoplasty Consultation'
-            />
-            {errors.title && (
-              <p className='text-sm text-red-600 flex items-start'>
-                <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
-                {errors.title.message}
-              </p>
-            )}
-          </div> */}
-
-          {/* Type */}
-
           {/* Type */}
           <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
@@ -228,6 +209,31 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               <p className='text-sm text-red-600 flex items-start'>
                 <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
                 {errors.budget.message}
+              </p>
+            )}
+          </div>
+          {/* Location */}
+          <div className='space-y-2'>
+            <label className='flex items-center text-sm font-medium text-gray-700'>
+              <LocateIcon className='w-4 h-4 mr-2 text-indigo-600' />
+              Preffered Location{' '}
+            </label>
+            <div className='relative'>
+              <span className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500'>
+                $
+              </span>
+              <input
+                {...register('location')}
+                type='text'
+                step='0.01'
+                className='w-full pl-8 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                placeholder='Enter Preffered Location'
+              />
+            </div>
+            {errors.location && (
+              <p className='text-sm text-red-600 flex items-start'>
+                <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
+                {errors.location.message}
               </p>
             )}
           </div>

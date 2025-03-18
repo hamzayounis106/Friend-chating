@@ -14,7 +14,7 @@ export const getJobsForSurgeon = async (
       'surgeonEmails.email': userEmail,
     })
       .select(
-        'title type date description surgeonEmails videoURLs createdBy patientId AttachmentUrls status'
+        'title type date description surgeonEmails videoURLs createdBy patientId AttachmentUrls status location'
       )
       .lean()
       .exec();
@@ -22,7 +22,7 @@ export const getJobsForSurgeon = async (
     if (jobs?.length === 0) {
       return [];
     }
-
+    console.log('locations 🔒🔒🔒', jobs[0]?.location);
     return jobs.map((job) => ({
       _id: job._id?.toString(),
       title: job.title,
@@ -36,8 +36,10 @@ export const getJobsForSurgeon = async (
         })
       ),
       AttachmentUrls: job.AttachmentUrls,
+      location: job?.location?.join(', '),
       createdBy: job.createdBy.toString(),
-      patientId: job.patientId.toString(), status: job.status, 
+      patientId: job.patientId.toString(),
+      status: job.status,
     })) as JobData[];
   } catch (error) {
     console.error('Error fetching jobs:', error);

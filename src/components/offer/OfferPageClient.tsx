@@ -52,7 +52,6 @@ const OfferPageClient = ({
   const data = mergedOffers.filter(
     (offer) => offer.createdBy === chatPartner.id
   );
-  console.log('data to find available', data);
   return (
     <div className='p-4 space-y-6'>
       {isJobScheduled && userRole === 'surgeon' && (

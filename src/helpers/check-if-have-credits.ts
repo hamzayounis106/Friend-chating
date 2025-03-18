@@ -23,15 +23,10 @@ export const checkIfHaveCredits = async (): Promise<CreditsCheckResult> => {
       return { error: 'No authenticated user' };
     }
 
-    console.log(
-      'DB connected successfully---------------------------------in check if have credits'
-    );
-
     const availableCredits = await Credit.find({
       isUsed: false,
       patientId: new mongoose.Types.ObjectId(session.user.id),
     }).exec();
-    console.log('available credits', availableCredits);
     // const creditCount = availableCredits.length;
 
     if (!availableCredits || availableCredits.length === 0) {

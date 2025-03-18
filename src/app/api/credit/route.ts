@@ -15,7 +15,6 @@ export async function GET(req: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
-    console.log('session');
     if (!session || !session.user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -76,8 +75,6 @@ export async function POST(req: NextRequest) {
 
     const session = await getServerSession(authOptions);
 
-    console.log('Session in /api/credit:🙄🙄🙄🙄🙄🙄🙄🙄 ', session); // Debugging
-
     if (!session || !session.user) {
       return NextResponse.json(
         { error: 'Authentication required' },
@@ -87,7 +84,6 @@ export async function POST(req: NextRequest) {
 
     // Verify user is a patient
     const user = await User.findOne({ email: session.user.email });
-    console.log('User in /api/credit:', user); // Add this line
 
     if (!user || user.role !== 'patient') {
       return NextResponse.json(
@@ -114,13 +110,11 @@ export async function POST(req: NextRequest) {
       isUsed: false,
     };
     const patientUser = await User.findOne({ email: session.user.email });
-    console.log('patientUser', patientUser);
 
     const credits = [];
     for (let i = 0; i < quantity; i++) {
       credits.push(creditData);
     }
-    console.log('credits array ------------------------------->', credits);
     // Insert credits
     let result;
     try {

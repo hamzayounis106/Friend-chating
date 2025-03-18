@@ -37,6 +37,7 @@ interface JobDetailProps {
 }
 
 const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
+  console.log('chacke the initial jobs from  😂😂😂😂😂😂', initialJobs);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const selectJobsMemoized = useMemo(
@@ -97,7 +98,6 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
         emailObj.email === userEmail && emailObj.status === 'pending'
     )
   );
-  console.log('pendingJobs', pendingJobs);
   const acceptedJobs = jobs?.filter((job) =>
     job.surgeonEmails.some(
       (emailObj) =>
@@ -130,6 +130,8 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
         <div className='p-4'>
           {/* Description */}
           <p className='text-gray-600 mb-4 line-clamp-2'>{job.description}</p>
+
+          <h1>Preffered Location {job.location}</h1>
 
           {/* Tags and metadata */}
           <div className='flex flex-wrap gap-2 mb-4'>

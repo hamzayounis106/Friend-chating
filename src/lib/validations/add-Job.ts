@@ -3,6 +3,12 @@ import { z } from 'zod';
 export const addJobValidator = z.object({
   // title: z.string().min(5).max(100),
   type: z.string().min(1).max(50),
+  location: z
+    .string()
+    .transform((val) => val.split(',').map((loc) => loc.trim()))
+    .refine((locations) => locations.length > 0, {
+      message: 'At least one location is required',
+    }),
   date: z
     .string()
     .transform((val) => new Date(val)) // Transform string to Date

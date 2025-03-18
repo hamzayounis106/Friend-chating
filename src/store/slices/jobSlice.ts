@@ -36,20 +36,6 @@ const jobSlice = createSlice({
       state.jobsBySurgeon[email] = jobs;
     },
 
-    // Add new job for specific surgeon
-    // addJob: (state, action: PayloadAction<{ email: string; job: JobData }>) => {
-    //   const { email, job } = action.payload;
-    //   const existingJobs = state.jobsBySurgeon[email] || [];
-
-    //   if (!existingJobs.some((j) => j._id === job._id)) {
-    //     state.jobsBySurgeon[email] = [...existingJobs, job];
-    //     state.newJobIdsBySurgeon[email] = [
-    //       ...(state.newJobIdsBySurgeon[email] || []),
-    //       job._id,
-    //     ];
-    //   }
-    // },
-
     addJob: (state, action: PayloadAction<{ email: string; job: JobData }>) => {
       const { email, job } = action.payload;
       const existingJobs = state.jobsBySurgeon[email] || [];
