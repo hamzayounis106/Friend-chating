@@ -18,6 +18,7 @@ const offerSchema = z.object({
     .string()
     .min(2, 'Location must be at least 2 characters long')
     .max(200, 'Location is too long'),
+  description: z.string().nonempty('Description is required'),
   jobId: z.string().nonempty('Job ID is required'),
 });
 
@@ -44,7 +45,7 @@ export async function POST(req: NextRequest) {
     await dbConnect();
 
     // Destructure validated data
-    const { cost, date, location, jobId } = parsedData.data;
+    const { cost, date, location, jobId, description } = parsedData.data;
 
     // Create and save offer in MongoDB
     const newOffer = await Offer.create({
@@ -52,6 +53,7 @@ export async function POST(req: NextRequest) {
       date: new Date(date), // Convert date string to Date object
       location,
       jobId,
+      description,
       createdBy: session.user.id, // Use authenticated user ID
     });
 
@@ -88,6 +90,7 @@ export async function POST(req: NextRequest) {
         type: 'offer_created',
         cost: newOffer.cost,
         createdAt: newOffer.createdAt,
+        description: newOffer.description,
         location: newOffer.location,
         expectedSurgeoryDate: new Date(newOffer.date).toString(),
         status: newOffer.status,
@@ -99,7 +102,6 @@ export async function POST(req: NextRequest) {
       const notificationMessage = `A new offer has been created for your job "${
         job.title || 'Unknown Job'
       }"`;
-      const notificationLink = `/dashboard/offers/${job._id}`;
       const newNotification = new Notification({
         message: notificationMessage,
         jobId: job._id,
@@ -109,32 +111,6 @@ export async function POST(req: NextRequest) {
         notificationType: 'offer_created',
       });
       await newNotification.save();
-      // Check if a similar notification already exists
-      // const existingNotification = await Notification.findOne({
-      //   senderId: session.user.id,
-      //   receiverId: patient._id,
-      //   notificationType: 'offer_created',
-      // });
-
-      // if (existingNotification) {
-      //   // Update the existing notification
-      //   await Notification.findByIdAndUpdate(existingNotification._id, {
-      //     message: notificationMessage,
-      //     isSeen: false,
-      //     updatedAt: new Date()
-      //   });
-      // } else {
-      //   // Create a new notification
-      //   const newNotification = new Notification({
-      //     message: notificationMessage,
-
-      //     isSeen: false,
-      //     senderId: session.user.id,
-      //     receiverId: patient._id,
-      //     notificationType: 'offer_created',
-      //   });
-      //   await newNotification.save();
-      // }
     } catch (error) {
       console.error('Failed to create notification:', error);
       // Continue execution even if notification creation fails

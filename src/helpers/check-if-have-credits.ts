@@ -1,14 +1,14 @@
-import dbConnect from "@/lib/db";
-import Credit from "@/app/models/Credit";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import mongoose from "mongoose";
+import dbConnect from '@/lib/db';
+import Credit from '@/app/models/Credit';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import mongoose from 'mongoose';
 
 // Updated return type to match the actual returned data
 type CreditsCheckResult = {
   success?: boolean;
   error?: string;
-  availableCredits?: any[];
+  availableCredits?: number;
 };
 
 export const checkIfHaveCredits = async (): Promise<CreditsCheckResult> => {
@@ -19,18 +19,20 @@ export const checkIfHaveCredits = async (): Promise<CreditsCheckResult> => {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      console.error("No authenticated user");
-      return { error: "No authenticated user" };
+      console.error('No authenticated user');
+      return { error: 'No authenticated user' };
     }
 
     console.log(
-      "DB connected successfully---------------------------------in check if have credits"
+      'DB connected successfully---------------------------------in check if have credits'
     );
 
     const availableCredits = await Credit.find({
       isUsed: false,
       patientId: new mongoose.Types.ObjectId(session.user.id),
     }).exec();
+    console.log('available credits', availableCredits);
+    // const creditCount = availableCredits.length;
 
     if (!availableCredits || availableCredits.length === 0) {
       // console.error("No credits found for this user");
@@ -41,10 +43,10 @@ export const checkIfHaveCredits = async (): Promise<CreditsCheckResult> => {
 
     return {
       success: true,
-      availableCredits,
+      availableCredits: availableCredits.length,
     };
   } catch (error) {
-    console.error("Error checking for available credits:", error);
-    return { error: "Failed to check for available credits" };
+    console.error('Error checking for available credits:', error);
+    return { error: 'Failed to check for available credits' };
   }
 };

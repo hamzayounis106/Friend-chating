@@ -24,6 +24,7 @@ export interface OfferType {
   createdBy: string;
   jobId: string;
   location: string;
+  description: string;
   expectedSurgeoryDate: string;
 }
 
@@ -76,6 +77,7 @@ const OfferPage = async ({ params }: PageProps) => {
         createdBy: offer.createdBy.toString(),
         jobId: offer.jobId.toString(),
         location: offer.location,
+        description: offer.description ?? 'No description provided',
         expectedSurgeoryDate: offer.date.toString(),
       }));
     }
@@ -98,6 +100,7 @@ const OfferPage = async ({ params }: PageProps) => {
         createdBy: offer.createdBy.toString(),
         jobId: offer.jobId.toString(),
         location: offer.location,
+        description: offer.description ?? 'No description provided',
         expectedSurgeoryDate: offer.date.toString(),
       }));
     }
@@ -120,6 +123,7 @@ const OfferPage = async ({ params }: PageProps) => {
         createdBy: acceptedOfferData.createdBy.toString(),
         jobId: acceptedOfferData.jobId.toString(),
         location: acceptedOfferData.location,
+        description: acceptedOfferData.description ?? 'No description provided',
         expectedSurgeoryDate: acceptedOfferData.date.toString(),
       };
     }

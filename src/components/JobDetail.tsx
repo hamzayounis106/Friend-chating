@@ -1,6 +1,7 @@
 'use client';
 
 import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
+import { formatDate } from '@/lib/utils';
 import {
   selectJobsBySurgeon,
   useAppDispatch,
@@ -113,13 +114,15 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
       >
         {/* Job header with title and date */}
         <div className='flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-200'>
-          <Link target={'_blank'} href={`/job-post/${job._id.toString()}`}>
-            <h3 className='font-bold text-lg text-gray-800'>{job.title}</h3>
+          <Link href={`/job-post/${job._id.toString()}`}>
+            <span className='font-bold text-lg text-blue-500 underline'>
+              {job.title}
+            </span>
           </Link>
 
           <span className='px-3 py-1 bg-white text-xs font-medium text-gray-700 rounded-full border border-gray-200 flex items-center'>
             <Clock className='w-3 h-3 mr-1 text-blue-500' />
-            {new Date(job.date).toLocaleDateString()}
+            {formatDate(job.date)}
           </span>
         </div>
 
@@ -162,35 +165,37 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
           {/* Attachments Section */}
           {expandedJobId === job._id && (
             <div className='mt-4 transition-all duration-300 ease-in-out'>
-              <div className='grid grid-cols-2 md:grid-cols-3 gap-4'>
-                         {job.AttachmentUrls.map((url, idx) => {
-              const isVideo = url.toLowerCase().endsWith('.mp4') || url.toLowerCase().endsWith('.webm');
-            
-              return (
-                <div
-                  key={idx}
-                  className='relative h-64 bg-gray-100 rounded-lg overflow-hidden shadow-md'
-                >
-                  {isVideo ? (
-                    <video
-                      src={url}
-                      controls
-                      className='object-cover w-full h-full cursor-pointer'
-                      onClick={() => window.open(url, '_blank')}
-                    />
-                  ) : (
-                    <Image
-                      src={url}
-                      alt={`Attachment ${idx + 1}`}
-                      fill
-                      sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
-                      className='object-cover cursor-pointer transition-transform duration-300 hover:scale-105'
-                      onClick={() => window.open(url, '_blank')}
-                    />
-                  )}
-                </div>
-              );
-            })}
+              <div className='grid grid-cols-2  gap-4'>
+                {job.AttachmentUrls.map((url, idx) => {
+                  const isVideo =
+                    url.toLowerCase().endsWith('.mp4') ||
+                    url.toLowerCase().endsWith('.webm');
+
+                  return (
+                    <div
+                      key={idx}
+                      className='relative h-64 bg-gray-100 rounded-lg overflow-hidden shadow-md'
+                    >
+                      {isVideo ? (
+                        <video
+                          src={url}
+                          controls
+                          className='object-cover w-full h-full cursor-pointer'
+                          onClick={() => window.open(url, '_blank')}
+                        />
+                      ) : (
+                        <Image
+                          src={url}
+                          alt={`Attachment ${idx + 1}`}
+                          fill
+                          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                          className='object-cover cursor-pointer transition-transform duration-300 hover:scale-105'
+                          onClick={() => window.open(url, '_blank')}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -266,7 +271,7 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
               </p>
             </div>
           ) : (
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+            <div className='grid grid-cols-1  lg:grid-cols-2 gap-6'>
               {pendingJobs?.map((job, index) => renderJobCard(job, index))}
             </div>
           )}

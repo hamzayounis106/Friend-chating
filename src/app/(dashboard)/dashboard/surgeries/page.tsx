@@ -40,6 +40,7 @@ type Surgery = {
     date: string;
     location: string;
     status: string;
+    description: string;
   };
   status: 'scheduled' | 'completed' | 'cancelled';
   scheduledDate: string;
@@ -156,7 +157,7 @@ export default function SurgeriesPage() {
   const renderSurgeryCard = (surgery: Surgery) => {
     const otherPerson =
       session?.user.role === 'patient' ? surgery.surgeonId : surgery.patientId;
-
+    console.log('surgersryyyyyyyyyyyyy 😂😂😂', surgery);
     return (
       <div
         key={surgery._id}
@@ -207,9 +208,9 @@ export default function SurgeriesPage() {
           </div>
 
           <p className='text-gray-700 my-4'>
-            {surgery.jobId.description.length > 150
-              ? `${surgery.jobId.description.substring(0, 150)}...`
-              : surgery.jobId.description}
+            {surgery.offerId?.description?.length > 150
+              ? `${surgery?.offerId?.description.substring(0, 150)}...`
+              : surgery?.offerId?.description}
           </p>
         </div>
       </div>

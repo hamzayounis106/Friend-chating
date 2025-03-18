@@ -7,6 +7,7 @@ export interface IOffer extends Document {
   location: string;
   createdBy: mongoose.Types.ObjectId;
   createdAt: Date;
+  description: string;
   status: 'pending' | 'accepted' | 'declined';
 }
 
@@ -30,6 +31,10 @@ const offerSchema = new Schema<IOffer>({
     required: true,
     minlength: 2,
     maxlength: 200,
+  },
+  description: {
+    type: String,
+    required: true,
   },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,

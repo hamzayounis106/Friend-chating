@@ -123,6 +123,7 @@ export async function PATCH(
         content: `Your offer for "${job.title}" has been ${status}`,
         timestamp: new Date().toISOString(),
         jobId: job._id.toString(),
+        description: job.description,
         type: 'offer_created',
       }
     );

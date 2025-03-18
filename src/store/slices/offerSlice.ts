@@ -1,15 +1,5 @@
+import { OfferType } from '@/app/(dashboard)/dashboard/chat/[chatId]/offer/page';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-interface OfferType {
-  _id: string;
-  cost: number;
-  status: string;
-  createdAt: string;
-  createdBy: string;
-  jobId: string;
-  location: string;
-  expectedSurgeoryDate: string;
-}
 
 interface NotificationType {
   id: string;

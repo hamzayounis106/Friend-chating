@@ -73,10 +73,7 @@ const Page = async ({ params }: PageProps) => {
   console.log('doesPatientHaveCredits', doesPatientHaveCredits);
   console.log('isAlloweToChat', isAlloweToChat);
   console.log('userRole', userRole);
-  // const handleUseCredit = async () => {
-  //   const res = useCreditToStartChat(jobId3)
-  //   console.log("res from use credit", res);
-  // }
+
   if (
     !isAlloweToChat &&
     !doesPatientHaveCredits.success &&

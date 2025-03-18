@@ -1,3 +1,4 @@
+import { formatDistanceToNow } from 'date-fns';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { format } from 'date-fns';
@@ -39,4 +40,10 @@ export const formatDate = (dateString: string | Date) => {
   } catch (error) {
     return 'Invalid date';
   }
+};
+export const formatTimeAgo = (date: string | Date) => {
+  if (!date) return 'Unknown date';
+  const postedDate = new Date(date);
+  if (isNaN(postedDate.getTime())) return 'Invalid date';
+  return formatDistanceToNow(postedDate, { addSuffix: true });
 };

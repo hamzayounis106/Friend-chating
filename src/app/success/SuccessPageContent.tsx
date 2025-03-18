@@ -11,8 +11,7 @@ export default function SuccessPageContent({
 }: {
   paymentIntent: Stripe.PaymentIntent;
 }) {
-  const searchParams = useSearchParams();
-  const { status, metadata } = paymentIntent;
+  const { status, metadata, amount } = paymentIntent;
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
@@ -70,6 +69,12 @@ export default function SuccessPageContent({
                           {metadata?.title}
                         </td>
                       </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Amount
+                        </td>
+                        <td className='py-2 text-gray-600'>{amount / 100}$</td>
+                      </tr>
                     </>
                   )}
                   {metadata?.type === 'offer' && (
@@ -97,6 +102,12 @@ export default function SuccessPageContent({
                         <td className='py-2 text-gray-600'>
                           {metadata?.location}
                         </td>
+                      </tr>
+                      <tr>
+                        <td className='py-2 font-medium text-gray-700'>
+                          Amount{' '}
+                        </td>
+                        <td className='py-2 text-gray-600'>{amount / 100}$</td>
                       </tr>
                       <tr>
                         <td className='py-2 font-medium text-gray-700'>

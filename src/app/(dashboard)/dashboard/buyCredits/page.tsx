@@ -30,6 +30,7 @@ export default function CreditPackages() {
         JSON.stringify({ credits, title, price, type: 'credit' })
       )}`
     );
+    router.refresh();
   };
 
   if (status === 'loading') {

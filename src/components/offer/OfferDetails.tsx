@@ -143,6 +143,14 @@ const OfferDetails = ({
                       </div>
                     </div>
                   </div>
+                  <div className='flex items-start mt-4'>
+                    <div>
+                      <p className='text-xs text-gray-500 mb-1'>Description</p>
+                      <p className='font-medium text-gray-900'>
+                        {offer.description || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Action section based on status */}

@@ -28,6 +28,7 @@ import {
   Inbox,
 } from 'lucide-react';
 import ActiveLink from '@/components/ActiveLink';
+import { checkIfHaveCredits } from '@/helpers/check-if-have-credits';
 
 interface LayoutProps {
   children: ReactNode;
@@ -40,6 +41,7 @@ export const metadata = {
 
 const Layout = async ({ children }: LayoutProps) => {
   const session = await getServerSession(authOptions);
+  const doesPatientHaveCredits = await checkIfHaveCredits();
 
   if (!session) notFound();
 
@@ -96,15 +98,6 @@ const Layout = async ({ children }: LayoutProps) => {
     },
   ];
 
-  // const surgeonOptions: SidebarOption[] = [
-  //   {
-  //     id: 7,
-  //     name: 'Requests',
-  //     href: '/dashboard/requests',
-  //     Icon: 'Inbox',
-  //   },
-  // ];
-
   // Combine appropriate options based on user role
   const sidebarOptions: SidebarOption[] =
     userRole === 'patient' ? patientOptions : [];
@@ -150,6 +143,7 @@ const Layout = async ({ children }: LayoutProps) => {
       {/* Desktop Sidebar */}
       <div className='hidden md:flex h-full w-full max-w-72 flex-col bg-white border-r border-gray-200 shadow-sm'>
         {/* Header with logo */}
+
         <div className='flex h-16 shrink-0 items-center justify-between px-6 border-b border-gray-100'>
           <Link href='/dashboard' className='flex items-center gap-2'>
             {Icons.Logo ? (
@@ -174,10 +168,13 @@ const Layout = async ({ children }: LayoutProps) => {
                 <h2 className='text-sm font-medium text-gray-900'>
                   Your chats
                 </h2>
-                {/* <span className="text-xs font-medium px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full">
-                  {jobs.length}
-                </span> */}
+                {userRole === 'patient' && (
+                  <button className='px-3 py-1 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 transition'>
+                    {doesPatientHaveCredits.availableCredits ?? 0} Credits Left
+                  </button>
+                )}
               </div>
+
               <div className='space-y-1'>
                 <SidebarChatList
                   sessionId={session.user.id.toString()}
@@ -197,30 +194,6 @@ const Layout = async ({ children }: LayoutProps) => {
                 <ul className='mt-2 space-y-1'>
                   {sidebarOptions.map((option) => (
                     <li key={option.id}>
-                      {/* <Link
-                        href={option.href}
-                        className='group flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors'
-                      >
-                        <span
-                          className={cn(
-                            'flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors',
-                            option.href === '/dashboard/requests' &&
-                              unseenJobCount > 0 &&
-                              'bg-blue-50 text-blue-600 border-blue-200'
-                          )}
-                        >
-                          {getIcon(option.Icon)}
-                        </span>
-                        <span className='truncate'>{option.name}</span>
-
-                        {option.href === '/dashboard/requests' &&
-                          unseenJobCount > 0 && (
-                            <span className='inline-block ml-auto px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-800'>
-                              {unseenJobCount}
-                            </span>
-                          )}
-                      </Link>
-                     */}
                       <ActiveLink
                         href={option.href}
                         unseenJobCount={
@@ -245,11 +218,6 @@ const Layout = async ({ children }: LayoutProps) => {
                 <ul className='mt-2 space-y-1'>
                   {bothUserOptions.map((option) => (
                     <li key={option.id}>
-                      {/* <ActiveLink href={option.href} icon={option.Icon}>
-                        <span className='flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-white text-gray-500 border border-gray-200 group-hover:border-blue-200 group-hover:text-blue-600 transition-colors'>
-                        </span>
-                        <span className='truncate'>{option.name}</span>
-                      </ActiveLink> */}
                       <ActiveLink
                         href={option.href}
                         unseenJobCount={

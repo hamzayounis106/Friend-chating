@@ -55,8 +55,8 @@ const OfferResponse = ({
     }
     setLoading(false);
   };
-  
-// asdsadsad
+
+  // asdsadsad
   const getStatusBadge = () => {
     switch (offerDetails?.status?.toLowerCase()) {
       case 'accepted':
@@ -169,6 +169,14 @@ const OfferResponse = ({
                 {offerDetails?.createdAt
                   ? formatDate(offerDetails.createdAt)
                   : 'Not specified'}
+              </p>
+            </div>
+          </div>
+          <div className='flex items-start  col-span-2'>
+            <div>
+              <p className='text-xs text-gray-500 mb-1'>Description</p>
+              <p className='bg-amber-100   p-2 mt-1 mr-3 text-center'>
+                {offerDetails.description || 'No description provided'}
               </p>
             </div>
           </div>
