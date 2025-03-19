@@ -96,6 +96,9 @@ console.log(
   const isSurgeon = session?.user?.role === 'surgeon';
   const isJobClosed = jobData.status === 'completed';
 
+  const handleClose = () => {
+    router.push('/dashboard');
+  };
   return (
     <div className='min-h-screen bg-gray-50 py-12'>
       <div className='max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden'>
@@ -119,17 +122,17 @@ console.log(
           <SurgeonsList surgeons={jobData.surgeonEmails} />
         )}
 
-        <JobActions
+{jobData.status !== 'closed' &&        <JobActions
           isCreator={isCreator}
           isSurgeon={isSurgeon}
           isJobClosed={isJobClosed}
           jobId={jobData._id}
-          onClose={() => confirm('Are you sure?') && router.push('/dashboard')}
+          onClose={handleClose}
           onReply={handleReply}
           onBack={() => router.back()}
-        />
+        />}
 
-{isCreator &&     <OffersForSingleJobPost jobId={jobData._id} />
+{isCreator &&  jobData.status !== 'closed' &&      <OffersForSingleJobPost jobId={jobData._id} />
 }      </div>
     </div>
   );

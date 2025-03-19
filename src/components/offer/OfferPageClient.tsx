@@ -16,6 +16,7 @@ interface OfferPageClientProps {
   jobId: string;
   userId: string;
   session: any;
+  status: string;
 }
 
 const OfferPageClient = ({
@@ -28,6 +29,7 @@ const OfferPageClient = ({
   jobId,
   userId,
   session,
+  status
 }: OfferPageClientProps) => {
   const { offers: reduxOffers } = useAppSelector((state) => state.offers);
   const filteredReduxOffers = reduxOffers.filter(
@@ -52,6 +54,7 @@ const OfferPageClient = ({
   const data = mergedOffers.filter(
     (offer) => offer.createdBy === chatPartner.id
   );
+  // console.log('job data ❌❌✈️✈️✈️✈️✈️✈️✈️✈️',status)
   return (
     <div className='p-4 space-y-6'>
       {isJobScheduled && userRole === 'surgeon' && (
@@ -93,6 +96,7 @@ const OfferPageClient = ({
               chatPartner={chatPartner}
               jobId={jobId}
               userId={userId}
+              jobStatus={status}
             />
           )}
 

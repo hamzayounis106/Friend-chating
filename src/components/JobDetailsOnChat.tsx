@@ -25,6 +25,7 @@ interface JobDetailsOnChatProps {
     createdBy: string;
     AttachmentUrls: string[];
     surgeonEmails: { email: string }[];
+    status: string;
   };
   userRole: string;
 }
@@ -75,7 +76,7 @@ const JobDetailsOnChat: React.FC<JobDetailsOnChatProps> = ({
 
       {/* Title Section */}
       <div className='p-5 border-b border-gray-200 bg-white'>
-        <h2 className='text-lg font-semibold text-gray-800'>{job.title}</h2>
+        <h2 className='text-lg font-semibold text-gray-800'>{job.title} {job.status}</h2>
         <div className='flex flex-wrap items-center gap-3 mt-2'>
           <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
             <Tag className='w-3 h-3 mr-1' />

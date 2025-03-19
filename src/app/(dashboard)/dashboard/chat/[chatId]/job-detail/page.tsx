@@ -43,6 +43,7 @@ const JobDetailPage = async ({ params }: PageProps) => {
         }
       : undefined,
     AttachmentUrls: rawJob.AttachmentUrls ?? [],
+    status:rawJob.status
   };
 
   return (

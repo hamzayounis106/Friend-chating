@@ -140,6 +140,7 @@ const OfferPage = async ({ params }: PageProps) => {
       jobId={jobId}
       userId={user.id}
       session={session}
+      status={jobData.status}
     />
   );
 };
