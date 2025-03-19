@@ -1,4 +1,4 @@
-import SingleJobPost from '@/components/SingleJobPost';
+import SingleJobPost from '@/components/jobs/SingleJobPost';
 import { getSingleJobById } from '@/helpers/get-single-job-by-id';
 import React from 'react';
 export const dynamic = 'force-dynamic';

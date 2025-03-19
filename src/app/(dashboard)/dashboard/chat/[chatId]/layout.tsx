@@ -4,13 +4,7 @@ import React, { ReactNode, useMemo, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import clsx from 'clsx';
-import {
-  MessageSquare,
-  Clipboard,
-  CreditCard,
-  ChevronLeft,
-  Menu,
-} from 'lucide-react';
+import { MessageSquare, Clipboard, CreditCard, Menu } from 'lucide-react';
 import Button from '@/components/custom-ui/Button';
 
 interface LayoutProps {
@@ -52,22 +46,11 @@ const ChatLayout = ({ children }: LayoutProps) => {
     },
   ];
 
-  const handleBack = () => {
-    router.push('/dashboard/chat');
-  };
-
   return (
     <div className='flex flex-col h-screen bg-gray-50'>
       {/* Header */}
       <header className='px-4 py-3 bg-white border-b border-gray-200 flex justify-between items-center sticky top-0 z-10 shadow-sm'>
         <div className='flex items-center'>
-          <button
-            onClick={handleBack}
-            className='mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors'
-            aria-label='Back to chat list'
-          >
-            <ChevronLeft className='h-5 w-5 text-gray-600' />
-          </button>
           <h1 className='text-lg font-semibold text-gray-800'>
             {currentPage === '' && 'Conversation'}
             {currentPage === 'job-detail' && 'Job Details'}
