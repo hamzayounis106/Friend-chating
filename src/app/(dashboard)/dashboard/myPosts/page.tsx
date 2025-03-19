@@ -10,13 +10,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
-import { formatTimeAgo } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 
 export default async function MyPosts() {
   const session = await getServerSession(authOptions);
   const userId = session?.user.id;
   const posts = await getJobsByUserId(userId as string);
-  console.log('posts', posts);
   // Get status counts
   const totalPosts = posts?.length || 0;
   const pendingPosts =
@@ -119,7 +118,7 @@ export default async function MyPosts() {
       </div>
 
       {/* Content */}
-      <div className=' shadow overflow-hidden sm:rounded-md'>
+      <div className=' shadow  sm:rounded-md'>
         <ul className=' flex flex-col gap-2'>
           {posts?.length === 0 ? (
             <li className='px-6 py-12'>
@@ -155,13 +154,11 @@ export default async function MyPosts() {
               const pendingResponses = job.surgeonEmails.filter(
                 (s) => s.status === 'pending'
               ).length;
-
-              // Format date
-              const timeAgo = formatTimeAgo(job?.createdAt || job?.date);
+              const timeAgo = formatDate(job?.date);
 
               return (
-                <li key={job._id || index}>
-                  <div className='bg-white px-4 py-4 sm:px-6 block hover:bg-gray-50 border'>
+                <main key={job._id || index}>
+                  <div className='bg-white px-4 py-4 sm:px-6 block hover:bg-gray-50 border h-max'>
                     <div className='flex items-center justify-between'>
                       <div className='truncate'>
                         <div className='flex text-sm'>
@@ -181,7 +178,7 @@ export default async function MyPosts() {
                         <div className='mt-2'>
                           <div className='flex items-center text-sm text-gray-500'>
                             <CalendarIcon className='flex-shrink-0 mr-1.5 h-4 w-4 text-gray-400' />
-                            <p>Posted {timeAgo}</p>
+                            <p>Your Preference Date is {timeAgo}</p>
                           </div>
                         </div>
                       </div>
@@ -216,12 +213,21 @@ export default async function MyPosts() {
                       </div>
                     </div>
                     <div className='mt-2'>
+                      Description
                       <p className='text-sm text-gray-600 line-clamp-2'>
                         {job.description}
                       </p>
                     </div>
+                    <div className='mt-2'>
+                      Preffered Locations
+                      <div className='text-sm text-gray-600 list-disc grid grid-cols-2'>
+                        {job.location.map((item) => {
+                          return <li key={item}> {item}</li>;
+                        })}
+                      </div>
+                    </div>
                   </div>
-                </li>
+                </main>
               );
             })
           )}

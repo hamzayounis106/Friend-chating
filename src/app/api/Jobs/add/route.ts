@@ -66,8 +66,6 @@ export async function POST(req: Request) {
     const jobCount = await Job.countDocuments({ type });
     const title = `${type} #${jobCount + 1}`;
 
-    console.log('location inside the db ', location);
-    // Create the new job post
     const job = new Job({
       title,
       type,
@@ -81,7 +79,7 @@ export async function POST(req: Request) {
       createdBy: session.user.id,
       patientId,
       budget: body.budget || undefined,
-      location: body.location,
+      location,
     });
 
     await job.save();

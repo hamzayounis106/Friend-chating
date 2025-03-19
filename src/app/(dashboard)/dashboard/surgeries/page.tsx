@@ -13,6 +13,8 @@ import {
   XCircle,
   Clock,
 } from 'lucide-react';
+import Link from 'next/link';
+import { formatDate } from '@/lib/utils';
 
 type Surgery = {
   _id: string;
@@ -157,7 +159,7 @@ export default function SurgeriesPage() {
   const renderSurgeryCard = (surgery: Surgery) => {
     const otherPerson =
       session?.user.role === 'patient' ? surgery.surgeonId : surgery.patientId;
-    console.log('surgersryyyyyyyyyyyyy 😂😂😂', surgery);
+
     return (
       <div
         key={surgery._id}
@@ -165,7 +167,18 @@ export default function SurgeriesPage() {
       >
         <div className='p-6'>
           <div className='flex items-center justify-between mb-4'>
-            <h2 className='text-xl font-semibold'>{surgery.jobId.title}</h2>
+            <Link
+              className='text-xl font-semibold text-blue-500   underline'
+              href={
+                (typeof surgery.surgeonId === 'string'
+                  ? surgery.surgeonId
+                  : surgery.surgeonId._id) === session?.user?.id
+                  ? `chat/${session.user.id}--${surgery.patientId._id}--${surgery.jobId._id}/offer`
+                  : `chat/${session?.user.id}--${surgery.surgeonId._id}--${surgery?.jobId._id}/offer`
+              }
+            >
+              {surgery.jobId.title}
+            </Link>
             {getStatusBadge(surgery.status)}
           </div>
 
@@ -188,12 +201,7 @@ export default function SurgeriesPage() {
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mb-4'>
             <div className='flex items-center'>
               <Calendar className='h-5 w-5 text-gray-400 mr-2' />
-              <span>
-                {format(
-                  new Date(surgery.scheduledDate),
-                  'MMMM d, yyyy - h:mm a'
-                )}
-              </span>
+              <span>{formatDate(surgery.scheduledDate)} </span>
             </div>
 
             <div className='flex items-center'>
@@ -206,7 +214,8 @@ export default function SurgeriesPage() {
               <span>${surgery.offerId.cost.toLocaleString()}</span>
             </div>
           </div>
-
+          {/* {console.log('sirger ', surgery.offerId)} */}
+          <h1>Description of offer</h1>
           <p className='text-gray-700 my-4'>
             {surgery.offerId?.description?.length > 150
               ? `${surgery?.offerId?.description.substring(0, 150)}...`

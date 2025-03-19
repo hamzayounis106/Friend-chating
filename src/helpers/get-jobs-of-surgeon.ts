@@ -22,7 +22,6 @@ export const getJobsForSurgeon = async (
     if (jobs?.length === 0) {
       return [];
     }
-    console.log('locations 🔒🔒🔒', jobs[0]?.location);
     return jobs.map((job) => ({
       _id: job._id?.toString(),
       title: job.title,
@@ -36,7 +35,7 @@ export const getJobsForSurgeon = async (
         })
       ),
       AttachmentUrls: job.AttachmentUrls,
-      location: job?.location?.join(', '),
+      location: job.location,
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
       status: job.status,

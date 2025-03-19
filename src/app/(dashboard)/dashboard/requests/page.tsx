@@ -33,7 +33,6 @@ const Page = async () => {
   if (!session) notFound();
 
   const jobs: JobData[] = await getJobsForSurgeon(session.user.email as string);
-  console.log('jobssssssssssssssssssssssssssssssssss', jobs);
   return (
     <main className='pt-8'>
       <h1 className='font-bold text-5xl mb-8'>Assigned Jobs</h1>

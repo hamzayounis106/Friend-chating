@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import dbConnect from "@/lib/db";
-import Surgery from "@/app/models/surgery";
-import User from "@/app/models/User";
-import Offer from "@/app/models/Offer"; 
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import dbConnect from '@/lib/db';
+import Surgery from '@/app/models/surgery';
+import User from '@/app/models/User';
+import Offer from '@/app/models/Offer';
 export async function GET(req: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
     if (!session) {
-      return new NextResponse("Unauthorized", { status: 401 });
+      return new NextResponse('Unauthorized', { status: 401 });
     }
 
     const userId = session.user.id;
@@ -22,52 +22,52 @@ export async function GET(req: NextRequest) {
     let surgeries = [];
 
     // Fetch surgeries based on user role
-    if (userRole === "surgeon") {
+    if (userRole === 'surgeon') {
       // Get surgeries where the user is the surgeon
       surgeries = await Surgery.find({ surgeonId: userId })
         .populate({
-          path: "patientId",
+          path: 'patientId',
           model: User,
-          select: "name email image",
+          select: 'name email image',
         })
         .populate({
-          path: "jobId",
-          select: "title description createdAt",
+          path: 'jobId',
+          select: 'title description createdAt',
         })
         .populate({
-          path: "offerId",
+          path: 'offerId',
           model: Offer,
-          select: "cost date location status",
+          select: 'cost date location status description ',
         })
         .sort({ scheduledDate: 1 }); // Sort by upcoming surgeries
-    } else if (userRole === "patient") {
+    } else if (userRole === 'patient') {
       // Get surgeries where the user is the patient
       surgeries = await Surgery.find({ patientId: userId })
         .populate({
-          path: "surgeonId",
+          path: 'surgeonId',
           model: User,
-          select: "name email image",
+          select: 'name email image',
         })
         .populate({
-          path: "jobId",
-          select: "title description createdAt",
+          path: 'jobId',
+          select: 'title description createdAt',
         })
         .populate({
-          path: "offerId",
+          path: 'offerId',
           model: Offer, // Add this line with the Offer model
-          select: "cost date location status",
+          select: 'cost date location status description ',
         })
         .sort({ scheduledDate: 1 }); // Sort by upcoming surgeries
     } else {
       // For other roles (admin, etc.)
-      return NextResponse.json({ error: "Unauthorized role" }, { status: 403 });
+      return NextResponse.json({ error: 'Unauthorized role' }, { status: 403 });
     }
 
     return NextResponse.json({ surgeries }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching surgeries:", error);
+    console.error('Error fetching surgeries:', error);
     return NextResponse.json(
-      { error: "Failed to fetch surgeries" },
+      { error: 'Failed to fetch surgeries' },
       { status: 500 }
     );
   }

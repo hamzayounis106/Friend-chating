@@ -106,7 +106,6 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
   );
 
   const renderJobCard = (job: JobData, index: number) => {
-    console.log('job', job);
     return (
       <div
         key={index}
@@ -131,7 +130,12 @@ const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
           {/* Description */}
           <p className='text-gray-600 mb-4 line-clamp-2'>{job.description}</p>
 
-          <h1>Preffered Location {job.location}</h1>
+          <h1>
+            Preffered Location by Patient
+            {job?.location?.map((item) => {
+              return <li key={item}>{item}</li>;
+            })}
+          </h1>
 
           {/* Tags and metadata */}
           <div className='flex flex-wrap gap-2 mb-4'>

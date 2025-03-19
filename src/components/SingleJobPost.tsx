@@ -29,17 +29,18 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
     setLoading(true);
     try {
       const currentUserEmail = session?.user?.email;
-      
+
       if (!currentUserEmail) {
-        toast.error("You must be logged in");
+        toast.error('You must be logged in');
         return;
       }
-      
+
       // Check if user has already accepted this job
       const isAccepted = jobData.surgeonEmails.some(
-        (surgeon) => surgeon.email === currentUserEmail && surgeon.status === 'accepted'
+        (surgeon) =>
+          surgeon.email === currentUserEmail && surgeon.status === 'accepted'
       );
-  
+
       if (isAccepted) {
         // User already accepted, just navigate to chat
         console.log('Already accepted this job, navigating to chat');
@@ -48,26 +49,27 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
         );
         return;
       }
-      
+
       // Check if user is invited but hasn't accepted yet
       const isPendingInvitation = jobData.surgeonEmails.some(
-        (surgeon) => surgeon.email === currentUserEmail && surgeon.status === 'pending'
+        (surgeon) =>
+          surgeon.email === currentUserEmail && surgeon.status === 'pending'
       );
-  
+
       if (isPendingInvitation) {
         console.log('Found pending invitation, accepting it');
-        
+
         // Accept the invitation
         const acceptRes = await axios.post('/api/Jobs/accept', {
           id: jobId,
           currentUserEmail,
         });
-        
+
         if (acceptRes.status !== 200) {
           toast.error('Failed to accept invitation');
           return;
         }
-        
+
         // Successfully accepted, now navigate to chat
         console.log('Successfully accepted invitation');
         router.push(
@@ -75,37 +77,36 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
         );
         return;
       }
-      
+
       // Not invited yet, send an invite to self
       console.log('Not invited yet, sending invitation');
       const inviteRes = await axios.post('/api/Jobs/send-invite', {
         id: jobId,
         currentUserEmail,
       });
-      
+
       if (inviteRes.status !== 200) {
         toast.error('Failed to send invitation');
         return;
       }
-      
+
       // Now accept the invitation we just sent
       console.log('Invitation sent, now accepting it');
       const acceptRes = await axios.post('/api/Jobs/accept', {
         id: jobId,
         currentUserEmail,
       });
-      
+
       if (acceptRes.status !== 200) {
         toast.error('Failed to accept invitation');
         return;
       }
-      
+
       // Successfully sent and accepted invitation, navigate to chat
       console.log('Successfully sent and accepted invitation');
       router.push(
         `/dashboard/chat/${session?.user?.id}--${jobData.patientId?._id}--${jobData._id}`
       );
-      
     } catch (error) {
       console.error('Error in handleReplyToJob:', error);
       toast.error('An error occurred while processing your request');
@@ -137,7 +138,6 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
       </div>
     );
   }
-  console.log('job post data for single', jobData);
 
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';

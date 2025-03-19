@@ -12,7 +12,7 @@ export const getJobsByUserId = async (userId: string): Promise<JobData[]> => {
       patientId: new mongoose.Types.ObjectId(userId),
     })
       .select(
-        '_id title type date description surgeonEmails videoURLs createdBy patientId status AttachmentUrls'
+        '_id title type date description surgeonEmails videoURLs createdBy patientId status AttachmentUrls location'
       )
       .lean()
       .exec();
@@ -29,10 +29,11 @@ export const getJobsByUserId = async (userId: string): Promise<JobData[]> => {
           status,
         })
       ),
-      AttachmentUrls : job.AttachmentUrls, 
+      AttachmentUrls: job.AttachmentUrls,
       createdBy: job.createdBy.toString(),
       patientId: job.patientId.toString(),
       status: job.status,
+      location: job.location,
     })) as JobData[]; // Explicit type assertion
   } catch (error) {
     console.error('Error fetching jobs:', error);
