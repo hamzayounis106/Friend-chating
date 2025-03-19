@@ -13,6 +13,7 @@ import JobActions from './JobActions';
 
 import { JobData } from './job';
 import LoadingState, { ErrorState } from './LoadingState';
+import OffersForSingleJobPost from './OffersForSingleJobPost';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
@@ -88,7 +89,9 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
 
   if (status === 'loading' || loading) return <LoadingState />;
   if (error || !jobData) return <ErrorState error={error || 'Job not found'} />;
-
+console.log(
+  'jpbDatastatusssssssssssssss',jobData.status
+)
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';
   const isJobClosed = jobData.status === 'completed';
@@ -125,7 +128,9 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
           onReply={handleReply}
           onBack={() => router.back()}
         />
-      </div>
+
+{isCreator &&     <OffersForSingleJobPost jobId={jobData._id} />
+}      </div>
     </div>
   );
 }

@@ -101,7 +101,7 @@ const OfferResponse = ({
   }
 
   return (
-    <div className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden'>
+    <div id={offerDetails._id} className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden'>
       {/* Header */}
       <div className='bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center'>
         <h3 className='text-lg font-bold text-gray-800'>

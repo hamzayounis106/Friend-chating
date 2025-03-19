@@ -170,7 +170,7 @@ const Layout = async ({ children }: LayoutProps) => {
                 </h2>
                 {userRole === 'patient' && (
                   <button className='px-3 py-1 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 transition'>
-                    {doesPatientHaveCredits.availableCredits ?? 0} Credits Left
+                    {doesPatientHaveCredits.availableCredits ?? 0} Credits
                   </button>
                 )}
               </div>

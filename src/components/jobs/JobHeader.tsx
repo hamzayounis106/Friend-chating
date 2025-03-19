@@ -29,16 +29,16 @@ export default function JobHeader({
           className={`px-3 py-1 rounded-full text-sm font-medium ${
             status === 'created'
               ? 'bg-green-100 text-green-700'
-              : status === 'in-progress'
+              : status === 'scheduled'
               ? 'bg-yellow-100 text-yellow-700'
               : 'bg-gray-100 text-gray-700'
           }`}
         >
           {status === 'created'
             ? 'New'
-            : status === 'in-progress'
-            ? 'In Progress'
-            : 'Completed'}
+            : status === 'closed'
+            ? 'Closed'
+            : 'Scheduled'}
         </span>
       </div>
     </div>
