@@ -8,12 +8,13 @@ import mongoose from 'mongoose';
 
 export async function PATCH(
   request: Request,
-  { params }: Promise<{ params: { jobid: string }}> 
+  { params }: { params: Promise<{ jobid: string }> }
 ) {
   try {
     await dbConnect();
     const session = await getServerSession(authOptions);
     const { jobid } = await params;
+    console.log('job id is commming in the patch request ', jobid);
 
     // Check authentication
     if (!session?.user?.id) {
@@ -69,11 +70,11 @@ export async function PATCH(
       await Offer.updateMany(
         {
           jobId: job._id,
-          status: 'pending'
+          status: 'pending',
         },
         {
           status: 'declined',
-          updatedAt: new Date()
+          updatedAt: new Date(),
         },
         { session: mongoSession }
       );
@@ -94,9 +95,6 @@ export async function PATCH(
     }
   } catch (error) {
     console.error('Error closing job:', error);
-    return NextResponse.json(
-      { error: 'Failed to close job' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to close job' }, { status: 500 });
   }
 }
