@@ -16,7 +16,6 @@ import {
   getJobsForSurgeon,
 } from '@/helpers/get-jobs-of-surgeon';
 import { getJobsByUserId } from '@/helpers/get-jobs-by-user-id';
-import { JobData } from './requests/page';
 import {
   MessageSquare,
   PlusCircle,
@@ -29,6 +28,7 @@ import {
 } from 'lucide-react';
 import ActiveLink from '@/components/ActiveLink';
 import { checkIfHaveCredits } from '@/helpers/check-if-have-credits';
+import { JobData } from '@/components/jobs/job';
 
 interface LayoutProps {
   children: ReactNode;

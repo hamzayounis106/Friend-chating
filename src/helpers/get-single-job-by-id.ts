@@ -1,5 +1,5 @@
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import Job from '@/app/models/Job';
+import { JobData } from '@/components/jobs/job';
 import dbConnect from '@/lib/db';
 
 export const getSingleJobById = async (

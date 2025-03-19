@@ -1,6 +1,6 @@
 // store/slices/jobSlice.ts
+import { JobData } from '@/components/jobs/job';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 
 interface JobState {
   jobsBySurgeon: Record<string, JobData[]>; // Key: surgeon email

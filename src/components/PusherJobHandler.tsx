@@ -48,9 +48,7 @@ import { pusherClient } from '@/lib/pusher';
 import { toPusherKey } from '@/lib/utils';
 import { useAppDispatch } from '@/store/hooks';
 import { setLatestJob, addJob } from '@/store/slices/jobSlice';
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
-import { toast } from 'react-hot-toast';
-import JobToast from './toasts/JobToast';
+import { JobData } from './jobs/job';
 
 const PusherJobHandler = ({ email }: { email: string }) => {
   const dispatch = useAppDispatch();

@@ -4,9 +4,9 @@ import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import format from 'date-fns/format';
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import { JobData } from './jobs/job';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();

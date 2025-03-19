@@ -4,28 +4,7 @@ import { notFound } from 'next/navigation';
 import dbConnect from '@/lib/db';
 import JobDetail from '@/components/JobDetail';
 import { getJobsForSurgeon } from '@/helpers/get-jobs-of-surgeon';
-import { SurgeonEmail } from '@/types/surgeon';
-
-export interface JobData {
-  _id: string;
-  title: string;
-  type: string;
-  date: string;
-  description: string;
-  surgeonEmails: SurgeonEmail[];
-  AttachmentUrls: string[];
-  createdBy: string;
-  status: string; // ✅ Add status field
-  createdAt: Date;
-  location: string[];
-  patientId?: {
-    // ✅ Made optional with `?`
-    _id: string;
-    name: string;
-    email: string;
-    image: string;
-  };
-}
+import { JobData } from '@/components/jobs/job';
 
 const Page = async () => {
   await dbConnect();

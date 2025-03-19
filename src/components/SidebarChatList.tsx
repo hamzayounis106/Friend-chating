@@ -4,11 +4,11 @@ import { FC, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ExtendedMessage } from '@/lib/validations/message';
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import axios from 'axios';
 import Image from 'next/image';
 import { MessageCircle, User, Calendar, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { JobData } from './jobs/job';
 
 interface SidebarChatListProps {
   jobs: JobData[];

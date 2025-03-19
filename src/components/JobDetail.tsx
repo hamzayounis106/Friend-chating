@@ -1,6 +1,5 @@
 'use client';
 
-import { JobData } from '@/app/(dashboard)/dashboard/requests/page';
 import { formatDate } from '@/lib/utils';
 import {
   selectJobsBySurgeon,
@@ -30,6 +29,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { FC, useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { JobData } from './jobs/job';
 
 interface JobDetailProps {
   jobs: JobData[];
