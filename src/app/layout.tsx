@@ -2,7 +2,7 @@ import Providers from '@/components/Providers';
 import ReduxProvider from '@/components/Providers/ReduxProvider';
 import SessionWrapper from '@/components/Providers/SessionWrapper';
 import './globals.css';
-
+import { Analytics } from '@vercel/analytics/react';
 // Done after the video and optional: add page metadata
 export const metadata = {
   title: 'Secure Cosmetics | Home',
@@ -21,6 +21,7 @@ export default function RootLayout({
           <Providers>
             <SessionWrapper>{children}</SessionWrapper>
           </Providers>
+          <Analytics />
         </ReduxProvider>
       </body>
     </html>
