@@ -23,6 +23,7 @@ type Notification = {
   notificationType: string;
   createdAt: string;
   updatedAt: string;
+  jobId: string;
 };
 
 const NotificationBell = () => {
@@ -310,7 +311,19 @@ const NotificationBell = () => {
                     {notifications.map((notification) => (
                       <Link
                         key={notification._id}
-                        href={notification.link || '#'}
+                        href={
+                          notification.notificationType === 'job_invite'
+                            ? '/dashboard/requests'
+                            : notification.notificationType === 'job_acceptance'
+                            ? '/dashboard/myPosts'
+                            : notification.notificationType === 'offer_created'
+                            ? `/dashboard/chat/${session.data?.user.id}--${notification.senderId}--${notification.jobId}/offer`
+                            : notification.notificationType === 'offer_declined'
+                            ? `/dashboard/chat/${session.data?.user.id}--${notification.senderId}--${notification.jobId}/offer`
+                            : notification.notificationType === 'offer_accepted'
+                            ? `/dashboard/surgeries`
+                            : '#'
+                        }
                         className='block px-2 py-2 hover:bg-gray-50 transition'
                         onClick={() => {
                           if (!notification.isSeen) {

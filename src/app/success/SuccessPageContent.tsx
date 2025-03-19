@@ -2,7 +2,6 @@
 'use client';
 
 import { formatDate } from '@/lib/utils';
-import { useSearchParams } from 'next/navigation';
 import { Stripe } from 'stripe';
 import { STATUS_CONTENT_MAP } from './statusContentMap';
 
@@ -12,6 +11,8 @@ export default function SuccessPageContent({
   paymentIntent: Stripe.PaymentIntent;
 }) {
   const { status, metadata, amount } = paymentIntent;
+  const isOffer = metadata?.type === 'offer';
+  const isCredit = metadata?.type === 'credit';
 
   return (
     <div className='min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8'>
@@ -28,6 +29,11 @@ export default function SuccessPageContent({
           <h2 className='text-2xl font-semibold text-gray-800'>
             {STATUS_CONTENT_MAP[status]?.text}
           </h2>
+          <p className='mt-2 text-gray-600'>
+            {isOffer
+              ? 'Your surgery booking is confirmed!'
+              : 'Payment processed successfully'}
+          </p>
         </div>
 
         {paymentIntent && (
@@ -37,7 +43,7 @@ export default function SuccessPageContent({
                 <tbody>
                   <tr className='border-b border-gray-200'>
                     <td className='py-2 font-medium text-gray-700'>
-                      Payment ID
+                      Transaction ID
                     </td>
                     <td className='py-2 text-gray-600 break-all'>
                       {paymentIntent.id}
@@ -45,17 +51,20 @@ export default function SuccessPageContent({
                   </tr>
                   <tr>
                     <td className='py-2 font-medium text-gray-700'>Status</td>
-                    <td className='py-2 text-gray-600'>{status}</td>
+                    <td className='py-2 text-gray-600 capitalize'>{status}</td>
                   </tr>
                   <tr>
                     <td className='py-2 font-medium text-gray-700'>Type</td>
-                    <td className='py-2 text-gray-600'>{metadata?.type}</td>
+                    <td className='py-2 text-gray-600 capitalize'>
+                      {metadata?.type}
+                    </td>
                   </tr>
-                  {metadata?.type === 'credit' && (
+
+                  {isCredit && (
                     <>
                       <tr>
                         <td className='py-2 font-medium text-gray-700'>
-                          Credits
+                          Credits Added
                         </td>
                         <td className='py-2 text-gray-600'>
                           {metadata?.credits}
@@ -63,36 +72,23 @@ export default function SuccessPageContent({
                       </tr>
                       <tr>
                         <td className='py-2 font-medium text-gray-700'>
-                          Title
-                        </td>
-                        <td className='py-2 text-gray-600'>
-                          {metadata?.title}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className='py-2 font-medium text-gray-700'>
                           Amount
                         </td>
-                        <td className='py-2 text-gray-600'>{amount / 100}$</td>
+                        <td className='py-2 text-gray-600'>
+                          ${(amount / 100).toFixed(2)}
+                        </td>
                       </tr>
                     </>
                   )}
-                  {metadata?.type === 'offer' && (
+
+                  {isOffer && (
                     <>
                       <tr>
                         <td className='py-2 font-medium text-gray-700'>
-                          Offer ID
+                          Surgery Date
                         </td>
                         <td className='py-2 text-gray-600'>
-                          {metadata?.offerId}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td className='py-2 font-medium text-gray-700'>
-                          Job ID
-                        </td>
-                        <td className='py-2 text-gray-600'>
-                          {metadata?.jobId}
+                          {formatDate(metadata?.expectedSurgeryDate)}
                         </td>
                       </tr>
                       <tr>
@@ -105,16 +101,10 @@ export default function SuccessPageContent({
                       </tr>
                       <tr>
                         <td className='py-2 font-medium text-gray-700'>
-                          Amount{' '}
-                        </td>
-                        <td className='py-2 text-gray-600'>{amount / 100}$</td>
-                      </tr>
-                      <tr>
-                        <td className='py-2 font-medium text-gray-700'>
-                          Expected Surgery Date
+                          Total Amount
                         </td>
                         <td className='py-2 text-gray-600'>
-                          {formatDate(metadata?.expectedSurgeryDate)}
+                          ${(amount / 100).toFixed(2)}
                         </td>
                       </tr>
                     </>
@@ -127,11 +117,24 @@ export default function SuccessPageContent({
 
         <div className='mt-6 flex flex-col space-y-3'>
           <a
-            href='/'
-            className='block text-center py-3 px-4 rounded-md bg-gray-200 text-gray-700 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50'
+            href={isOffer ? '/dashboard/surgeries' : '/dashboard'}
+            className={`block text-center py-3 px-4 rounded-md ${
+              isOffer
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-800 text-white hover:bg-gray-700'
+            } transition-colors duration-200`}
           >
-            Return to homepage
+            {isOffer ? 'View My Surgeries' : 'Go to Dashboard'}
           </a>
+
+          {isCredit && (
+            <a
+              href='/dashboard'
+              className='block text-center py-3 px-4 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors duration-200'
+            >
+              Check My Credits
+            </a>
+          )}
         </div>
       </div>
     </div>
