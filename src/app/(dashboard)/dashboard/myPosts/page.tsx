@@ -163,13 +163,14 @@ export default async function MyPosts() {
                       <div className='truncate'>
                         <div className='flex text-sm'>
                           <p className='font-medium text-blue-600 truncate'>
-                            {acceptedResponses ? (
-                              <Link href={`/job-post/${job._id}`}>
+                          <Link href={`/job-post/${job._id}`}>
                                 {job.title}
                               </Link>
+                            {/* {acceptedResponses ? (
+                              
                             ) : (
                               <span>Not Accpeted Yet</span>
-                            )}
+                            )} */}
                           </p>
                           <p className='ml-1 flex-shrink-0 font-normal text-gray-500'>
                             {job.type && `• ${job.type}`}
