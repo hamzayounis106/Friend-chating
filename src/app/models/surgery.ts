@@ -2,10 +2,10 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ISurgery extends Document {
   patientId: mongoose.Types.ObjectId;
-  surgeonId: mongoose.Types.ObjectId; 
+  surgeonId: mongoose.Types.ObjectId;
   offerId: mongoose.Types.ObjectId;
   jobId: mongoose.Types.ObjectId;
-  status: 'scheduled' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'waitingForAdminApproval';
   scheduledDate: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -35,7 +35,7 @@ const surgerySchema = new Schema(
     },
     status: {
       type: String,
-      enum: ['scheduled', 'completed', 'cancelled'],
+      enum: ['scheduled', 'completed', 'cancelled', 'waitingForAdminApproval'],
       default: 'scheduled',
     },
     scheduledDate: {
@@ -88,6 +88,7 @@ surgerySchema.set('toJSON', { virtuals: true });
 surgerySchema.set('toObject', { virtuals: true });
 
 // Use mongoose.models to prevent OverwriteModelError when the function is called multiple times
-const Surgery = mongoose.models.Surgery || mongoose.model<ISurgery>('Surgery', surgerySchema);
+const Surgery =
+  mongoose.models.Surgery || mongoose.model<ISurgery>('Surgery', surgerySchema);
 
 export default Surgery;

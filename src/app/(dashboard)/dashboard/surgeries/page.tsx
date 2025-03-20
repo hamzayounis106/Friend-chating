@@ -3,7 +3,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import axios from 'axios';
-import { format } from 'date-fns';
 import Image from 'next/image';
 import {
   Calendar,
@@ -15,6 +14,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
+import { toast } from 'react-hot-toast';
 
 type Surgery = {
   _id: string;
@@ -44,7 +44,7 @@ type Surgery = {
     status: string;
     description: string;
   };
-  status: 'scheduled' | 'completed' | 'cancelled';
+  status: 'scheduled' | 'completed' | 'cancelled' | 'waitingForAdminApproval';
   scheduledDate: string;
   createdAt: string;
   updatedAt: string;
@@ -64,7 +64,7 @@ export default function SurgeriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<
-    'scheduled' | 'completed' | 'cancelled'
+    'scheduled' | 'completed' | 'cancelled' | 'waitingForAdminApproval'
   >('scheduled');
 
   useEffect(() => {
@@ -85,13 +85,16 @@ export default function SurgeriesPage() {
       fetchSurgeries();
     }
   }, [status]);
-
+  console.log('surgeris to check ✅✅✅✅', surgeries);
   // Group surgeries by status
   const groupedSurgeries = useMemo(() => {
     return {
       scheduled: surgeries.filter((surgery) => surgery.status === 'scheduled'),
       completed: surgeries.filter((surgery) => surgery.status === 'completed'),
       cancelled: surgeries.filter((surgery) => surgery.status === 'cancelled'),
+      waitingForAdminApproval: surgeries.filter(
+        (surgery) => surgery.status === 'waitingForAdminApproval'
+      ),
     };
   }, [surgeries]);
   const showCancelledTab = groupedSurgeries.cancelled.length > 0;
@@ -151,8 +154,34 @@ export default function SurgeriesPage() {
             <XCircle className='w-3 h-3 mr-1' /> Cancelled
           </span>
         );
+      case 'waitingForAdminAproval':
+        return (
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800'>
+            <Clock className='w-3 h-3 mr-1' /> Waiting Approval
+          </span>
+        );
       default:
         return null;
+    }
+  };
+
+  const handleMarkCompleted = async (surgeryId: string) => {
+    try {
+      const response = await axios.patch('/api/surgery', { surgeryId });
+
+      if (response.status === 200) {
+        setSurgeries((prev) =>
+          prev.map((surgery) =>
+            surgery._id === surgeryId
+              ? { ...surgery, status: 'waitingForAdminApproval' }
+              : surgery
+          )
+        );
+        toast.success('Surgery submitted for admin approval');
+      }
+    } catch (error) {
+      console.error('Error marking surgery as completed:', error);
+      toast.error('Failed to update surgery status');
     }
   };
 
@@ -221,6 +250,17 @@ export default function SurgeriesPage() {
               ? `${surgery?.offerId?.description.substring(0, 150)}...`
               : surgery?.offerId?.description}
           </p>
+          {session?.user.role === 'surgeon' &&
+            surgery.status === 'scheduled' && (
+              <div className='mt-4 border-t pt-4'>
+                <button
+                  onClick={() => handleMarkCompleted(surgery._id)}
+                  className='w-full bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors'
+                >
+                  Mark as Completed
+                </button>
+              </div>
+            )}
         </div>
       </div>
     );
@@ -266,6 +306,18 @@ export default function SurgeriesPage() {
             Cancelled ({groupedSurgeries.cancelled.length})
           </button>
         )}
+        {groupedSurgeries.waitingForAdminApproval.length > 0 && (
+          <button
+            className={`px-4 py-2 font-medium text-sm ${
+              activeTab === 'waitingForAdminApproval'
+                ? 'border-b-2 border-indigo-500 text-indigo-600'
+                : 'text-gray-500 hover:text-gray-700'
+            }`}
+            onClick={() => setActiveTab('waitingForAdminApproval')}
+          >
+            Waiting Approval ({groupedSurgeries.waitingForAdminApproval.length})
+          </button>
+        )}
       </div>
 
       {/* Surgery Cards */}
@@ -274,7 +326,11 @@ export default function SurgeriesPage() {
           currentSurgeries.map(renderSurgeryCard)
         ) : (
           <div className='text-center py-10'>
-            <p className='text-gray-600'>No {activeTab} surgeries found.</p>
+            <p className='text-gray-600'>
+              {activeTab === 'waitingForAdminApproval'
+                ? 'No surgeries waiting for approval'
+                : `No ${activeTab} surgeries found`}
+            </p>
           </div>
         )}
       </div>

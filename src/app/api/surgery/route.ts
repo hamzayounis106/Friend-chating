@@ -5,6 +5,7 @@ import dbConnect from '@/lib/db';
 import Surgery from '@/app/models/surgery';
 import User from '@/app/models/User';
 import Offer from '@/app/models/Offer';
+import Job from '@/app/models/Job';
 export async function GET(req: NextRequest) {
   try {
     // Check authentication
@@ -68,6 +69,50 @@ export async function GET(req: NextRequest) {
     console.error('Error fetching surgeries:', error);
     return NextResponse.json(
       { error: 'Failed to fetch surgeries' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return new NextResponse('Unauthorized', { status: 401 });
+    }
+
+    const { surgeryId } = await req.json();
+    if (!surgeryId) {
+      return NextResponse.json(
+        { error: 'Surgery ID is required' },
+        { status: 400 }
+      );
+    }
+
+    await dbConnect();
+
+    const surgery = await Surgery.findById(surgeryId).populate('jobId');
+    if (!surgery) {
+      return NextResponse.json({ error: 'Surgery not found' }, { status: 404 });
+    }
+    console.log('suegery fixxxxxxxxxxxxxxxxxx', surgery);
+    // Update the surgery status
+    surgery.status = 'waitingForAdminApproval';
+    await surgery.save();
+
+    // Update the related job status to 'closed'
+    if (surgery.jobId) {
+      await Job.findByIdAndUpdate(surgery.jobId._id, { status: 'closed' });
+    }
+
+    return NextResponse.json(
+      { message: 'Surgery updated successfully' },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error('Error updating surgery:', error);
+    return NextResponse.json(
+      { error: 'Failed to update surgery' },
       { status: 500 }
     );
   }
