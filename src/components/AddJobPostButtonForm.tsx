@@ -39,12 +39,12 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     handleSubmit,
     setError,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
     defaultValues: {
       AttachmentUrls: [],
-      budget: undefined,
     },
   });
 
@@ -68,7 +68,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       setShowSuccessState(true);
       toast.success('Job successfully added!');
       localStorage.removeItem('homeJobFormData');
-
+      reset();
       // Reset form after successful submission
       setTimeout(() => {
         setShowSuccessState(false);
@@ -101,9 +101,9 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     if (!data.AttachmentUrls || data.AttachmentUrls.length === 0) {
       data.AttachmentUrls = []; // Ensure it's an empty array if undefined
     }
-    if (typeof data.budget !== 'number') {
-      data.budget = undefined;
-    }
+    // if (typeof data.budget !== 'number') {
+    //   data.budget = undefined;
+    // }
     const userEmail = session.data?.user.email;
     const containEmail = data?.surgeonEmails.some(
       (item) => item.email === userEmail
@@ -186,7 +186,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           </div>
 
           {/* Budget */}
-          <div className='space-y-2'>
+          {/* <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <DollarSign className='w-4 h-4 mr-2 text-indigo-600' />
               Budget (USD - optional)
@@ -211,9 +211,9 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
                 {errors.budget.message}
               </p>
             )}
-          </div>
+          </div> */}
           {/* Location */}
-          <div className='space-y-2'>
+          <div className='space-y-2 col-span-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <LocateIcon className='w-4 h-4 mr-2 text-indigo-600' />
               Preffered Location{' '}
@@ -227,7 +227,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
                 type='text'
                 step='0.01'
                 className='w-full pl-8 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-                placeholder='Enter Preffered Location'
+                placeholder='Enter Multiple Preffered Location Seperated by comma'
               />
             </div>
             {errors.location && (

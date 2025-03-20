@@ -18,7 +18,7 @@ export interface IJob extends Document {
     status: 'accepted' | 'declined' | 'pending';
   }[];
   AttachmentUrls?: string[];
-  budget?: number;
+  // budget?: number;
   location: string[];
   createdBy: mongoose.Types.ObjectId;
   patientId: mongoose.Types.ObjectId;
@@ -55,11 +55,11 @@ const jobSchema = new Schema<IJob>({
     },
   ],
   AttachmentUrls: { type: [String], default: undefined }, // ✅ Made optional
-  budget: {
-    type: Number,
-    min: [0, 'Budget cannot be negative'],
-    default: undefined,
-  },
+  // budget: {
+  //   type: Number,
+  //   min: [0, 'Budget cannot be negative'],
+  //   default: undefined,
+  // },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
