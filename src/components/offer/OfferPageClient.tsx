@@ -17,6 +17,8 @@ interface OfferPageClientProps {
   userId: string;
   session: any;
   status: string;
+  isAllowedToChat: boolean; // Add these
+  doesPatientHaveCredits: boolean;
 }
 
 const OfferPageClient = ({
@@ -29,7 +31,9 @@ const OfferPageClient = ({
   jobId,
   userId,
   session,
-  status
+  status,
+  isAllowedToChat,
+  doesPatientHaveCredits,
 }: OfferPageClientProps) => {
   const { offers: reduxOffers } = useAppSelector((state) => state.offers);
   const filteredReduxOffers = reduxOffers.filter(
@@ -41,7 +45,7 @@ const OfferPageClient = ({
     ...filteredReduxOffers,
   ]);
   // rerender after accept or decline
-  console.log('rerendering offers agter the states are updated 😶😶😶😶');
+
   console.log('mergedOffers 🧰🧰🧰🧰', mergedOffers);
   useEffect(() => {
     console.log(
@@ -50,11 +54,7 @@ const OfferPageClient = ({
     );
     setMergedOffers([...offersDetails, ...filteredReduxOffers]);
   }, [reduxOffers, offersDetails]);
-  console.log('chat partner id second id', chatPartner.id);
-  const data = mergedOffers.filter(
-    (offer) => offer.createdBy === chatPartner.id
-  );
-  // console.log('job data ❌❌✈️✈️✈️✈️✈️✈️✈️✈️',status)
+
   return (
     <div className='p-4 space-y-6'>
       {isJobScheduled && userRole === 'surgeon' && (
@@ -111,7 +111,13 @@ const OfferPageClient = ({
         mergedOffers
           .filter((offer) => offer.createdBy === chatPartner.id) // Filter offers where createdBy matches the second ID in params
           .map((offer) => (
-            <OfferResponse key={offer._id} offerDetails={offer} />
+            <OfferResponse
+              key={offer._id}
+              offerDetails={offer}
+              isAllowedToChat={isAllowedToChat}
+              doesPatientHaveCredits={doesPatientHaveCredits}
+              chatPartner={chatPartner?.name}
+            />
           ))
       ) : (
         <p className='text-center p-4 text-gray-600'>

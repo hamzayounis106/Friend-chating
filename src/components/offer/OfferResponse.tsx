@@ -14,18 +14,65 @@ import {
   MapPin,
   Calendar,
   AlertCircle,
+  MessageCircle,
+  Gift,
 } from 'lucide-react';
 import { OfferType } from '@/app/(dashboard)/dashboard/chat/[chatId]/offer/page';
 import { useRouter } from 'next/navigation';
+import CreditRequiredPrompt from './NoCreditCard';
+import CreditUseButton from '../CreditUseButton';
 
 const OfferResponse = ({
   offerDetails,
+  isAllowedToChat,
+  doesPatientHaveCredits,
+  chatPartner,
 }: {
   offerDetails: OfferType | null;
+  isAllowedToChat: boolean;
+  doesPatientHaveCredits: boolean;
+  chatPartner: string;
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
   const dispatch = useAppDispatch();
+
+  if (!isAllowedToChat && doesPatientHaveCredits) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-[70vh] bg-white rounded-lg shadow-sm p-8 mx-auto max-w-2xl'>
+        <div className='text-blue-600 mb-6'>
+          <Gift size={48} className='mx-auto' />
+        </div>
+        <h2 className='text-2xl font-semibold text-gray-800 mb-4 text-center'>
+          Unlock Exclusive Offers
+        </h2>
+        <p className='text-gray-600 mb-6 text-center max-w-md'>
+          Use your credits to view and explore all available offers from{' '}
+          {chatPartner}.
+        </p>
+
+        <CreditUseButton
+          jobId={offerDetails?.jobId as string}
+          surgeonId={offerDetails?.createdBy as string}
+          chatPartnerName={chatPartner}
+          variant={'offer'}
+        />
+      </div>
+    );
+  }
+  if (!isAllowedToChat || !doesPatientHaveCredits) {
+    return (
+      <div className='bg-white border border-gray-200 rounded-lg shadow-sm p-6'>
+        <CreditRequiredPrompt
+          variant='offer'
+          className='p-0 border-0 shadow-none'
+          linkUrl='/dashboard/buyCredits'
+        />
+      </div>
+    );
+  }
+
   const handleStatusChange = async (newStatus: 'accepted' | 'declined') => {
     if (!offerDetails) return;
     if (newStatus === 'accepted') {
@@ -101,7 +148,10 @@ const OfferResponse = ({
   }
 
   return (
-    <div id={offerDetails._id} className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden'>
+    <div
+      id={offerDetails._id}
+      className='bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden'
+    >
       {/* Header */}
       <div className='bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center'>
         <h3 className='text-lg font-bold text-gray-800'>

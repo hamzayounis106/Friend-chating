@@ -5,6 +5,8 @@ import User, { LeanUser } from '@/app/models/User';
 import Job from '@/app/models/Job';
 import Offer, { LeanOffer } from '@/app/models/Offer';
 import OfferPageClient from '@/components/offer/OfferPageClient';
+import { verifyIsCreditUsed } from '@/helpers/verify-is-credit-used';
+import { checkIfHaveCredits } from '@/helpers/check-if-have-credits';
 
 interface PageProps {
   params: Promise<{ chatId: string }>;
@@ -128,6 +130,8 @@ const OfferPage = async ({ params }: PageProps) => {
       };
     }
   }
+  const isAllowedToChat = await verifyIsCreditUsed(jobId, userId2);
+  const doesPatientHaveCredits = await checkIfHaveCredits();
 
   return (
     <OfferPageClient
@@ -141,6 +145,8 @@ const OfferPage = async ({ params }: PageProps) => {
       userId={user.id}
       session={session}
       status={jobData.status}
+      isAllowedToChat={isAllowedToChat}
+      doesPatientHaveCredits={doesPatientHaveCredits?.success as boolean}
     />
   );
 };

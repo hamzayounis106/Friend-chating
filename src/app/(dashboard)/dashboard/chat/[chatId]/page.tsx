@@ -9,6 +9,8 @@ import { checkIfHaveCredits } from '@/helpers/check-if-have-credits';
 import { AlertCircle, CreditCard, MessageCircle } from 'lucide-react';
 // import { useCreditToStartChat } from "@/helpers/use-credit-to-start-chat";
 import CreditUseButton from '@/components/CreditUseButton';
+import NoCreditCard from '@/components/offer/NoCreditCard';
+import CreditRequiredPrompt from '@/components/offer/NoCreditCard';
 
 interface PageProps {
   params: Promise<{ chatId: string }>;
@@ -80,25 +82,7 @@ const Page = async ({ params }: PageProps) => {
     userRole === 'patient'
   ) {
     return (
-      <div className='flex flex-col items-center justify-center min-h-[70vh] bg-white rounded-lg shadow-sm p-8 mx-auto max-w-2xl'>
-        <div className='text-orange-600 mb-6'>
-          <AlertCircle size={48} className='mx-auto' />
-        </div>
-        <h2 className='text-2xl font-semibold text-gray-800 mb-4 text-center'>
-          Credits Required
-        </h2>
-        <p className='text-gray-600 mb-6 text-center max-w-md'>
-          You need to purchase credits to start a chat with this surgeon.
-          Credits allow you to connect with specialists for consultations.
-        </p>
-        <a
-          href='/dashboard/buyCredits'
-          className='flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors'
-        >
-          <CreditCard className='mr-2 h-5 w-5' />
-          Purchase Credits
-        </a>
-      </div>
+      <CreditRequiredPrompt variant='chat' className='min-h-[70vh] max-w-2xl' />
     );
   }
   if (
