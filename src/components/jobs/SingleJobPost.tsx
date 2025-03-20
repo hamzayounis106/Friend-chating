@@ -14,6 +14,7 @@ import JobActions from './JobActions';
 import { JobData } from './job';
 import LoadingState, { ErrorState } from './LoadingState';
 import OffersForSingleJobPost from './OffersForSingleJobPost';
+import SurgeonLoginPrompt from './SurgeonLoginPrompt';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
@@ -21,14 +22,14 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (
-      session?.user?.role === 'patient' &&
-      jobData?.patientId?._id !== session.user.id
-    ) {
-      router.push('/job-post');
-    }
-  }, [jobData, session, router]);
+  // useEffect(() => {
+  //   if (
+  //     session?.user?.role === 'patient' &&
+  //     jobData?.patientId?._id !== session.user.id
+  //   ) {
+
+  //   }
+  // }, [jobData, session, router]);
 
   const handleReply = async () => {
     setLoading(true);
@@ -128,7 +129,15 @@ ${session?.user?.name || 'A Secure Cosmetic User'}
   const handleClose = () => {
     router.push('/dashboard');
   };
-
+  if (!session?.user) {
+    return <SurgeonLoginPrompt />;
+  }
+  if (
+    session?.user.role === 'patient' &&
+    session.user.id !== jobData.patientId?._id
+  ) {
+    return <SurgeonLoginPrompt />;
+  }
   return (
     <div className='min-h-screen bg-gray-50 py-12'>
       <div className='max-w-3xl mx-auto bg-white shadow-xl rounded-2xl overflow-hidden'>
@@ -144,7 +153,7 @@ ${session?.user?.name || 'A Secure Cosmetic User'}
         />
         <hr className='border-gray-200' />
         <PatientInfo patient={jobData.patientId} isCreator={isCreator} />
-        
+
         {/* Show the surgeons list and invite button */}
         {isCreator && jobData.status !== 'closed' && (
           <div className='p-6 border-b border-gray-200'>
