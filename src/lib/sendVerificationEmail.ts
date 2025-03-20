@@ -1,5 +1,4 @@
 import { mainClient, mailSender } from '@/lib/mail';
-import { User } from 'next-auth';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function sendVerificationEmail(user: any) {

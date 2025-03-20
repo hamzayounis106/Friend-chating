@@ -15,6 +15,7 @@ import { JobData } from './job';
 import LoadingState, { ErrorState } from './LoadingState';
 import OffersForSingleJobPost from './OffersForSingleJobPost';
 import SurgeonLoginPrompt from './SurgeonLoginPrompt';
+import EmailInviteForm from './EmailInviteForm';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
@@ -89,35 +90,35 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   };
 
   // New function to handle sending email invitations
-  const handleSendInvites = () => {
-    // Create the job URL - adjust as needed for your domain
-    const jobUrl = `${window.location.origin}/job-post/${jobData._id}`;
+  //   const handleSendInvites = () => {
+  //     // Create the job URL - adjust as needed for your domain
+  //     const jobUrl = `${window.location.origin}/job-post/${jobData._id}`;
 
-    // Create email subject and body
-    const subject = `Invitation to a Cosmetic Surgery Job`;
-    const body = `
-Hello,
+  //     // Create email subject and body
+  //     const subject = `Invitation to a Cosmetic Surgery Job`;
+  //     const body = `
+  // Hello,
 
-I'd like to invite you to review a cosmetic surgery job on Secure Cosmetic.
+  // I'd like to invite you to review a cosmetic surgery job on Secure Cosmetic.
 
-Job Title: ${jobData.title}
-Job Type: ${jobData.type}
-Date: ${new Date(jobData.date).toLocaleDateString()}
+  // Job Title: ${jobData.title}
+  // Job Type: ${jobData.type}
+  // Date: ${new Date(jobData.date).toLocaleDateString()}
 
-To view the job details and submit an offer, please visit:
-${jobUrl}
+  // To view the job details and submit an offer, please visit:
+  // ${jobUrl}
 
-Best regards,
-${session?.user?.name || 'A Secure Cosmetic User'}
-    `;
+  // Best regards,
+  // ${session?.user?.name || 'A Secure Cosmetic User'}
+  //     `;
 
-    // Open the mailto link
-    window.open(
-      `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-        body
-      )}`
-    );
-  };
+  //     // Open the mailto link
+  //     window.open(
+  //       `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
+  //         body
+  //       )}`
+  //     );
+  //   };
 
   if (status === 'loading' || loading) return <LoadingState />;
   if (error || !jobData) return <ErrorState error={error || 'Job not found'} />;
@@ -161,7 +162,7 @@ ${session?.user?.name || 'A Secure Cosmetic User'}
               {/* <h3 className='text-xl font-semibold text-gray-800'>
                 Invited Surgeons
               </h3> */}
-              <button
+              {/* <button
                 onClick={handleSendInvites}
                 className='flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition'
               >
@@ -175,7 +176,17 @@ ${session?.user?.name || 'A Secure Cosmetic User'}
                   <path d='M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z' />
                 </svg>
                 Invite More Surgeons
-              </button>
+              </button> */}
+              <EmailInviteForm
+                jobData={{
+                  _id: jobData._id,
+                  title: jobData.title,
+                  type: jobData.type,
+                  date: jobData.date,
+                }}
+                userEmail={session?.user?.email || ''}
+                userName={session?.user?.name || ''}
+              />
             </div>
 
             {jobData.surgeonEmails.length > 0 ? (
