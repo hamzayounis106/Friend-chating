@@ -1,6 +1,5 @@
-// src/components/jobs/JobHeader.tsx
 'use client';
-import format from 'date-fns/format';
+import { formatDate } from '@/lib/utils';
 import { JSX } from 'react';
 import { JobHeaderProps } from './job';
 
@@ -9,10 +8,10 @@ export default function JobHeader({
   type,
   date,
   status,
+  createdAt,
 }: JobHeaderProps) {
-  const formattedDate = format(new Date(date), 'PPP');
-
-  // Define status configs for better organization
+  const formattedDate = formatDate(date);
+  const formattedCreatedAt = formatDate(createdAt);
   const statusConfig: Record<
     'created' | 'scheduled' | 'closed',
     {
@@ -125,7 +124,24 @@ export default function JobHeader({
                     d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
                   ></path>
                 </svg>
-                Posted: {formattedDate}
+                Expected Surgery Date : {formattedDate}
+              </span>
+              <span className='text-blue-100 text-sm flex items-center'>
+                <svg
+                  className='w-4 h-4 mr-1.5'
+                  fill='none'
+                  stroke='currentColor'
+                  viewBox='0 0 24 24'
+                  xmlns='http://www.w3.org/2000/svg'
+                >
+                  <path
+                    strokeLinecap='round'
+                    strokeLinejoin='round'
+                    strokeWidth='2'
+                    d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+                  ></path>
+                </svg>
+                Created At : {formattedCreatedAt}
               </span>
             </div>
           </div>

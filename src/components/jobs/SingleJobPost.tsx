@@ -23,15 +23,6 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // useEffect(() => {
-  //   if (
-  //     session?.user?.role === 'patient' &&
-  //     jobData?.patientId?._id !== session.user.id
-  //   ) {
-
-  //   }
-  // }, [jobData, session, router]);
-
   const handleReply = async () => {
     setLoading(true);
     try {
@@ -89,40 +80,9 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
     return true;
   };
 
-  // New function to handle sending email invitations
-  //   const handleSendInvites = () => {
-  //     // Create the job URL - adjust as needed for your domain
-  //     const jobUrl = `${window.location.origin}/job-post/${jobData._id}`;
-
-  //     // Create email subject and body
-  //     const subject = `Invitation to a Cosmetic Surgery Job`;
-  //     const body = `
-  // Hello,
-
-  // I'd like to invite you to review a cosmetic surgery job on Secure Cosmetic.
-
-  // Job Title: ${jobData.title}
-  // Job Type: ${jobData.type}
-  // Date: ${new Date(jobData.date).toLocaleDateString()}
-
-  // To view the job details and submit an offer, please visit:
-  // ${jobUrl}
-
-  // Best regards,
-  // ${session?.user?.name || 'A Secure Cosmetic User'}
-  //     `;
-
-  //     // Open the mailto link
-  //     window.open(
-  //       `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(
-  //         body
-  //       )}`
-  //     );
-  //   };
-
   if (status === 'loading' || loading) return <LoadingState />;
   if (error || !jobData) return <ErrorState error={error || 'Job not found'} />;
-  console.log('jpbDatastatusssssssssssssss', jobData.status);
+  console.log('jpbDatastatusssssssssssssss', jobData);
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';
   const isJobClosed = jobData.status === 'completed';
@@ -147,6 +107,7 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
           type={jobData.type}
           date={jobData.date}
           status={jobData.status}
+          createdAt={jobData.createdAt}
         />
         <JobContent
           description={jobData.description}

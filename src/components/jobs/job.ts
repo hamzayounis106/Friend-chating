@@ -10,8 +10,8 @@ export interface JobData {
   surgeonEmails: SurgeonEmail[];
   AttachmentUrls: string[];
   createdBy: string;
-  status: string; // ✅ Add status field
-  createdAt: Date;
+  status: string;
+  createdAt: string;
   location: string[];
   patientId?: {
     // ✅ Made optional with `?`
@@ -26,6 +26,7 @@ export interface JobHeaderProps {
   title: string;
   type: string;
   date: string;
+  createdAt: string;
   status: JobData['status'];
 }
 

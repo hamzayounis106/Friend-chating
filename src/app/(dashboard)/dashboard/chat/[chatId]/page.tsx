@@ -75,6 +75,7 @@ const Page = async ({ params }: PageProps) => {
   console.log('doesPatientHaveCredits', doesPatientHaveCredits);
   console.log('isAlloweToChat', isAlloweToChat);
   console.log('userRole', userRole);
+  console.log('ininitialMessages check [😁😁😁😁😁]', initialMessages);
 
   if (
     !isAlloweToChat &&

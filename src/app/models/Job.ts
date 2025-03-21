@@ -24,59 +24,71 @@ export interface IJob extends Document {
   patientId: mongoose.Types.ObjectId;
   status: JobStatus; // Add status field
   creditIds: mongoose.Types.ObjectId[];
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-const jobSchema = new Schema<IJob>({
-  title: { type: String, required: true, minlength: 5, maxlength: 100 },
-  type: { type: String, required: true, minlength: 1, maxlength: 50 },
-  location: { type: [String], required: true },
-  date: { type: Date, required: true },
-  description: { type: String, required: true, minlength: 10, maxlength: 500 },
-  surgeonEmails: {
-    type: [
-      {
-        email: { type: String, required: true },
-        status: {
-          type: String,
-          enum: ['accepted', 'declined', 'pending'],
-          required: true,
+const jobSchema = new Schema<IJob>(
+  {
+    title: { type: String, required: true, minlength: 5, maxlength: 100 },
+    type: { type: String, required: true, minlength: 1, maxlength: 50 },
+    location: { type: [String], required: true },
+    date: { type: Date, required: true },
+    description: {
+      type: String,
+      required: true,
+      minlength: 10,
+      maxlength: 500,
+    },
+    surgeonEmails: {
+      type: [
+        {
+          email: { type: String, required: true },
+          status: {
+            type: String,
+            enum: ['accepted', 'declined', 'pending'],
+            required: true,
+          },
         },
+      ],
+      required: true,
+      _id: false,
+    },
+    creditIds: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Credit',
+        required: false,
+        default: [],
       },
     ],
-    required: true,
-    _id: false, // Prevents Mongoose from adding _id to each object in the array
-  },
-  creditIds: [
-    {
+    AttachmentUrls: { type: [String], default: undefined }, // ✅ Made optional
+    // budget: {
+    //   type: Number,
+    //   min: [0, 'Budget cannot be negative'],
+    //   default: undefined,
+    // },
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Credit',
-      required: false,
-      default: [],
+      ref: 'User',
+      required: true,
     },
-  ],
-  AttachmentUrls: { type: [String], default: undefined }, // ✅ Made optional
-  // budget: {
-  //   type: Number,
-  //   min: [0, 'Budget cannot be negative'],
-  //   default: undefined,
-  // },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: Object.values(JobStatus),
+      default: JobStatus.CREATED,
+      required: true,
+    },
   },
-  patientId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  status: {
-    type: String,
-    enum: Object.values(JobStatus),
-    default: JobStatus.CREATED,
-    required: true,
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 export type LeanJob = Omit<
   InferSchemaType<typeof jobSchema>,
