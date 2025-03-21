@@ -27,17 +27,18 @@ const OfferResponse = ({
   isAllowedToChat,
   doesPatientHaveCredits,
   chatPartner,
+  hasRecievedOffer,
 }: {
   offerDetails: OfferType | null;
   isAllowedToChat: boolean;
   doesPatientHaveCredits: boolean;
   chatPartner: string;
+  hasRecievedOffer: boolean;
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const dispatch = useAppDispatch();
-
   if (!isAllowedToChat && doesPatientHaveCredits) {
     return (
       <div className='flex flex-col items-center justify-center min-h-[70vh] bg-white rounded-lg shadow-sm p-8 mx-auto max-w-2xl'>
@@ -48,8 +49,9 @@ const OfferResponse = ({
           Unlock Exclusive Offers
         </h2>
         <p className='text-gray-600 mb-6 text-center max-w-md'>
-          Use your credits to view and explore all available offers from{' '}
-          {chatPartner}.
+          {hasRecievedOffer
+            ? `You have received an offer from ${chatPartner}. Use Your credits to view and respond.`
+            : 'Use your credits to view and explore all available offers from top surgeons.'}
         </p>
 
         <CreditUseButton
@@ -68,6 +70,8 @@ const OfferResponse = ({
           variant='offer'
           className='p-0 border-0 shadow-none'
           linkUrl='/dashboard/buyCredits'
+          hasRecievedOffer
+          chatPartnerName={chatPartner}
         />
       </div>
     );

@@ -75,7 +75,10 @@ const Page = async ({ params }: PageProps) => {
   console.log('doesPatientHaveCredits', doesPatientHaveCredits);
   console.log('isAlloweToChat', isAlloweToChat);
   console.log('userRole', userRole);
-  console.log('ininitialMessages check [😁😁😁😁😁]', initialMessages);
+  console.log(
+    'ininitialMessages check [😁😁😁😁😁]',
+    initialMessages.length > 0
+  );
 
   if (
     !isAlloweToChat &&
@@ -83,7 +86,12 @@ const Page = async ({ params }: PageProps) => {
     userRole === 'patient'
   ) {
     return (
-      <CreditRequiredPrompt variant='chat' className='min-h-[70vh] max-w-2xl' />
+      <CreditRequiredPrompt
+        hasInitialMessages={initialMessages.length > 0}
+        chatPartnerName={chatPartner.name}
+        variant='chat'
+        className='min-h-[70vh] max-w-2xl'
+      />
     );
   }
   if (
@@ -100,8 +108,9 @@ const Page = async ({ params }: PageProps) => {
           Start Your Consultation
         </h2>
         <p className='text-gray-600 mb-6 text-center max-w-md'>
-          You have credits available! Use one credit to start chatting with{' '}
-          {chatPartner.name}.
+          {initialMessages.length > 0
+            ? `You received a messages from the surgeon ${chatPartner.name}. Use your credit to see it.`
+            : `${chatPartner.name} has accepted your invite. Use your credit to start the chat.`}
         </p>
 
         <CreditUseButton

@@ -117,6 +117,7 @@ const OfferPageClient = ({
               isAllowedToChat={isAllowedToChat}
               doesPatientHaveCredits={doesPatientHaveCredits}
               chatPartner={chatPartner?.name}
+              hasRecievedOffer={mergedOffers.length > 0}
             />
           ))
       ) : (

@@ -5,27 +5,40 @@ interface CreditRequiredPromptProps {
   variant: 'chat' | 'offer';
   className?: string;
   linkUrl?: string;
+  hasInitialMessages?: boolean;
+  chatPartnerName?: string;
+  hasRecievedOffer?: boolean;
 }
 
 export default function CreditRequiredPrompt({
   variant = 'chat',
   className = '',
   linkUrl = '/dashboard/buyCredits',
+  hasInitialMessages = false,
+  chatPartnerName = '',
+  hasRecievedOffer = false,
 }: CreditRequiredPromptProps) {
+  console.log('has received offer inseid 😁😁😁😁', chatPartnerName);
   const config = {
     chat: {
       title: 'Credits Required',
-      description:
-        'You need to purchase credits to start a chat with this surgeon. Credits allow you to connect with specialists for consultations.',
+      description: hasInitialMessages
+        ? `You have received a message from ${chatPartnerName}. Purchase credits to view and respond.`
+        : 'You need to purchase credits to start a chat with this surgeon. Credits allow you to connect with specialists for consultations.',
       icon: <AlertCircle className='w-12 h-12 text-orange-600' />,
-      linkText: 'Purchase Credits',
+      linkText: hasInitialMessages
+        ? 'Purchase Credits to View Message'
+        : 'Purchase Credits',
     },
     offer: {
       title: 'Credits Required to View Offer',
-      description:
-        'You need to purchase credits to view and respond to this surgical offer.',
+      description: hasRecievedOffer
+        ? `You have received a surgical offer from ${chatPartnerName}. Purchase credits to view and respond.`
+        : 'You need to purchase credits to view and respond to this surgical offer.',
       icon: <Zap className='w-12 h-12 text-blue-600' />,
-      linkText: 'Purchase Credits to View Offer',
+      linkText: hasInitialMessages
+        ? 'Purchase Credits to View Offer'
+        : 'Purchase Credits to View Offer',
     },
   };
 
