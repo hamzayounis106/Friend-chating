@@ -12,7 +12,7 @@ export const addJobValidator = z.object({
 
   location: z
     .string()
-    .min(1, 'Location is required') // First ensure input is not empty
+    .min(1, 'Preffered Location is required') // First ensure input is not empty
     .transform(
       (val) =>
         val
@@ -32,7 +32,10 @@ export const addJobValidator = z.object({
     .refine((date) => date >= new Date(), {
       message: 'Date must be in the future',
     }),
-  description: z.string().min(10).max(500),
+  description: z
+    .string()
+    .min(1, 'Description is required')
+    .min(10, 'Description should be at least 10 characters long'),
   surgeonEmails: z
     .string()
     .transform((val) =>
@@ -80,7 +83,7 @@ export const addJobValidator = z.object({
   //   }),
   AttachmentUrls: z.array(z.string().url()).optional(), // ✅ Make imageUrls optional
   agreeToTerms: z.boolean().refine((val) => val === true, {
-    message: 'Please check this box to proceed', // Custom error message
+    message: 'You must agree to the terms and conditions to proceed.',
   }),
   // budget: z
   //   .number()

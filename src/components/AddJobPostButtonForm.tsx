@@ -112,12 +112,14 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       toast.error(`You can't invite yourself to this post`);
       return;
     }
+
     addJob(data);
+    setAttachmentUrls([]);
   };
 
   useEffect(() => {
     const savedFormData = localStorage.getItem('homeJobFormData');
-    console.log('saved form data shoe here 😁😁😁😁', savedFormData);
+    console.log('saved form data shoe here 😁😁😁😁 🔥🔥🔥🔥🔥', savedFormData);
     if (savedFormData) {
       const parsedData = JSON.parse(savedFormData);
       Object.keys(parsedData).forEach((key) => {

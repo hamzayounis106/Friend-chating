@@ -10,7 +10,16 @@ import { toast } from 'react-hot-toast';
 // Define the schema for the form validation
 const homeJobFormSchema = z.object({
   type: z.string().min(1, 'Type is required'),
-  description: z.string().min(1, 'Description is required'),
+  description: z
+    .string()
+    .min(1, 'Description is required') // Error when the field is empty
+    .min(10, 'Description should be at least 10 characters long'),
+  date: z
+    .string()
+    .min(1, 'Date is required')
+    .refine((date) => new Date(date) > new Date(), {
+      message: 'Date must be in the future',
+    }),
 });
 
 type HomeJobFormData = z.infer<typeof homeJobFormSchema>;
@@ -72,6 +81,21 @@ const HomeJobForm = () => {
           </select>
           {errors.type && (
             <p className='text-sm text-red-600'>{errors.type.message}</p>
+          )}
+        </div>
+
+        {/* Expected Date Field */}
+        <div className='space-y-2'>
+          <label className='text-sm font-medium text-gray-700'>
+            Expected Date
+          </label>
+          <input
+            {...register('date')}
+            type='date'
+            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+          />
+          {errors.date && (
+            <p className='text-sm text-red-600'>{errors.date.message}</p>
           )}
         </div>
 

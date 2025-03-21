@@ -10,11 +10,16 @@ import { DollarSign, Calendar, MapPin, Send, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 
 const offerSchema = z.object({
-  cost: z.coerce.number().min(0, 'Cost cannot be negative'),
-  date: z.string().nonempty('Date is required'),
+  cost: z.coerce.number().min(1, 'Correct Amount is Required'),
+  date: z
+    .string()
+    .min(1, 'Date is required')
+    .refine((date) => new Date(date) > new Date(), {
+      message: 'Date must be in the future',
+    }),
   location: z
     .string()
-    .min(2, 'Location must be at least 2 characters long')
+    .min(2, 'Please enter a valid location for better accuracy.')
     .max(200, 'Location is too long'),
   description: z.string().nonempty('Description is required'),
 });
@@ -30,7 +35,12 @@ interface OfferFormProps {
   jobStatus: string;
 }
 
-const OfferForm = ({ chatPartner, jobId, userId,jobStatus }: OfferFormProps) => {
+const OfferForm = ({
+  chatPartner,
+  jobId,
+  userId,
+  jobStatus,
+}: OfferFormProps) => {
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -80,13 +90,22 @@ const OfferForm = ({ chatPartner, jobId, userId,jobStatus }: OfferFormProps) => 
       toast.error('Failed to submit offer. Please try again.');
     }
   };
-  console.log('job status 😭😭😭😭😭😭',jobStatus)
+  console.log('job status 😭😭😭😭😭😭', jobStatus);
   if (jobStatus === 'closed') {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-6">
-        <div className="bg-gray-50 border border-gray-200 text-gray-700 px-4 py-3 rounded-md flex items-center">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm-1-5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm0-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z" clipRule="evenodd" />
+      <div className='bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden p-6'>
+        <div className='bg-gray-50 border border-gray-200 text-gray-700 px-4 py-3 rounded-md flex items-center'>
+          <svg
+            xmlns='http://www.w3.org/2000/svg'
+            className='h-5 w-5 mr-2 text-gray-500'
+            viewBox='0 0 20 20'
+            fill='currentColor'
+          >
+            <path
+              fillRule='evenodd'
+              d='M10 18a8 8 0 100-16 8 8 0 000 16zm0-2a6 6 0 100-12 6 6 0 000 12zm-1-5a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm0-4a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1z'
+              clipRule='evenodd'
+            />
           </svg>
           This job is closed. New offers can&apos;t be submitted.
         </div>
