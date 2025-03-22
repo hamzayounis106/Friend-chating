@@ -8,6 +8,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import { StripePayment } from '@/components/StripePayment';
 import { packages, PackageType } from '@/lib/packages';
 import { formatCurrency } from '@/lib/utils';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -69,7 +70,7 @@ function PackageCheckoutContent() {
   }, [packageData]);
 
   if (!packageData || !clientSecret) {
-    return <div>Loading package data...</div>;
+    return <LoadingSpinner />;
   }
 
   return (

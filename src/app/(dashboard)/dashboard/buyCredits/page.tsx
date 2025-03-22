@@ -1,44 +1,36 @@
 'use client';
 
-import React, { useState } from 'react';
-import {
-  Package,
-  Shield,
-  Crown,
-  CheckCircle,
-  CreditCard,
-  Loader,
-} from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CheckCircle, Loader } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { packages } from '@/lib/packages';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 export default function CreditPackages() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
-  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
 
-  console.log('pkg', packages[0]);
-  const handlePackageSelect = (pkg: any) => {
-    const { credits, title, price } = pkg;
-    // Navigate to the checkout page with the selected package's data
+  const handlePackageSelect = async (pkg: any) => {
+    console.log('pck to checkkk is sdjkfdfdddddddddddddddddddd', pkg);
+    setLoading(true); // Start loading
+
+    const { title } = pkg;
     router.push(
       `/checkout/package?package=${encodeURIComponent(
-        JSON.stringify({ credits, title, price, type: 'credit' })
+        JSON.stringify({ title, type: 'credit' })
       )}`
     );
-    router.refresh();
   };
 
-  if (status === 'loading') {
-    return (
-      <div className='flex justify-center items-center min-h-screen'>
-        <Loader className='w-8 h-8 animate-spin' />
-      </div>
-    );
+  // Reset loading when route changes
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+
+  if (status === 'loading' || loading) {
+    return <LoadingSpinner />;
   }
 
   return (
@@ -52,28 +44,11 @@ export default function CreditPackages() {
         </p>
       </div>
 
-      {error && (
-        <div className='bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6'>
-          {error}
-        </div>
-      )}
-
-      {successMessage && (
-        <div className='bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded mb-6 flex items-center'>
-          <CheckCircle className='w-5 h-5 mr-2' />
-          {successMessage}
-        </div>
-      )}
-
       <div className='grid grid-cols-1 md:grid-cols-3 gap-6 mb-8'>
         {packages.map((pkg) => (
           <div
             key={pkg.id}
-            className={`border ${pkg.color} rounded-lg p-6 transition-all ${
-              selectedPackage === pkg.id
-                ? 'ring-4 ring-blue-400 transform scale-105'
-                : 'hover:shadow-lg'
-            } cursor-pointer`}
+            className={`border ${pkg.color} rounded-lg p-6 transition-all  cursor-pointer`}
             onClick={() => handlePackageSelect(pkg)}
           >
             <div className='flex justify-between items-start mb-4'>
@@ -105,17 +80,6 @@ export default function CreditPackages() {
                 ))}
               </ul>
             </div>
-
-            {/* <button
-              className={`w-full py-2 px-4 rounded-md font-medium ${
-                selectedPackage === pkg.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-800'
-              } transition-colors`}
-              onClick={() => setSelectedPackage(pkg.id)}
-            >
-              {selectedPackage === pkg.id ? 'Selected' : 'Select Package'}
-            </button> */}
           </div>
         ))}
       </div>

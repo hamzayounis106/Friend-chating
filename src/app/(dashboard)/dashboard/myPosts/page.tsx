@@ -163,9 +163,9 @@ export default async function MyPosts() {
                       <div className='truncate'>
                         <div className='flex text-sm'>
                           <p className='font-medium text-blue-600 truncate'>
-                          <Link href={`/job-post/${job._id}`}>
-                                {job.title}
-                              </Link>
+                            <Link href={`/job-post/${job._id}`}>
+                              {job.title}
+                            </Link>
                             {/* {acceptedResponses ? (
                               
                             ) : (

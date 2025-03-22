@@ -5,6 +5,8 @@ import dbConnect from '@/lib/db';
 import JobDetail from '@/components/JobDetail';
 import { getJobsForSurgeon } from '@/helpers/get-jobs-of-surgeon';
 import { JobData } from '@/components/jobs/job';
+import { Suspense } from 'react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const Page = async () => {
   await dbConnect();
@@ -12,11 +14,14 @@ const Page = async () => {
   if (!session) notFound();
 
   const jobs: JobData[] = await getJobsForSurgeon(session.user.email as string);
+
   return (
     <main className='pt-8'>
       <h1 className='font-bold text-5xl mb-8'>Assigned Jobs</h1>
       <div className='flex flex-col gap-4'>
-        <JobDetail jobs={jobs} userEmail={session.user.email as string} />
+        <Suspense fallback={<LoadingSpinner />}>
+          <JobDetail jobs={jobs} userEmail={session.user.email as string} />
+        </Suspense>
       </div>
     </main>
   );

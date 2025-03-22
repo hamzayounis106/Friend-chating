@@ -7,6 +7,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import { StripePayment } from '@/components/StripePayment';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
@@ -78,7 +79,7 @@ function OfferCheckoutContent() {
   }, [offerData]);
 
   if (!offerData || !clientSecret) {
-    return <div>Loading offer data...</div>;
+    return <LoadingSpinner />;
   }
 
   return (

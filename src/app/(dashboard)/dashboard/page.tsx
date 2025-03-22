@@ -1,12 +1,18 @@
 'use client';
 
+import LoadingSpinner from '@/components/LoadingSpinner';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 
 export default function DashboardPage() {
   const { data: session, status } = useSession();
 
-  if (status === 'loading') return <div>Loading...</div>;
+  if (status === 'loading')
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
   return (
     <div className='container mx-auto px-4 py-8'>
       <h1 className='text-2xl font-bold mb-4'>Dashboard</h1>

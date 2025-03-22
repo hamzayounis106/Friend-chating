@@ -15,6 +15,7 @@ import {
 import Link from 'next/link';
 import { formatDate } from '@/lib/utils';
 import { toast } from 'react-hot-toast';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 type Surgery = {
   _id: string;
@@ -48,14 +49,6 @@ type Surgery = {
   scheduledDate: string;
   createdAt: string;
   updatedAt: string;
-};
-
-const LoadingSpinner = () => {
-  return (
-    <div className='flex justify-center items-center'>
-      <div className='animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500'></div>
-    </div>
-  );
 };
 
 export default function SurgeriesPage() {
@@ -101,7 +94,7 @@ export default function SurgeriesPage() {
   console.log('showCancelledTab', showCancelledTab);
   if (status === 'loading' || loading) {
     return (
-      <div className='flex justify-center items-center h-96'>
+      <div className='flex justify-center items-center h-screen'>
         <LoadingSpinner />
       </div>
     );

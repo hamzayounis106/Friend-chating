@@ -3,6 +3,7 @@ import { useEffect, useState, Suspense } from 'react';
 import axios from 'axios';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
 const VerifyEmail = () => {
   const searchParams = useSearchParams();
@@ -46,7 +47,7 @@ const VerifyEmail = () => {
 
 const VerifyEmailPage = () => {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={<LoadingSpinner />}>
       <VerifyEmail />
     </Suspense>
   );

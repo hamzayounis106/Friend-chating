@@ -12,16 +12,16 @@ import SurgeonsList from './SurgeonsList';
 import JobActions from './JobActions';
 
 import { JobData } from './job';
-import LoadingState, { ErrorState } from './LoadingState';
+import ErrorStateComp from './ErrorStateComp';
 import OffersForSingleJobPost from './OffersForSingleJobPost';
 import SurgeonLoginPrompt from './SurgeonLoginPrompt';
 import EmailInviteForm from './EmailInviteForm';
+import LoadingSpinner from '../LoadingSpinner';
 
 export default function SingleJobPost({ jobData }: { jobData: JobData }) {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleReply = async () => {
     setLoading(true);
@@ -80,8 +80,8 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
     return true;
   };
 
-  if (status === 'loading' || loading) return <LoadingState />;
-  if (error || !jobData) return <ErrorState error={error || 'Job not found'} />;
+  if (status === 'loading' || loading) return <LoadingSpinner />;
+  if (!jobData) return <ErrorStateComp error={'Job not found'} />;
   console.log('jpbDatastatusssssssssssssss', jobData);
   const isCreator = session?.user?.id === jobData.patientId?._id;
   const isSurgeon = session?.user?.role === 'surgeon';
