@@ -1,30 +1,43 @@
 'use client';
 
-import { Transition, Dialog } from '@headlessui/react';
 import { Menu, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { FC, Fragment, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Icons } from '@/components/Icons';
 import SignOutButton from '@/components/SignOutButton';
 import { SidebarOption } from '@/types/typings';
 import { usePathname } from 'next/navigation';
 import { Session } from 'next-auth';
 import JobNotificationsSidebar from '@/components/JobNotificationsSidebar';
-import { cn } from '@/lib/utils';
-import ActiveLink from '@/components/ActiveLink'; // Import ActiveLink
+import ActiveLink from '@/components/ActiveLink';
 import Button, { buttonVariants } from './custom-ui/Button';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetDescription,
+} from '@/components/ui/sheet';
+import SidebarChatList from '@/components/SidebarChatList'; // Import SidebarChatList
+import { JobData } from '@/components/jobs/job'; // Import JobData type
+import NotificationBell from './NotificationBell';
 
 interface MobileChatLayoutProps {
   session: Session;
   sidebarOptions: SidebarOption[];
   unseenRequestCount: number;
+  jobs: JobData[]; // Add jobs prop
+  doesPatientHaveCredits: number;
 }
 
 const MobileChatLayout: FC<MobileChatLayoutProps> = ({
   session,
   sidebarOptions,
   unseenRequestCount,
+  jobs, // Destructure jobs prop
+  doesPatientHaveCredits,
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const pathname = usePathname();
@@ -47,166 +60,131 @@ const MobileChatLayout: FC<MobileChatLayoutProps> = ({
             <span className='h-6 w-auto text-blue-600 font-bold'>SC</span>
           )}
         </Link>
-        <Button onClick={() => setOpen(true)} className='gap-4'>
-          Menu <Menu className='h-6 w-6' />
-        </Button>
-      </div>
-
-      <Transition.Root show={open} as={Fragment}>
-        <Dialog as='div' className='relative z-50' onClose={setOpen}>
-          <div className='fixed inset-0 bg-black/30 transition-opacity' />
-
-          <div className='fixed inset-0 overflow-hidden'>
-            <div className='absolute inset-0 overflow-hidden'>
-              <div className='pointer-events-none fixed inset-y-0 left-0 flex max-w-full pr-10'>
-                <Transition.Child
-                  as={Fragment}
-                  enter='transform transition ease-in-out duration-500 sm:duration-700'
-                  enterFrom='-translate-x-full'
-                  enterTo='translate-x-0'
-                  leave='transform transition ease-in-out duration-500 sm:duration-700'
-                  leaveFrom='translate-x-0'
-                  leaveTo='-translate-x-full'
-                >
-                  <Dialog.Panel className='pointer-events-auto w-screen max-w-md'>
-                    <div className='flex h-full flex-col overflow-auto bg-white py-6 shadow-xl'>
-                      <div className='px-4 sm:px-6'>
-                        <div className='flex items-start justify-between'>
-                          <Dialog.Title className='text-base font-semibold leading-6 text-gray-900'>
-                            Dashboard
-                          </Dialog.Title>
-                          <div className='ml-3 flex h-7 items-center'>
-                            <button
-                              type='button'
-                              className='rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
-                              onClick={() => setOpen(false)}
-                            >
-                              <X className='h-6 w-6' aria-hidden='true' />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                      <div className='relative mt-6 flex-1 px-4 sm:px-6'>
-                        <nav className='flex flex-1 flex-col'>
-                          <ul
-                            role='list'
-                            className='flex flex-1 flex-col gap-y-7'
-                          >
-                            <li>
-                              <div className='text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider px-2'>
-                                Main Menu
-                              </div>
-                              <ul role='list' className='-mx-2 mt-2 space-y-1'>
-                                {sidebarOptions.map((option) => (
-                                  <li key={option.id}>
-                                    <ActiveLink
-                                      href={option.href}
-                                      unseenJobCount={
-                                        option.href === '/dashboard/requests'
-                                          ? unseenRequestCount
-                                          : 0
-                                      }
-                                      icon={option.Icon}
-                                    >
-                                      {option.name}
-                                    </ActiveLink>
-                                  </li>
-                                ))}
-                              </ul>
-                            </li>
-
-                            {/* General Section */}
-                            {/* <li>
-                              <div className='text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider px-2'>
-                                General
-                              </div>
-                              <ul role='list' className='-mx-2 mt-2 space-y-1'>
-                                {[
-                                  {
-                                    id: 1,
-                                    name: 'Dashboard',
-                                    href: '/dashboard',
-                                    Icon: 'Home',
-                                  },
-                                  {
-                                    id: 2,
-                                    name: 'My Surgeries',
-                                    href: '/dashboard/surgeries',
-                                    Icon: 'Calendar',
-                                  },
-                                  {
-                                    id: 3,
-                                    name: 'Settings',
-                                    href: '/dashboard/settings',
-                                    Icon: 'Settings',
-                                  },
-                                  {
-                                    id: 4,
-                                    name: 'Help & Support',
-                                    href: '/dashboard/support',
-                                    Icon: 'HelpCircle',
-                                  },
-                                ].map((option) => (
-                                  <li key={option.id}>
-                                    <ActiveLink
-                                      href={option.href}
-                                      icon={option.Icon}
-                                    >
-                                      {option.name}
-                                    </ActiveLink>
-                                  </li>
-                                ))}
-                              </ul>
-                            </li> */}
-
-                            {/* Show JobNotificationsSidebar for surgeons */}
-                            {userRole === 'surgeon' && (
-                              <li>
-                                <JobNotificationsSidebar
-                                  initialUnseenJobCount={unseenRequestCount}
-                                  sessionEmail={session.user.email as string}
-                                />
-                              </li>
-                            )}
-                          </ul>
-                        </nav>
-                      </div>
-
-                      {/* Profile & SignOut */}
-                      <li className='-mx-6 mt-auto'>
-                        <div className='flex items-center justify-between bg-gray-50 p-3 mx-6 rounded-lg'>
-                          <div className='flex items-center gap-3'>
-                            <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
-                              <Image
-                                referrerPolicy='no-referrer'
-                                className='object-cover'
-                                src={session.user.image || '/default.png'}
-                                alt='Your profile picture'
-                                width={24}
-                                height={24}
-                                sizes='(max-width: 768px) 100vw, 24px'
-                              />
-                            </div>
-                            <div className='flex flex-col'>
-                              <span className='text-sm font-semibold text-gray-800 truncate'>
-                                {session.user.name}
-                              </span>
-                              <span className='text-xs text-gray-500 truncate max-w-[150px]'>
-                                {session.user.email}
-                              </span>
-                            </div>
-                          </div>
-                          <SignOutButton className='ml-2' />
-                        </div>
-                      </li>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button onClick={() => setOpen(true)} className='gap-4'>
+              Menu <Menu className='h-6 w-6' />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side='left' className='w-full max-w-md flex flex-col'>
+            <SheetHeader>
+              <SheetTitle className='text-base font-semibold leading-6 text-gray-900'>
+                <div className='flex h-16 shrink-0 items-center justify-between px-6 border-b border-gray-100'>
+                  <Link href='/dashboard' className='flex items-center gap-2'>
+                    {Icons.Logo ? (
+                      <Icons.Logo className='h-8 w-auto text-blue-600' />
+                    ) : (
+                      <span className='h-8 w-8 flex items-center justify-center bg-blue-600 text-white rounded-md font-bold text-lg'>
+                        SC
+                      </span>
+                    )}
+                  </Link>
+                  <Link href={'/dashboard'}>
+                    <span className='font-semibold text-lg text-gray-800'>
+                      SecureCosmetic
+                    </span>
+                  </Link>
+                  <NotificationBell />
+                </div>
+              </SheetTitle>
+              <SheetDescription>
+                <span></span>
+              </SheetDescription>
+            </SheetHeader>
+            <div className='flex-1 overflow-y-auto px-4 sm:px-6'>
+              <nav className='flex flex-col'>
+                {/* Chats Section */}
+                {jobs?.length > 0 && (
+                  <div className='py-4 border-b border-gray-100'>
+                    <div className='flex items-center justify-between mb-2'>
+                      <h2 className='text-sm font-medium text-gray-900'>
+                        Your chats
+                      </h2>
+                      {userRole === 'patient' && (
+                        <button className='px-3 py-1 bg-blue-600 text-white rounded-md shadow-md hover:bg-blue-700 transition'>
+                          {doesPatientHaveCredits ?? 0} Credits
+                        </button>
+                      )}
                     </div>
-                  </Dialog.Panel>
-                </Transition.Child>
+                    <div className='space-y-1'>
+                      <SidebarChatList
+                        sessionId={session.user.id.toString()}
+                        sessionEmail={session.user.email as string}
+                        jobs={jobs}
+                        session={session}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Main Menu */}
+                <ul role='list' className='flex flex-col gap-y-7'>
+                  <li>
+                    <div className='text-xs font-semibold leading-6 text-gray-400 uppercase tracking-wider px-2'>
+                      Main Menu
+                    </div>
+                    <ul role='list' className='-mx-2 mt-2 space-y-1'>
+                      {sidebarOptions.map((option) => (
+                        <li key={option.id}>
+                          <ActiveLink
+                            href={option.href}
+                            unseenJobCount={
+                              option.href === '/dashboard/requests'
+                                ? unseenRequestCount
+                                : 0
+                            }
+                            icon={option.Icon}
+                          >
+                            {option.name}
+                          </ActiveLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+
+                  {/* Show JobNotificationsSidebar for surgeons */}
+                  {userRole === 'surgeon' && (
+                    <li>
+                      <JobNotificationsSidebar
+                        initialUnseenJobCount={unseenRequestCount}
+                        sessionEmail={session.user.email as string}
+                      />
+                    </li>
+                  )}
+                </ul>
+              </nav>
+            </div>
+
+            {/* Profile & SignOut */}
+            <div className='mt-auto px-4 sm:px-6  border-t border-gray-200'>
+              <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
+                <div className='flex items-center gap-3'>
+                  <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
+                    <Image
+                      referrerPolicy='no-referrer'
+                      className='object-cover h-full w-full'
+                      src={session.user.image || '/default.png'}
+                      alt='Your profile picture'
+                      width={24}
+                      height={24}
+                      sizes='(max-width: 768px) 100vw, 24px'
+                    />
+                  </div>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-semibold text-gray-800 truncate'>
+                      {session.user.name}
+                    </span>
+                    <span className='text-xs text-gray-500 truncate max-w-[150px]'>
+                      {session.user.email}
+                    </span>
+                  </div>
+                </div>
+                <SignOutButton className='ml-2' />
               </div>
             </div>
-          </div>
-        </Dialog>
-      </Transition.Root>
+          </SheetContent>
+        </Sheet>
+      </div>
     </div>
   );
 };

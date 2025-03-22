@@ -16,16 +16,6 @@ import {
   getJobsForSurgeon,
 } from '@/helpers/get-jobs-of-surgeon';
 import { getJobsByUserId } from '@/helpers/get-jobs-by-user-id';
-import {
-  MessageSquare,
-  PlusCircle,
-  ClipboardList,
-  Home,
-  Calendar,
-  Settings,
-  HelpCircle,
-  Inbox,
-} from 'lucide-react';
 import ActiveLink from '@/components/ActiveLink';
 import { checkIfHaveCredits } from '@/helpers/check-if-have-credits';
 import { JobData } from '@/components/jobs/job';
@@ -79,7 +69,7 @@ const Layout = async ({ children }: LayoutProps) => {
 
   const patientOptions: SidebarOption[] = [
     {
-      id: 5,
+      id: 20,
       name: 'Add Post',
       href: '/dashboard/add',
       Icon: 'PlusCircle',
@@ -107,28 +97,6 @@ const Layout = async ({ children }: LayoutProps) => {
       ? await getJobCountBySurgeon(session.user.email as string)
       : 0;
 
-  // Helper function to get the appropriate icon
-  const getIcon = (iconName: string) => {
-    switch (iconName) {
-      case 'Home':
-        return <Home className='h-4 w-4' />;
-      case 'Calendar':
-        return <Calendar className='h-4 w-4' />;
-      case 'Settings':
-        return <Settings className='h-4 w-4' />;
-      case 'HelpCircle':
-        return <HelpCircle className='h-4 w-4' />;
-      case 'PlusCircle':
-        return <PlusCircle className='h-4 w-4' />;
-      case 'ClipboardList':
-        return <ClipboardList className='h-4 w-4' />;
-      case 'Inbox':
-        return <Inbox className='h-4 w-4' />;
-      default:
-        return <MessageSquare className='h-4 w-4' />;
-    }
-  };
-
   return (
     <div className='w-full flex h-screen bg-gray-50'>
       {/* Mobile Sidebar */}
@@ -137,6 +105,10 @@ const Layout = async ({ children }: LayoutProps) => {
           session={session}
           sidebarOptions={[...sidebarOptions, ...bothUserOptions]}
           unseenRequestCount={unseenJobCount}
+          jobs={jobs}
+          doesPatientHaveCredits={
+            doesPatientHaveCredits.availableCredits as number
+          }
         />
       </div>
 

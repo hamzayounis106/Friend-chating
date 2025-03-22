@@ -37,7 +37,6 @@ interface JobDetailProps {
 }
 
 const JobDetail: FC<JobDetailProps> = ({ jobs: initialJobs, userEmail }) => {
-  console.log('chacke the initial jobs from  😂😂😂😂😂😂', initialJobs);
   const router = useRouter();
   const dispatch = useAppDispatch();
   const selectJobsMemoized = useMemo(

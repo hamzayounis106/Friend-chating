@@ -116,7 +116,6 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
 
   useEffect(() => {
     const savedFormData = localStorage.getItem('homeJobFormData');
-    console.log('saved form data shoe here 😁😁😁😁 🔥🔥🔥🔥🔥', savedFormData);
     if (savedFormData) {
       const parsedData = JSON.parse(savedFormData);
       Object.keys(parsedData).forEach((key) => {
