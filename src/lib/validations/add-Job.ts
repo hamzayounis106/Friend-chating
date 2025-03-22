@@ -10,19 +10,31 @@ export const addJobValidator = z.object({
   //     message: 'At least one location is required',
   //   }), //this is woking
 
+  // location: z
+  //   .string()
+  //   .min(1, 'Preffered Location is required') // First ensure input is not empty
+  //   .transform(
+  //     (val) =>
+  //       val
+  //         .split(',')
+  //         .map((loc) => loc.trim())
+  //         .filter((loc) => loc !== '') // Remove empty strings after trimming
+  //   )
+  //   .refine((locations) => locations.length > 0, {
+  //     message: 'At least one location is required',
+  //   }),
+
   location: z
-    .string()
-    .min(1, 'Preffered Location is required') // First ensure input is not empty
-    .transform(
-      (val) =>
-        val
-          .split(',')
-          .map((loc) => loc.trim())
-          .filter((loc) => loc !== '') // Remove empty strings after trimming
+    .array(z.string().min(5))
+    .min(1, { message: 'At least one location is required' })
+    .refine(
+      (location) =>
+        new Set(location.map((singleLocation) => singleLocation)).size ===
+        location.length,
+      { message: 'Duplicate Locations are not allowed' }
     )
-    .refine((locations) => locations.length > 0, {
-      message: 'At least one location is required',
-    }),
+    .default([]),
+
   date: z
     .string()
     .transform((val) => new Date(val)) // Transform string to Date
@@ -36,36 +48,50 @@ export const addJobValidator = z.object({
     .string()
     .min(1, 'Description is required')
     .min(10, 'Description should be at least 10 characters long'),
+  // surgeonEmails: z
+  //   .string()
+  //   .transform((val) =>
+  //     val
+  //       .split(',')
+  //       .map((email) => email.trim())
+  //       .filter((email) => email !== '')
+  //       .map((email) => ({ email, status: 'pending' as const }))
+  //   )
+  //   .refine((emails) => emails.length > 0, {
+  //     message: 'At least one surgeon email is required',
+  //   })
+
+  //   .refine(
+  //     (emails) =>
+  //       emails.every(
+  //         (emailObj) => z.string().email().safeParse(emailObj.email).success
+  //       ),
+  //     {
+  //       message: 'One or more emails are invalid',
+  //     }
+  //   )
+
+  //   .refine(
+  //     (emails) =>
+  //       new Set(emails.map((emailObj) => emailObj.email)).size ===
+  //       emails.length,
+  //     {
+  //       message: 'Duplicate emails are not allowed',
+  //     }
+  //   ),
   surgeonEmails: z
-    .string()
-    .transform((val) =>
-      val
-        .split(',')
-        .map((email) => email.trim())
-        .filter((email) => email !== '')
-        .map((email) => ({ email, status: 'pending' as const }))
+    .array(
+      z.object({
+        email: z.string().email('It should be an email '),
+        status: z.literal('pending'),
+      })
     )
-    .refine((emails) => emails.length > 0, {
-      message: 'At least one surgeon email is required',
-    })
-
-    .refine(
-      (emails) =>
-        emails.every(
-          (emailObj) => z.string().email().safeParse(emailObj.email).success
-        ),
-      {
-        message: 'One or more emails are invalid',
-      }
-    )
-
+    .min(1, { message: 'At least one surgeon email is required' })
     .refine(
       (emails) =>
         new Set(emails.map((emailObj) => emailObj.email)).size ===
         emails.length,
-      {
-        message: 'Duplicate emails are not allowed',
-      }
+      { message: 'Duplicate emails are not allowed' }
     ),
   // videoURLs: z
   //   .string()

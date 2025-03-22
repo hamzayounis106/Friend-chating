@@ -31,15 +31,14 @@ type FormData = z.infer<typeof addJobValidator>;
 const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
   const [showSuccessState, setShowSuccessState] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const [uploadingFiles, setUploadingFiles] = useState<boolean>(false);
   const [AttachmentUrls, setAttachmentUrls] = useState<string[]>([]);
-
   const {
     register,
     handleSubmit,
     setError,
     setValue,
     reset,
+    getValues,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
@@ -99,11 +98,9 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
 
   const onSubmit = (data: FormData) => {
     if (!data.AttachmentUrls || data.AttachmentUrls.length === 0) {
-      data.AttachmentUrls = []; // Ensure it's an empty array if undefined
+      data.AttachmentUrls = [];
     }
-    // if (typeof data.budget !== 'number') {
-    //   data.budget = undefined;
-    // }
+
     const userEmail = session.data?.user.email;
     const containEmail = data?.surgeonEmails.some(
       (item) => item.email === userEmail
@@ -128,6 +125,79 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
       setAttachmentUrls(parsedData.AttachmentUrls || []);
     }
   }, [setValue]);
+  const handleAddEmail = (email: string) => {
+    try {
+      // Get the current emails from the form state
+      const currentEmails = getValues('surgeonEmails') || [];
+
+      // Add the new email to the array
+      const updatedEmails: { email: string; status: 'pending' }[] = [
+        ...currentEmails,
+        { email, status: 'pending' },
+      ];
+
+      // Validate the updated array against the Zod schema
+      z.array(
+        z.object({
+          email: z.string().email('Provide a valid email.'),
+          status: z.literal('pending'),
+        })
+      )
+        .min(1, { message: 'At least one surgeon email is required.' })
+        .refine(
+          (emails) =>
+            new Set(emails.map((emailObj) => emailObj.email)).size ===
+            emails.length,
+          { message: 'Duplicate emails are not allowed.' }
+        )
+        .parse(updatedEmails);
+
+      // Update the form state with the validated emails
+      setValue('surgeonEmails', updatedEmails, {
+        shouldValidate: true,
+      });
+
+      // Clear the input field
+      const input = document.getElementById(
+        'surgeonEmailInput'
+      ) as HTMLInputElement;
+      input.value = '';
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        // Display Zod validation errors
+        toast.error(error.errors[0].message);
+      }
+    }
+  };
+  const handleAddLocation = (location: string) => {
+    try {
+      const currentLocations = getValues('location') || [];
+      const updatedLocations = [...currentLocations, location];
+
+      z.array(
+        z.string().min(5, { message: 'Location must be at least 5 characters' })
+      )
+        .refine(
+          (location) =>
+            new Set(location.map((singleLocation) => singleLocation)).size ===
+            location.length,
+          { message: 'Duplicate Locations are not allowed' }
+        )
+        .parse(updatedLocations);
+
+      setValue('location', updatedLocations, {
+        shouldValidate: true,
+      });
+      const input = document.getElementById(
+        'locationInput'
+      ) as HTMLInputElement;
+      input.value = '';
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        toast.error(error.errors[0].message);
+      }
+    }
+  };
   return (
     <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
       <div className='mb-6 text-center'>
@@ -218,19 +288,67 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           <div className='space-y-2 col-span-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <LocateIcon className='w-4 h-4 mr-2 text-indigo-600' />
-              Preffered Location{' '}
+              Preferred Location
             </label>
-            <div className='relative'>
-              <span className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500'>
-                $
-              </span>
+            <div className='relative flex items-center'>
               <input
-                {...register('location')}
                 type='text'
-                step='0.01'
-                className='w-full pl-8 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-                placeholder='Enter Multiple Preffered Location Seperated by comma'
+                id='locationInput'
+                className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                placeholder='Enter a preferred location'
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // Prevent form submission
+                    const input = e.target as HTMLInputElement;
+                    const location = input.value.trim();
+                    if (location) {
+                      handleAddLocation(location);
+                    }
+                  }
+                }}
               />
+              <button
+                type='button'
+                onClick={() => {
+                  const input = document.getElementById(
+                    'locationInput'
+                  ) as HTMLInputElement;
+                  const location = input.value.trim();
+                  if (location) {
+                    handleAddLocation(location);
+                  }
+                }}
+                className='ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors'
+              >
+                Add
+              </button>
+            </div>
+            <div className='flex flex-wrap gap-2 mt-2'>
+              {getValues('location')?.map(
+                (loc: string, index: number) =>
+                  loc && (
+                    <div
+                      key={index}
+                      className='flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm'
+                    >
+                      {loc}
+                      <button
+                        type='button'
+                        onClick={() => {
+                          const locations = getValues('location').filter(
+                            (_, i) => i !== index
+                          );
+                          setValue('location', locations, {
+                            shouldValidate: true,
+                          });
+                        }}
+                        className='ml-2 text-indigo-500 hover:text-indigo-700'
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  )
+              )}
             </div>
             {errors.location && (
               <p className='text-sm text-red-600 flex items-start'>
@@ -265,22 +383,77 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         <div className='space-y-2'>
           <label className='flex items-center text-sm font-medium text-gray-700'>
             <Users className='w-4 h-4 mr-2 text-indigo-600' />
-            Surgeon Emails (comma separated)
+            Surgeon Emails
           </label>
-          <input
-            {...register('surgeonEmails')}
-            type='text'
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-            placeholder='e.g., surgeon1@example.com, surgeon2@example.com'
-          />
+          <div className='relative flex items-center'>
+            <input
+              type='text'
+              id='surgeonEmailInput'
+              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+              placeholder='Enter surgeon email'
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent form submission
+                  const input = e.target as HTMLInputElement;
+                  const email = input.value.trim();
+                  if (email) {
+                    handleAddEmail(email);
+                  }
+                }
+              }}
+            />
+            <button
+              type='button'
+              onClick={() => {
+                const input = document.getElementById(
+                  'surgeonEmailInput'
+                ) as HTMLInputElement;
+                const email = input.value.trim();
+                if (email) {
+                  handleAddEmail(email);
+                }
+              }}
+              className='ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors'
+            >
+              Add
+            </button>
+          </div>
+          <div className='flex flex-wrap gap-2 mt-2'>
+            {getValues('surgeonEmails')?.map(
+              (surgeon: { email: string; status: string }, index: number) => (
+                <div
+                  key={index}
+                  className='flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm'
+                >
+                  {surgeon.email}
+                  <button
+                    type='button'
+                    onClick={() => {
+                      const emails = getValues('surgeonEmails').filter(
+                        (_, i) => i !== index
+                      );
+                      setValue('surgeonEmails', emails, {
+                        shouldValidate: true,
+                      });
+                    }}
+                    className='ml-2 text-indigo-500 hover:text-indigo-700'
+                  >
+                    &times;
+                  </button>
+                </div>
+              )
+            )}
+          </div>
+
           {errors.surgeonEmails && (
             <p className='text-sm text-red-600 flex items-start'>
               <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
-              {errors.surgeonEmails.message}
+              {errors.surgeonEmails.message === 'Required'
+                ? 'Invite your surgeons to start Job'
+                : errors.surgeonEmails.message}
             </p>
           )}
         </div>
-
         {/* File Uploads */}
         <div className='space-y-2'>
           <label className='flex items-center text-sm font-medium text-gray-700'>
@@ -297,33 +470,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               }}
             />
 
-            {uploadingFiles && (
-              <p className='mt-2 text-sm text-indigo-600 flex items-center'>
-                <svg
-                  className='animate-spin -ml-1 mr-2 h-4 w-4 text-indigo-600'
-                  xmlns='http://www.w3.org/2000/svg'
-                  fill='none'
-                  viewBox='0 0 24 24'
-                >
-                  <circle
-                    className='opacity-25'
-                    cx='12'
-                    cy='12'
-                    r='10'
-                    stroke='currentColor'
-                    strokeWidth='4'
-                  ></circle>
-                  <path
-                    className='opacity-75'
-                    fill='currentColor'
-                    d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'
-                  ></path>
-                </svg>
-                Uploading files...
-              </p>
-            )}
-
-            {AttachmentUrls?.length > 0 && !uploadingFiles && (
+            {AttachmentUrls?.length > 0 && (
               <div className='mt-3'>
                 <p className='text-sm text-green-600 flex items-center'>
                   <Check className='w-4 h-4 mr-1' />
@@ -403,7 +550,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
             className={`px-8 py-3 rounded-md flex items-center justify-center text-white font-medium ${
               loading ? 'bg-indigo-400' : 'bg-indigo-600 hover:bg-indigo-700'
             } transition-colors`}
-            disabled={loading || uploadingFiles}
+            disabled={loading}
           >
             {loading ? (
               <>
