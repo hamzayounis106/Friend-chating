@@ -131,6 +131,7 @@ const OfferPage = async ({ params }: PageProps) => {
     }
   }
   const isAllowedToChat = await verifyIsCreditUsed(jobId, userId2);
+  console.log('isAllowedToChat-------------' , isAllowedToChat);
   const doesPatientHaveCredits = await checkIfHaveCredits();
 
   return (

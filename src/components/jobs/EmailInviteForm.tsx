@@ -91,10 +91,10 @@ export default function EmailInviteForm({
           {isSending ? 'Sending...' : 'Notify Admin'}
         </button>
       </div>
-      <p className='text-sm text-gray-500'>
+      {/* <p className='text-sm text-gray-500'>
         Admin (ahmadeveloper077@gmail.com) will receive notification with
         details
-      </p>
+      </p> */}
     </div>
   );
 }
