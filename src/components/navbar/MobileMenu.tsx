@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/sheet';
 import Link from 'next/link';
 import { NavLinks } from './NavLinks';
-import { Button } from '@/components/ui/button';
+import Button from '@/components/ui/button';
 
 interface MobileMenuProps {
   isAuthenticated: boolean;

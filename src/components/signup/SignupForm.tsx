@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+import Button from '../ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 
 const signupSchema = z.object({
