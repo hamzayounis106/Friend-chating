@@ -37,9 +37,13 @@ const OfferResponse = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  console.log(
+    'isAllowedToChat---------------------- in offfer response',
+    isAllowedToChat
+  );
   const dispatch = useAppDispatch();
   if (!isAllowedToChat && doesPatientHaveCredits) {
+    console.log('Not allowed to chat IF and doesPatientHaveCredits');
     return (
       <div className='flex flex-col items-center justify-center min-h-[70vh] bg-white rounded-lg shadow-sm p-8 mx-auto max-w-2xl'>
         <div className='text-blue-600 mb-6'>
@@ -63,7 +67,8 @@ const OfferResponse = ({
       </div>
     );
   }
-  if (!isAllowedToChat || !doesPatientHaveCredits) {
+  if (!isAllowedToChat && !doesPatientHaveCredits) {
+    console.log('Not allowed to chat IF and not doesPatientHaveCredits');
     return (
       <div className='bg-white border border-gray-200 rounded-lg shadow-sm p-6'>
         <CreditRequiredPrompt
