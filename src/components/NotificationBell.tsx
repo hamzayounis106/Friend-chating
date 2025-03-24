@@ -272,7 +272,7 @@ const NotificationBell = () => {
   return (
     <Popover>
       <PopoverTrigger
-        className='flex items-center justify-center p-2 rounded-full hover:bg-gray-200 focus:outline-none'
+        className='flex items-center justify-center p-2 rounded-full hover:bg-gray-200 focus:outline-none relative'
         onClick={() => {
           if (unseenCount > 0) {
             const unseenIds = notifications

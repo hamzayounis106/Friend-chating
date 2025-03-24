@@ -46,7 +46,7 @@ export default function CreditRequiredPrompt({
 
   return (
     <div
-      className={`flex flex-col items-center justify-center bg-white rounded-lg shadow-sm p-8 mx-auto ${className}`}
+      className={`flex flex-col items-center justify-center bg-white rounded-lg shadow-sm p-8 mx-auto mt-6 ${className}`}
     >
       <div className='mb-6'>{icon}</div>
       <h2 className='text-2xl font-semibold text-gray-800 mb-4 text-center'>

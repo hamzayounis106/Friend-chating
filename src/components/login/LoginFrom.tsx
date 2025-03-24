@@ -9,6 +9,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { handleLoginRedirect } from '@/lib/redirect';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '../ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -20,13 +24,15 @@ const loginSchema = z.object({
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
 interface LoginFormProps {
-  onSuccess: (role?: string) => void; // Accept role as an argument
+  onSuccess: (role?: string) => void;
 }
 
 const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showResendButton, setShowResendButton] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+
   const [emailToResend, setEmailToResend] = useState<string>('');
   const searchParams = useSearchParams();
   const session = useSession();
@@ -63,7 +69,7 @@ const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
       if (result?.ok) {
         toast.success('Logged in successfully');
         console.log('result for the role ;;🤐🤐🤐🤐', result);
-        onSuccess(session?.data?.user?.role); // ✅ Now correctly passed
+        onSuccess(session?.data?.user?.role);
         router.refresh();
       }
     } catch (error) {
@@ -119,16 +125,21 @@ const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
       className='space-y-5 w-full max-w-sm'
     >
       <div className='space-y-2'>
-        <label htmlFor='email' className='block text-sm font-medium text-gray-700'>
+        <Label
+          htmlFor='email'
+          className='block text-sm font-medium text-gray-700'
+        >
           Email
-        </label>
-        <input
+        </Label>
+        <Input
           id='email'
           type='email'
           {...register('email')}
           placeholder='Enter your email'
-          className={`w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-            errors.email ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+          className={`${
+            errors.email
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
           }`}
         />
         {errors.email && (
@@ -136,34 +147,68 @@ const LoginForm: FC<LoginFormProps> = ({ onSuccess }) => {
         )}
       </div>
 
-      <div className='space-y-2'>
-        <label htmlFor='password' className='block text-sm font-medium text-gray-700'>
+      {/* <div className='space-y-2'>
+        <Label
+          htmlFor='password'
+          className='block text-sm font-medium text-gray-700'
+        >
           Password
-        </label>
-        <input
+        </Label>
+        <Input
           id='password'
           type='password'
           {...register('password')}
           placeholder='Enter your password'
-          className={`w-full px-4 py-2 border rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-            errors.password ? 'border-red-500 focus:ring-red-500 focus:border-red-500' : 'border-gray-300'
+          className={`${
+            errors.password
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
           }`}
         />
         {errors.password && (
           <p className='text-sm text-red-500'>{errors.password.message}</p>
         )}
+      </div> */}
+      <div className='space-y-2 relative'>
+        <Label
+          htmlFor='password'
+          className='block text-sm font-medium text-gray-700'
+        >
+          Password
+        </Label>
+        <div className='relative'>
+          <Input
+            id='password'
+            type={showPassword ? 'text' : 'password'}
+            {...register('password')}
+            placeholder='Enter your password'
+            className={`${
+              errors.password
+                ? 'border-red-500 focus:ring-red-500'
+                : 'border-gray-300'
+            }`}
+          />
+          <button
+            type='button'
+            onClick={() => setShowPassword(!showPassword)}
+            className='absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700'
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
+        {errors.password && (
+          <p className='text-sm text-red-500'>{errors.password.message}</p>
+        )}
       </div>
-
-      <button 
-        type='submit' 
-        className='w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200'
-        disabled={isLoading}
-      >
+      <Button className='w-full bg-blue-600 hover:bg-blue-500'>
         {isLoading ? 'Signing in...' : 'Sign In'}
-      </button>
+      </Button>
 
-      <div className='flex justify-between text-sm'>
-        <Link href='/forgot-password' className='text-blue-600 hover:text-blue-800 transition-colors'>
+      <div className='flex justify-end text-sm'>
+        <Link
+          href='/forgot-password'
+          className='text-blue-600 hover:text-blue-800 transition-colors'
+        >
           Forgot Password?
         </Link>
         {showResendButton && (
@@ -185,13 +230,15 @@ const Page: FC = () => {
   const session = useSession();
   const sessionRole = session?.data?.user?.role;
   return (
-    <main className='pt-8'>
-      <h1 className='font-bold text-5xl mb-8'>Login</h1>
+    <main className=''>
+      <h1 className='font-bold text-5xl mb-8 text-center hidden  lg:block'>
+        Sign In
+      </h1>
       <div className='flex flex-col gap-4'>
         <Suspense fallback={<p>Loading...</p>}>
           <LoginForm
             onSuccess={() => handleLoginRedirect(router, sessionRole)}
-          />{' '}
+          />
         </Suspense>
       </div>
     </main>

@@ -3,14 +3,16 @@
 import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import z from 'zod';
-import Button from '@/components/custom-ui/Button';
 import { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
 
-// Define the schema for signup form validation.
 const signupSchema = z.object({
   username: z
     .string()
@@ -20,7 +22,8 @@ const signupSchema = z.object({
     .string()
     .min(6, { message: 'Password must be at least 6 characters' }),
   role: z.enum(['patient', 'surgeon'], {
-    required_error: 'Please select a role',
+    required_error: 'Please select a role', // Shows when field is missing
+    invalid_type_error: 'Please select your role',
   }),
 });
 
@@ -36,6 +39,7 @@ const SignupForm = () => {
   });
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const router = useRouter();
 
   const onSubmit: SubmitHandler<SignupFormInputs> = async (data) => {
@@ -60,85 +64,123 @@ const SignupForm = () => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className='space-y-4 w-full max-w-sm'
+      className='space-y-5 w-full max-w-sm'
     >
-      <div>
-        <label className='block text-sm font-medium text-gray-700'>
+      <h1 className='font-bold text-5xl mb-8 text-center hidden  lg:block'>
+        Sign Up
+      </h1>{' '}
+      <div className='space-y-2'>
+        <Label
+          htmlFor='username'
+          className='block text-sm font-medium text-gray-700'
+        >
           Username
-        </label>
-        <input
-          {...register('username')}
+        </Label>
+        <Input
+          id='username'
           type='text'
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+          {...register('username')}
+          placeholder='Enter your username'
+          className={`${
+            errors.username
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
+          }`}
         />
         {errors.username && (
-          <p className='text-red-500 text-sm'>{errors.username.message}</p>
+          <p className='text-sm text-red-500'>{errors.username.message}</p>
         )}
       </div>
-
-      <div>
-        <label className='block text-sm font-medium text-gray-700'>Email</label>
-        <input
-          {...register('email')}
+      <div className='space-y-2'>
+        <Label
+          htmlFor='email'
+          className='block text-sm font-medium text-gray-700'
+        >
+          Email
+        </Label>
+        <Input
+          id='email'
           type='email'
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
+          {...register('email')}
+          placeholder='Enter your email'
+          className={`${
+            errors.email
+              ? 'border-red-500 focus:ring-red-500 focus:border-red-500'
+              : 'border-gray-300'
+          }`}
         />
         {errors.email && (
-          <p className='text-red-500 text-sm'>{errors.email.message}</p>
+          <p className='text-sm text-red-500'>{errors.email.message}</p>
         )}
       </div>
-
-      <div>
-        <label className='block text-sm font-medium text-gray-700'>
+      <div className='space-y-2 relative'>
+        <Label
+          htmlFor='password'
+          className='block text-sm font-medium text-gray-700'
+        >
           Password
-        </label>
-        <input
-          {...register('password')}
-          type='password'
-          className='mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500'
-        />
+        </Label>
+        <div className='relative'>
+          <Input
+            id='password'
+            type={showPassword ? 'text' : 'password'}
+            {...register('password')}
+            placeholder='Enter your password'
+            className={`${
+              errors.password
+                ? 'border-red-500 focus:ring-red-500'
+                : 'border-gray-300'
+            }`}
+          />
+          <button
+            type='button'
+            onClick={() => setShowPassword(!showPassword)}
+            className='absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700'
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
         {errors.password && (
-          <p className='text-red-500 text-sm'>{errors.password.message}</p>
+          <p className='text-sm text-red-500'>{errors.password.message}</p>
         )}
       </div>
-
-      <div>
-        <label className='block text-sm font-medium text-gray-700'>Role</label>
-        <div className='mt-1 flex items-center space-x-4'>
-          <label className='flex items-center'>
+      <div className='space-y-2'>
+        <Label className='block text-sm font-medium text-gray-700'>Role</Label>
+        <div className='flex items-center space-x-4'>
+          <label className='flex items-center space-x-2'>
             <input
               {...register('role')}
               type='radio'
               value='patient'
-              className='mr-2'
+              className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300'
             />
-            Patient
+            <span>Patient</span>
           </label>
-          <label className='flex items-center'>
+          <label className='flex items-center space-x-2'>
             <input
               {...register('role')}
               type='radio'
               value='surgeon'
-              className='mr-2'
+              className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300'
             />
-            Surgeon
+            <span>Surgeon</span>
           </label>
         </div>
+        {/* {console.log('first role selected', errors?.role.message)} */}
         {errors.role && (
-          <p className='text-red-500 text-sm'>{errors.role.message}</p>
+          <p className='text-sm text-red-500'>
+            {' '}
+            {errors.role.message || 'Please select a role'}
+          </p>
         )}
       </div>
-
-      <Button isLoading={isLoading} type='submit' className='w-full'>
+      <Button
+        type='submit'
+        className='w-full bg-blue-600 hover:bg-blue-500'
+        disabled={isLoading}
+      >
         {isLoading ? 'Signing up...' : 'Sign Up'}
       </Button>
-
-      <div>
-        Already have an account?
-        <Link href={'login'} className='text-blue-600'>
-          Login here
-        </Link>
-      </div>
     </form>
   );
 };

@@ -69,7 +69,7 @@ export const authOptions: NextAuthOptions = {
           if (!user.password) {
             console.log('User found but associated with google:', user);
             throw new Error(
-              'Your account is associated with Google. Please log in with Google auth'
+              'Your account is associated with Google. Please log in with Google'
             );
           }
           if (!user.isVerified) {
@@ -111,7 +111,7 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as CustomAdapterUser).role;
         token.isVerified = (user as CustomAdapterUser).isVerified; // Set isVerified from user object
       }
- 
+
       const dbUser = await User.findById(token.id);
       if (dbUser && token.role !== dbUser.role) {
         token.role = dbUser.role;
