@@ -8,8 +8,12 @@ import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { ArrowRight, Loader2, RefreshCw, Rocket } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-// Zod schema for validation
 const forgotPasswordSchema = z.object({
   email: z.string().email('Invalid email address'),
 });
@@ -61,55 +65,82 @@ export default function ForgotPasswordPage() {
     await sendResetEmail(formData.email);
   }
 
-  if (status === 'loading') return <p>Loading...</p>;
+  if (status === 'loading') return <LoadingSpinner />;
 
   return (
-    <div className='max-w-md mx-auto p-6 bg-white shadow-md rounded-md'>
-      <h2 className='text-2xl font-bold mb-4'>Forgot Password</h2>
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
+      <div className='w-full max-w-md bg-white p-8 rounded-xl shadow-md'>
+        <h2 className='text-2xl font-bold text-center mb-6'>Forgot Password</h2>
 
-      {emailSent ? (
-        <div className='bg-green-100 border border-green-500 text-green-700 p-4 rounded-md text-center'>
-          <p className='font-semibold'>Reset Link Sent!</p>
-          <p>A verification link has been sent to your email.</p>
-          <p className='text-sm text-gray-600'>
-            If not found, please check your spam folder.
-          </p>
+        {emailSent ? (
+          <div className='bg-green-50 border border-green-200 rounded-lg p-6 text-center'>
+            <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 mb-4'>
+              <Rocket className='text-green-600 h-6 w-6' />
+            </div>
+            <h3 className='text-lg font-medium text-green-800 mb-2'>
+              Reset Link Sent!
+            </h3>
+            <p className='text-green-700 mb-3'>
+              A password reset link has been launched to your email inbox.
+            </p>
+            <p className='text-sm text-green-600 mb-4'>
+              Can&apos;t find it? Check your spam folder—it might have landed
+              there.
+            </p>
 
-          {status !== 'authenticated' && (
-            <button
-              onClick={() => sendResetEmail(email)}
-              className='mt-3 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition'
+            {status !== 'authenticated' && (
+              <Button
+                onClick={() => sendResetEmail(email)}
+                className='w-full max-w-xs mx-auto bg-blue-600 hover:bg-blue-700 transition-colors'
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className='animate-spin -ml-1 mr-2 h-4 w-4 text-white' />
+                    Resending...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className='mr-2 h-4 w-4' />
+                    Resend Email
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
+            <div className='space-y-2'>
+              <Label htmlFor='email'>Email</Label>
+              <div className='relative'>
+                <Input
+                  id='email'
+                  type='email'
+                  placeholder='Your email address'
+                  {...register('email')}
+                  className={`pr-10 ${errors.email ? 'border-red-500' : ''}`}
+                />
+                <ArrowRight className='absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400' />
+              </div>
+              {errors.email && (
+                <p className='text-sm text-red-500'>{errors.email.message}</p>
+              )}
+            </div>
+
+            <Button
+              type='submit'
+              className='w-full bg-blue-600 hover:bg-blue-700'
               disabled={loading}
             >
-              {loading ? 'Resending...' : 'Resend Email'}
-            </button>
-          )}
-        </div>
-      ) : (
-        <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-          <input
-            type='email'
-            placeholder='Your email'
-            {...register('email')}
-            className='w-full p-2 border rounded-md'
-          />
-          {errors.email && (
-            <p className='text-red-500'>{errors.email.message}</p>
-          )}
+              {loading ? 'Sending...' : 'Send Reset Link'}
+            </Button>
 
-          <button
-            type='submit'
-            className='w-full p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition'
-            disabled={loading}
-          >
-            {loading ? 'Sending...' : 'Send Reset Link'}
-          </button>
-
-          <p className='text-gray-600 text-sm text-center'>
-            We will send a password reset link to the provided email.
-          </p>
-        </form>
-      )}
+            <p className='text-gray-600 text-sm text-center'>
+              We&apos;ll send a password reset link to your email
+            </p>
+          </form>
+        )}
+      </div>
     </div>
   );
 }

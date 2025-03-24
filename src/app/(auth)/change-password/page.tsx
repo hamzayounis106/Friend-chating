@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -8,8 +8,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'react-hot-toast';
 import axios from 'axios';
 import { Suspense } from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import LoadingSpinner from '@/components/LoadingSpinner';
 
-// Zod schema for validation
 const resetPasswordSchema = z
   .object({
     password: z.string().min(6, 'Password must be at least 6 characters'),
@@ -26,6 +30,8 @@ function ResetPassword() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams?.get('token');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -57,48 +63,95 @@ function ResetPassword() {
   }
 
   return (
-    <div className='max-w-md mx-auto p-6 bg-white shadow-md rounded-md'>
-      <h2 className='text-2xl font-bold mb-4'>Reset Password</h2>
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-        <div>
-          <input
-            type='password'
-            placeholder='New password'
-            {...register('password')}
-            className='w-full p-2 border rounded-md'
-          />
-          {errors.password && (
-            <p className='text-red-500 text-sm'>{errors.password.message}</p>
-          )}
+    <div className='min-h-screen flex items-center justify-center bg-gray-50 p-4'>
+      <div className='w-full max-w-md bg-white p-8 rounded-xl shadow-md'>
+        <div className='flex flex-col items-center mb-6'>
+          <h2 className='text-2xl font-bold text-center'>Reset Password</h2>
+          <p className='text-gray-600 text-sm mt-1'>
+            Create a new password for your account
+          </p>
         </div>
-        <div>
-          <input
-            type='password'
-            placeholder='Confirm new password'
-            {...register('confirmPassword')}
-            className='w-full p-2 border rounded-md'
-          />
-          {errors.confirmPassword && (
-            <p className='text-red-500 text-sm'>
-              {errors.confirmPassword.message}
-            </p>
-          )}
-        </div>
-        <button
-          type='submit'
-          className='w-full p-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition'
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Resetting...' : 'Reset Password'}
-        </button>
-      </form>
+
+        <form onSubmit={handleSubmit(onSubmit)} className='space-y-5'>
+          <div className='space-y-2'>
+            <Label htmlFor='password'>New Password</Label>
+            <div className='relative'>
+              <Input
+                id='password'
+                type={showPassword ? 'text' : 'password'}
+                placeholder='Enter new password'
+                {...register('password')}
+                className={`pr-10 ${
+                  errors.password
+                    ? 'focus:border-red-500 focus:ring-red-500 '
+                    : ''
+                }`}
+              />
+              <button
+                type='button'
+                onClick={() => setShowPassword(!showPassword)}
+                className='absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700'
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className='text-sm text-red-500'>{errors.password.message}</p>
+            )}
+          </div>
+
+          <div className='space-y-2'>
+            <Label htmlFor='confirmPassword'>Confirm Password</Label>
+            <div className='relative'>
+              <Input
+                id='confirmPassword'
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder='Confirm new password'
+                {...register('confirmPassword')}
+                className={`pr-10 ${
+                  errors.confirmPassword
+                    ? 'border-red-500 focus:ring-red-500'
+                    : ''
+                }`}
+              />
+              <button
+                type='button'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className='absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700'
+              >
+                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <p className='text-sm text-red-500'>
+                {errors.confirmPassword.message}
+              </p>
+            )}
+          </div>
+
+          <Button
+            type='submit'
+            className='w-full bg-blue-600 hover:bg-blue-700'
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                Resetting...
+              </>
+            ) : (
+              'Reset Password'
+            )}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div className='text-center p-4'>Loading...</div>}>
+    <Suspense fallback={<LoadingSpinner />}>
       <ResetPassword />
     </Suspense>
   );
