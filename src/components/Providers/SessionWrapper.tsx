@@ -6,12 +6,18 @@ import JobToastWrapper from './JobToastWrapper';
 import { useAppDispatch } from '@/store/hooks';
 import { useEffect } from 'react';
 import { clearNewJobs } from '@/store/slices/jobSlice';
+import { usePathname } from 'next/navigation';
+import Navbar from '../navbar/Navbar';
+import { Toaster } from '../ui/toaster';
 
 const SessionWrapper = ({ children }: { children: React.ReactNode }) => {
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
   const userEmail = session?.user?.email;
 
+  const pathname = usePathname();
+
+  const showNavbar = !pathname?.startsWith('/dashboard');
   useEffect(() => {
     return () => {
       if (userEmail) {
@@ -25,6 +31,8 @@ const SessionWrapper = ({ children }: { children: React.ReactNode }) => {
       {session && <ToastProvider session={session} />}
       {userEmail && <PusherJobHandler email={userEmail} />}
       <JobToastWrapper />
+      {showNavbar && <Navbar />}
+      <Toaster />
       {children}
     </>
   );
