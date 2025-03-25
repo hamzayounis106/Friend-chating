@@ -19,7 +19,7 @@ import {
   LogOut,
 } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from '../ui/button';
+import Button from '@/components/ui/button';
 
 interface SidebarOption {
   id: number;

@@ -10,9 +10,9 @@ import axios from 'axios';
 import { Suspense } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import LoadingSpinner from '@/components/LoadingSpinner';
+import Button from '@/components/ui/button';
 
 const resetPasswordSchema = z
   .object({
