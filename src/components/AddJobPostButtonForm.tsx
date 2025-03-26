@@ -22,7 +22,7 @@ import {
   LocateIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { jobTypes } from './home/HomeJobForm';
+import { JobTypeCombobox } from './home/JobTypeCombobox';
 
 interface AddJobButtonProps {}
 
@@ -39,6 +39,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     setValue,
     reset,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(addJobValidator),
@@ -212,7 +213,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         {/* Form Grid Layout */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Type */}
-          <div className='space-y-2'>
+          {/* <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <FileText className='w-4 h-4 mr-2 text-indigo-600' />
               Job Type
@@ -233,8 +234,19 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
                 {errors.type.message}
               </p>
             )}
-          </div>
+          </div> */}
 
+          <div className='space-y-2'>
+            <label className='flex items-center text-sm font-medium text-gray-700'>
+              <FileText className='w-4 h-4 mr-2 text-indigo-600' />
+              Job Type
+            </label>
+            <JobTypeCombobox
+              value={watch('type')}
+              onChangeAction={(value) => setValue('type', value)}
+              error={errors.type?.message}
+            />
+          </div>
           {/* Date */}
           <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>

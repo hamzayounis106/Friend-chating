@@ -1,3 +1,4 @@
+// components/HomeJobForm.tsx
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -6,13 +7,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
+import { JobTypeCombobox } from './JobTypeCombobox';
 
-// Define the schema for the form validation
 const homeJobFormSchema = z.object({
   type: z.string().min(1, 'Type is required'),
   description: z
     .string()
-    .min(1, 'Description is required') // Error when the field is empty
+    .min(1, 'Description is required')
     .min(10, 'Description should be at least 10 characters long'),
   date: z
     .string()
@@ -24,14 +25,6 @@ const homeJobFormSchema = z.object({
 
 type HomeJobFormData = z.infer<typeof homeJobFormSchema>;
 
-export const jobTypes = [
-  'Facial Surgery',
-  'Orthopedic Surgery',
-  'Neurosurgery',
-  'Plastic Surgery',
-  'General Surgery',
-];
-
 const HomeJobForm = () => {
   const { status } = useSession();
   const router = useRouter();
@@ -40,28 +33,28 @@ const HomeJobForm = () => {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
+    watch,
+    control,
   } = useForm<HomeJobFormData>({
     resolver: zodResolver(homeJobFormSchema),
   });
 
-  const onSubmit = (data: HomeJobFormData) => {
-    // Store the form data in local storage
-    localStorage.setItem('homeJobFormData', JSON.stringify(data));
+  const selectedType = watch('type');
 
-    // Check if the user is logged in
+  const onSubmit = (data: HomeJobFormData) => {
+    localStorage.setItem('homeJobFormData', JSON.stringify(data));
     if (status === 'authenticated') {
-      // Redirect to /dashboard/add if logged in
       router.push('/dashboard/add');
       toast.success('Form data saved. Redirecting to dashboard...');
     } else {
-      // Redirect to login page if not logged in
       router.push('/login');
       toast.success('Form data saved. Please login to continue.');
     }
   };
 
   return (
-    <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-200  '>
+    <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
       <div className='mb-6 text-center'>
         <h2 className='text-2xl font-bold text-gray-800'>
           Get Unlimited Quotes From Trusted Surgeons
@@ -69,20 +62,12 @@ const HomeJobForm = () => {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
-        <div className='space-y-2'>
-          <select
-            {...register('type')}
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-          >
-            {jobTypes.map((job, index) => (
-              <option key={index} value={job}>
-                {job}
-              </option>
-            ))}
-          </select>
-          {errors.type && (
-            <p className='text-sm text-red-600'>{errors.type.message}</p>
-          )}
+        <div className='space-y-2 w-full'>
+          <JobTypeCombobox
+            value={selectedType}
+            onChangeAction={(value) => setValue('type', value)}
+            error={errors.type?.message}
+          />
         </div>
 
         {/* Expected Date Field */}
