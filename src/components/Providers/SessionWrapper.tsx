@@ -9,7 +9,7 @@ import { clearNewJobs } from '@/store/slices/jobSlice';
 import { usePathname } from 'next/navigation';
 import Navbar from '../navbar/Navbar';
 import { Toaster } from '../ui/toaster';
-
+import Footer from '../home/Footer';
 const SessionWrapper = ({ children }: { children: React.ReactNode }) => {
   const { data: session } = useSession();
   const dispatch = useAppDispatch();
@@ -34,6 +34,7 @@ const SessionWrapper = ({ children }: { children: React.ReactNode }) => {
       {showNavbar && <Navbar />}
       <Toaster />
       {children}
+      {showNavbar && <Footer />}
     </>
   );
 };

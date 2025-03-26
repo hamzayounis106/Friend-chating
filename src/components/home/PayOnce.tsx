@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, Check, Headphones, Lock, Verified } from 'lucide-react';
 import Image from 'next/image';
 
-export const PayOnce = () => {
+const PayOnce = () => {
   return (
     <div className='bg-white rounded-xl my-12 overflow-hidden max-w-4xl mx-auto px-4 lg:px-0'>
       <div className='flex flex-col md:flex-row'>
@@ -77,3 +77,5 @@ export const PayOnce = () => {
     </div>
   );
 };
+
+export default PayOnce;
