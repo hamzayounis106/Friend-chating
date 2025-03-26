@@ -52,7 +52,10 @@ export function JobTypeCombobox({
           style={{ width: 'var(--radix-popover-trigger-width)' }}
         >
           <Command className='w-[100%]'>
-            <CommandInput placeholder='Search surgery type...' />
+            <CommandInput
+              placeholder='Search surgery type...'
+              className='my-3'
+            />
             <CommandList>
               <CommandEmpty>No surgery type found.</CommandEmpty>
               <CommandGroup>

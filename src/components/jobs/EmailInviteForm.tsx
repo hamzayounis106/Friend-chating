@@ -3,6 +3,9 @@
 import { mailSender, mainClient } from '@/lib/mail';
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
+import { X } from 'lucide-react';
+import { Input } from '../ui/input';
+import Button from '../ui/button';
 
 interface EmailInviteFormProps {
   jobData: {
@@ -20,23 +23,40 @@ export default function EmailInviteForm({
   userEmail,
   userName,
 }: EmailInviteFormProps) {
-  const [emails, setEmails] = useState('');
+  const [emailInput, setEmailInput] = useState('');
+  const [emails, setEmails] = useState<string[]>([]);
   const [isSending, setIsSending] = useState(false);
-  console.log('user emails', process.env.MAIL_TRAP_ADMIN_EMAIL);
 
-  const handleSendInvites = async () => {
-    setIsSending(true);
+  const handleAddEmail = () => {
+    const email = emailInput.trim();
+    if (!email) return;
 
-    const emailList = emails
-      .split(',')
-      .map((email) => email.trim())
-      .filter((email) => email !== '');
-
-    if (emailList.length === 0) {
-      toast.error('Please enter at least one email address');
-      setIsSending(false);
+    // Basic email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
+
+    if (emails.includes(email)) {
+      toast.error('This email has already been added');
+      return;
+    }
+
+    setEmails([...emails, email]);
+    setEmailInput('');
+  };
+
+  const handleRemoveEmail = (index: number) => {
+    setEmails(emails.filter((_, i) => i !== index));
+  };
+
+  const handleSendInvites = async () => {
+    if (emails.length === 0) {
+      toast.error('Please add at least one email address');
+      return;
+    }
+
+    setIsSending(true);
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
     const jobLink = `${baseUrl}/job-post/${jobData._id}`;
 
@@ -50,7 +70,7 @@ export default function EmailInviteForm({
           jobTitle: jobData.title,
           jobType: jobData.type,
           jobDate: jobData.date,
-          invitedSurgeons: emailList,
+          invitedSurgeons: emails,
           userName,
           userEmail,
           link: jobLink,
@@ -63,38 +83,79 @@ export default function EmailInviteForm({
         throw new Error(data.error || 'Failed to send notification');
       }
 
-      toast.success('Admin notified successfully');
-      setEmails('');
+      toast.success('Invitations sent successfully');
+      setEmails([]);
     } catch (error: any) {
       console.error('Error:', error);
-      toast.error(error.message || 'Failed to send notification');
+      toast.error(error.message || 'Failed to send invitations');
     } finally {
       setIsSending(false);
     }
   };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddEmail();
+    }
+  };
+
   return (
     <div className='w-full space-y-2'>
-      <div className='flex gap-2'>
-        <input
+      <label className='flex items-center text-sm font-medium text-gray-700'>
+        <span className='w-4 h-4 mr-2'>✉️</span>
+        Surgeon Emails
+      </label>
+
+      <div className='relative flex items-center justify-center gap-2'>
+        <Input
           type='text'
-          value={emails}
-          onChange={(e) => setEmails(e.target.value)}
-          placeholder='Enter surgeon emails (comma-separated)'
-          className='flex-1 p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500'
+          value={emailInput}
+          onChange={(e) => setEmailInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder='Enter surgeon email'
+          className='w-full '
           disabled={isSending}
         />
-        <button
-          onClick={handleSendInvites}
+        {/* <button
+          type='button'
+          onClick={handleAddEmail}
+          className='ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors'
           disabled={isSending}
-          className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 transition-colors'
         >
-          {isSending ? 'Sending...' : 'Notify Admin'}
-        </button>
+          Add
+        </button> */}
+        <Button
+          onClick={handleSendInvites}
+          disabled={isSending || emails.length === 0}
+          className={` ${
+            isSending
+              ? 'bg-blue-200 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600 text-white'
+          }`}
+        >
+          {isSending ? 'Sending Invites...' : 'Notify Admin & Send Invites'}
+        </Button>
       </div>
-      {/* <p className='text-sm text-gray-500'>
-        Admin (ahmadeveloper077@gmail.com) will receive notification with
-        details
-      </p> */}
+
+      {/* Email bubbles */}
+      <div className='flex flex-wrap gap-2 mt-2'>
+        {emails.map((email, index) => (
+          <div
+            key={index}
+            className='flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm'
+          >
+            {email}
+            <button
+              type='button'
+              onClick={() => handleRemoveEmail(index)}
+              className='ml-2 text-indigo-500 hover:text-indigo-700'
+            >
+              <X className='w-4 h-4' />
+            </button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
