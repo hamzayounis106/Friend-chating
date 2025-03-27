@@ -1,8 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { Facebook, Linkedin, Twitter, Instagram } from 'lucide-react';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
+import Newsletter from './NewsLetter';
 
 const Footer = () => {
   const usefulLinks = [
@@ -72,7 +71,6 @@ const Footer = () => {
                 ))}
               </div>
             </div>
-
             {/* Useful Links */}
             <div className='space-y-4 w-full md:w-auto'>
               <h3 className='text-lg font-semibold'>Useful Links</h3>
@@ -89,18 +87,7 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Newsletter - Takes full width on mobile, then auto on larger screens */}
-            <div className='space-y-4 w-full md:min-w-[280px] lg:max-w-[320px]'>
-              <h3 className='text-lg font-semibold'>Newsletter</h3>
-              <div className='flex flex-col space-y-3'>
-                <Input
-                  type='email'
-                  placeholder='Your email'
-                  className='w-full'
-                />
-                <Button className='w-full'>Sign Up for Newsletter</Button>
-              </div>
-            </div>
+            <Newsletter />
           </div>
         </div>
 
