@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
 import { JobTypeCombobox } from './JobTypeCombobox';
 import Button from '../ui/button';
+import { ArrowRight } from 'lucide-react';
+import { Textarea } from '../ui/textarea';
 
 const homeJobFormSchema = z.object({
   type: z.string().min(1, 'Type is required'),
@@ -55,55 +57,64 @@ const HomeJobForm = () => {
   };
 
   return (
-    <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg  border border-gray-200'>
-      <div className='mb-6 text-center'>
-        <h2 className='text-2xl font-bold text-gray-800'>
-          Get Unlimited Quotes From Trusted Surgeons
+    <div className=' bg-[#EAEAEA]  rounded-lg  shadow-md'>
+      <div className=' text-center flex flex-col gap-y-2 py-6 px-2 text-white bg-[#005EB8] rounded-t-lg'>
+        <h2 className='text-xl sm:text-2xl font-bold '>
+          POST YOUR JOB FOR FREE
         </h2>
+        <p className=' text-lg sm:text-xl '>
+          Get Unlimited Quotes From Trusted Surgeons
+        </p>
       </div>
+      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4 p-6'>
+        <div className='md:flex md:space-x-4 md:space-y-0 space-y-4'>
+          {/* Job Type Field - First column */}
+          <div className='md:w-1/2 space-y-1'>
+            <JobTypeCombobox
+              value={selectedType}
+              onChangeAction={(value) => setValue('type', value)}
+              error={errors.type?.message}
+            />
+          </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className='space-y-4'>
-        <div className='space-y-1 w-full'>
-          <JobTypeCombobox
-            value={selectedType}
-            onChangeAction={(value) => setValue('type', value)}
-            error={errors.type?.message}
-          />
+          {/* Expected Date Field - Second column */}
+          <div className='md:w-1/2 space-y-1'>
+            <input
+              {...register('date')}
+              type='date'
+              className='w-full px-4 py-[6px] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all h-auto'
+            />
+            {errors.date && (
+              <p className='text-sm text-red-600'>{errors.date.message}</p>
+            )}
+          </div>
         </div>
-        {/* Expected Date Field */}
+
+        {/* Description Field - Full width below */}
         <div className='space-y-1'>
-          <input
-            {...register('date')}
-            type='date'
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-          />
-          {errors.date && (
-            <p className='text-sm text-red-600'>{errors.date.message}</p>
-          )}
-        </div>
-        <div className='space-y-1'>
-          <textarea
+          <Textarea
+            id='description'
             {...register('description')}
-            rows={4}
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-            placeholder='Brief Description'
-          ></textarea>
+            rows={2}
+            className='focus-visible:ring-blue-500 bg-white'
+            placeholder='Enter a brief description of the job...'
+          />
           {errors.description && (
             <p className='text-sm text-red-600'>{errors.description.message}</p>
           )}
         </div>
+
         <div className='flex justify-start '>
-          {/* <button
+          <Button
             type='submit'
-            className='px-8 py-3 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors'
+            className='bg-[#005EB8] hover:bg-[#005EB8] flex items-center justify-between gap-12'
           >
-            Submit Job Request
-          </button> */}
-          <Button type='submit' className='bg-black hover:bg-black/80'>
-            Invite Surgeons
+            Step 1 of 2 <ArrowRight />
           </Button>
         </div>
-        <p className='text-[12px]'>
+        <div className='border-b border-[#DCDCDC]'></div>
+
+        <p className='text-[12px] text-[#18162B]'>
           Free to submit your request. $49 to unlock all surgeon replies for
           your post and escrow protection—no hidden costs.
         </p>
