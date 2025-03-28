@@ -202,7 +202,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
     <div className='max-w-3xl mx-auto bg-white p-6 rounded-lg shadow-sm border border-gray-200'>
       <div className='mb-6 text-center'>
         <h2 className='text-2xl font-bold text-gray-800'>
-          Create New Job Request
+          Get Free Quotes – From Trusted Surgeons Worldwide
         </h2>
         <p className='text-gray-500 mt-1'>
           Fill out the form below to post a new cosmetic surgery job request
@@ -251,7 +251,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <CalendarIcon className='w-4 h-4 mr-2 text-indigo-600' />
-              Preferred Date
+              Preferred Date (roughly)
             </label>
             <div className='relative'>
               <input
@@ -299,14 +299,14 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           <div className='space-y-2 col-span-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <LocateIcon className='w-4 h-4 mr-2 text-indigo-600' />
-              Preferred Location
+              Locations
             </label>
             <div className='relative flex items-center'>
               <input
                 type='text'
                 id='locationInput'
                 className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-                placeholder='Enter a preferred location'
+                placeholder='Enter and add all locations you’d consider'
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault(); // Prevent form submission
@@ -374,7 +374,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         <div className='space-y-2'>
           <label className='flex items-center text-sm font-medium text-gray-700'>
             <FileText className='w-4 h-4 mr-2 text-indigo-600' />
-            Job Description
+            Describe your needs
           </label>
           <textarea
             {...register('description')}

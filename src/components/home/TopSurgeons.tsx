@@ -38,7 +38,10 @@ const surgeonsProcedures = [
 ];
 const TopSurgeons = () => {
   return (
-    <section className='max-w-screen-lg mx-auto mb-20 px-4 '>
+    <section
+      className='max-w-screen-lg mx-auto mb-20 px-4 '
+      id='cosmetic-procedures'
+    >
       <h1 className='text-center text-4xl font-semibold my-8'>
         Find Top Surgeons for Popular Procedures
       </h1>

@@ -40,9 +40,11 @@ const HeroSection = () => {
         </div>
       </section>
       <div className='container mx-auto px-4'>
-        <div className='max-w-2xl mx-auto relative -mt-20 md:-mt-10 xl:-mt-24 z-10'>
+        <div
+          className='max-w-2xl mx-auto relative -mt-20 md:-mt-10 xl:-mt-24 z-10'
+          id='post-job'
+        >
           {' '}
-          {/* Pulls form up into hero section */}
           <HomeJobForm />
         </div>
       </div>

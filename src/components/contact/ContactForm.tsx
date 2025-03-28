@@ -42,7 +42,7 @@ export default function ContactForm() {
   };
 
   return (
-    <main className='w-3/4 md:w-1/2 flex flex-col gap-6'>
+    <main className='max-w-3xl flex flex-col gap-6'>
       <h1 className='md:text-4xl text-2xl'>Contact Form</h1>
       <p>
         Get in touch with us for inquiries or consultations. We&apos;re here to

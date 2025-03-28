@@ -20,11 +20,11 @@ const NotRisky = () => {
           <h1 className='text-2xl lg:text-3xl  font-semibold mb-4'>
             Cosmetic Surgery Doesn&apos;t Have to Be Risky
           </h1>
-          <p className=' leading-relaxed text-base'>
+          <p className=' leading-relaxed text-base sm:text-lg'>
             Arranging cosmetic surgery can feel stressful and uncertain. Hidden
             fees, misleading reviews, and unverified providers are common,
             especially if you consider options abroad. Without proper
-            safeguards, you&apos;re often left vulnerable. <br />{' '}
+            safeguards, you&apos;re often left vulnerable. <br /> <br />{' '}
             SurgeryTrust.com solves this by verifying surgeons, clarifying costs
             upfront, and protecting your payment through escrow. Post your
             request, invite unlimited surgeons, compare transparent quotes, and

@@ -70,7 +70,7 @@ const Layout = async ({ children }: LayoutProps) => {
   const patientOptions: SidebarOption[] = [
     {
       id: 20,
-      name: 'Add Post',
+      name: 'Post a new job',
       href: '/dashboard/add',
       Icon: 'PlusCircle',
     },

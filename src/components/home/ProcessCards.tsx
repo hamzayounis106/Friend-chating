@@ -38,7 +38,7 @@ const steps = [
 
 const ProcessCards = () => {
   return (
-    <section className='py-12 max-w-screen-lg mx-auto'>
+    <section className='py-12 max-w-screen-lg mx-auto' id='how-it-works'>
       <div className='container mx-auto px-4'>
         <h2 className='text-3xl text-center mb-8'>
           A Clear, Safe and Trusted Process

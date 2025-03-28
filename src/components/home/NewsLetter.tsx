@@ -72,8 +72,9 @@ export default function Newsletter() {
         <Input
           {...register('email')}
           type='email'
-          placeholder='Your email'
+          placeholder='Enter your email here'
           disabled={isSubmitting}
+          className='bg-white'
         />
         {errors.email && (
           <p className='text-red-500 text-sm'>{errors.email.message}</p>

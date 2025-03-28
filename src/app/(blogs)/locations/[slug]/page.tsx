@@ -4,6 +4,7 @@ import Image from 'next/image';
 import locationData from '@/components/locations/LocationData';
 import HomeJobForm from '@/components/home/HomeJobForm';
 import RecentBlogPosts from '../../RecentPost';
+import RecentArticles from '../../RecentPost';
 
 const SingleLocationPage = () => {
   const params = useParams();
@@ -72,12 +73,7 @@ const SingleLocationPage = () => {
 
           <div className='md:w-1/3 flex flex-col gap-8'>
             <HomeJobForm />
-            <RecentBlogPosts
-              posts={locationData}
-              title='Recent Locations'
-              maxPosts={4}
-              basePath='/locations'
-            />{' '}
+            <RecentArticles />
           </div>
         </div>
       </main>

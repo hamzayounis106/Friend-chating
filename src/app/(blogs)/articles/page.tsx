@@ -4,6 +4,7 @@ import articleData from '@/components/articles/ArticlesData';
 import QuestionBanner from '../QuestionBanner';
 import RecentBlogPosts from '../RecentPost';
 import TopBarComp from '../TopBarComp';
+import RecentArticles from '../RecentPost';
 
 const ArticlesPage = () => {
   return (
@@ -13,12 +14,8 @@ const ArticlesPage = () => {
         <div className='flex flex-col gap-8 md:hidden'>
           <HomeJobForm />
           <ArticleGrid />
-          <RecentBlogPosts
-            posts={articleData}
-            title='Recent Articles'
-            maxPosts={4}
-            basePath='/articles'
-          />
+          <RecentArticles />
+
           <QuestionBanner />
         </div>
 
@@ -29,12 +26,8 @@ const ArticlesPage = () => {
           </div>
           <div className='w-1/3 flex flex-col gap-8'>
             <HomeJobForm />
-            <RecentBlogPosts
-              posts={articleData}
-              title='Recent Articles'
-              maxPosts={4}
-              basePath='/articles'
-            />
+            <RecentArticles />
+
             <QuestionBanner />
           </div>
         </div>

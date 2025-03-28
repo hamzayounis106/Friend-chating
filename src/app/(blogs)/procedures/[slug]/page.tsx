@@ -4,6 +4,7 @@ import Image from 'next/image';
 import proceduresData from '@/components/procedures/proceduresData';
 import HomeJobForm from '@/components/home/HomeJobForm';
 import RecentBlogPosts from '../../RecentPost';
+import RecentArticles from '../../RecentPost';
 
 const SingleProcedurePage = () => {
   const params = useParams();
@@ -76,12 +77,7 @@ const SingleProcedurePage = () => {
           {/* Right Column - Sidebar */}
           <div className='md:w-1/3 flex flex-col gap-8'>
             <HomeJobForm />
-            <RecentBlogPosts
-              posts={proceduresData}
-              title='Recent Procedures'
-              maxPosts={4}
-              basePath='/procedures'
-            />
+            <RecentArticles />
           </div>
         </div>
       </main>
