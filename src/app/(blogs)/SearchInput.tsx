@@ -24,14 +24,16 @@ const SearchInput = ({
   }, [searchTerm, onSearch]);
 
   return (
-    <div className={`flex w-full max-w-md items-center space-x-2 ${className}`}>
+    <div
+      className={`flex w-full max-w-md items-center space-x-2 relative ${className}`}
+    >
       <Input
         type='text'
         placeholder={placeholder}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <SearchIcon className='h-4 w-4 text-gray-500' />
+      <SearchIcon className='h-4 w-4 text-gray-500 absolute right-2' />
     </div>
   );
 };

@@ -29,7 +29,7 @@ const LocationGrid = () => {
         Showing {filteredLocations.length} of {locationData.length} locations
       </p>
 
-      <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className='grid  sm:grid-cols-2  gap-6'>
         {filteredLocations.length > 0 ? (
           filteredLocations.map((location) => (
             <BlogCard key={location.id} data={location} link={'locations'} />

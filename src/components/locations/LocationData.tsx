@@ -4,7 +4,7 @@ const locationData = [
     postTitle: 'Top Breast Implant Surgeons in Beverly Hills',
     postSlug: 'breast-implant-beverly-hills',
     postDate: 'October 1, 2024',
-    featureImage: '/locations/BreastImplant.png',
+    featureImage: '/locations/pexel.jpg',
     imageTwo: '/locations/comfortable.png',
     postPara1:
       'Beverly Hills is renowned for its world-class breast implant surgeons who combine artistic vision with surgical precision.',

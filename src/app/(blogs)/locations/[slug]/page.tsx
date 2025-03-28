@@ -2,6 +2,9 @@
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import locationData from '@/components/locations/LocationData';
+import HomeJobForm from '@/components/home/HomeJobForm';
+import RecentLocationPost from '@/components/locations/RecentLocationPost';
+import QuestionBanner from '../../QuestionBanner';
 
 const SingleLocationPage = () => {
   const params = useParams();
@@ -17,41 +20,65 @@ const SingleLocationPage = () => {
   }
 
   return (
-    <div className='max-w-4xl mx-auto p-6'>
-      <h1 className='text-3xl font-bold text-center mb-6'>
-        {location?.postTitle}
-      </h1>
-      <p className='text-gray-500 text-center'>{location?.postDate}</p>
-
-      <div className='grid md:grid-cols-2 gap-4 mt-6'>
-        <div className='relative w-full h-64'>
+    <section>
+      <div className='relative w-full min-h-[80vh]'>
+        <div className='absolute inset-0 z-0'>
           <Image
-            src={location?.featureImage}
-            alt={`Feature image for ${location?.postTitle}`}
+            src={location.featureImage}
+            alt={location.postTitle}
             fill
-            style={{ objectFit: 'cover' }}
-            className='rounded-lg shadow-md'
+            className='object-cover'
+            priority
+            quality={100}
+            sizes='100vw'
+            placeholder='blur'
+            blurDataURL='data:image/svg+xml;base64' // Optional
           />
+          <div className='absolute inset-0 bg-primary opacity-40' />
         </div>
 
-        {location.imageTwo && (
-          <div className='relative w-full h-64'>
-            <Image
-              src={location?.imageTwo}
-              alt={`Secondary image for ${location?.postTitle}`}
-              fill
-              style={{ objectFit: 'cover' }}
-              className='rounded-lg shadow-md'
-            />
+        <div className='relative w-full min-h-[80vh]'>
+          <div className='absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 text-white'>
+            <p className=' text-2xl sm:text-3xl font-medium '>Category</p>
+            <h1 className='text-3xl font-semibold sm:text-5xl'>Procedures</h1>
           </div>
-        )}
+        </div>
       </div>
 
-      <div className='mt-6 space-y-4'>
-        <p className='text-gray-700 text-lg'>{location?.postPara1}</p>
-        <p className='text-gray-700 text-lg'>{location?.postPara2}</p>
-      </div>
-    </div>
+      {/* Main Content */}
+      <main className='container mx-auto px-4 my-12'>
+        <div className='flex flex-col md:flex-row gap-8'>
+          {/* Left Column - Content */}
+          <div className='flex-1'>
+            <div className='prose max-w-none'>
+              <h1 className='text-3xl font-semibold mb-8'>
+                {location.postTitle}
+              </h1>
+              <p className='text-lg text-gray-700 mb-8'>{location.postPara1}</p>
+
+              {location.imageTwo && (
+                <div className='relative w-full h-64 md:h-96 mb-8 lg:max-w-lg'>
+                  <Image
+                    src={location.imageTwo}
+                    alt={`Secondary image for ${location.postTitle}`}
+                    fill
+                    className=' object-cover'
+                  />
+                </div>
+              )}
+
+              <p className='text-lg text-gray-700'>{location.postPara2}</p>
+            </div>
+          </div>
+
+          {/* Right Column - Sidebar */}
+          <div className='md:w-1/3 flex flex-col gap-8'>
+            <HomeJobForm />
+            <RecentLocationPost />
+          </div>
+        </div>
+      </main>
+    </section>
   );
 };
 

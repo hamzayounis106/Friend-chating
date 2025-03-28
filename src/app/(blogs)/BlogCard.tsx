@@ -8,17 +8,17 @@ const BlogCard = ({ data, link }: { data: BlogDataType; link: string }) => {
       href={`/${link}/${data?.postSlug}`}
       className='bg-white shadow-lg rounded-2xl overflow-hidden transition-transform transform hover:scale-105'
     >
-      <div className='relative w-full'>
+      <div className='relative w-full h-48 md:h-56 lg:h-64'>
         <Image
           src={data?.featureImage}
           alt={data?.postTitle || 'Blog Image'}
-          width={400} // Set a fixed width
-          height={250} // Maintain aspect ratio
-          layout='responsive' // Ensures correct scaling
-          className='rounded-t-2xl object-cover'
-          priority // Optimizes for performance
+          fill
+          className='object-cover rounded-t-2xl'
+          priority
+          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
         />
       </div>
+
       <div className='p-4'>
         <h2 className='text-xl font-semibold mb-2'>{data?.postTitle}</h2>
         <p className='text-gray-600 text-sm'>{data?.postDate}</p>

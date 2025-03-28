@@ -32,7 +32,7 @@ const ProcedureGrid = () => {
         procedures
       </p>
 
-      <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
+      <div className='grid sm:grid-cols-2 gap-6'>
         {filteredProcedures.length > 0 ? (
           filteredProcedures.map((procedure) => (
             <BlogCard key={procedure.id} data={procedure} link={'procedures'} />
