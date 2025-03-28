@@ -11,9 +11,9 @@ interface NavLink {
 export const NavLinks = () => {
   const baseLinks: NavLink[] = [
     { id: 41, link: '/', title: 'Home' },
-    { id: 21, link: '/procedures', title: 'Procedures' },
+    { id: 60, link: '/locations', title: 'Locations' },
     { id: 646, link: '/articles', title: 'Articles' },
-    { id: 60, link: '/pricing', title: 'Pricing' },
+    { id: 21, link: '/procedures', title: 'Procedures' },
     { id: 23, link: '/contact', title: 'Contact Us' },
   ];
 
