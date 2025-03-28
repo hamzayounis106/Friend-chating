@@ -1,43 +1,43 @@
+import HomeJobForm from '@/components/home/HomeJobForm';
 import ArticleGrid from '@/components/articles/ArticleGrid';
 import articleData from '@/components/articles/ArticlesData';
-import Image from 'next/image';
-import Link from 'next/link';
+import QuestionBanner from '../QuestionBanner';
+import RecentBlogPosts from '../RecentPost';
 import TopBarComp from '../TopBarComp';
 
 const ArticlesPage = () => {
   return (
     <section>
       <TopBarComp title='Articles' />
-      <main className='container mt-12'>
-        {/* <div className='grid md:grid-cols-2 lg:grid-cols-3 gap-6'>
-          {articleData.map((article) => (
-            <Link
-              key={article?.id}
-              href={`/articles/${article?.postSlug}`}
-              className='bg-white shadow-lg rounded-2xl overflow-hidden transition-transform transform hover:scale-105'
-            >
-              <div className='relative w-full h-56'>
-                <Image
-                  src={article?.featureImage}
-                  alt={article?.postTitle}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  className='rounded-t-2xl'
-                />
-              </div>
-              <div className='p-4'>
-                <h2 className='text-xl font-semibold mb-2'>
-                  {article?.postTitle}
-                </h2>
-                <p className='text-gray-600 text-sm'>{article?.postDate}</p>
-                <p className='text-gray-700 mt-2 line-clamp-2'>
-                  {article?.postPara1}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div> */}
-        <ArticleGrid />
+      <main className='container my-12 px-4'>
+        <div className='flex flex-col gap-8 md:hidden'>
+          <HomeJobForm />
+          <ArticleGrid />
+          <RecentBlogPosts
+            posts={articleData}
+            title='Recent Articles'
+            maxPosts={4}
+            basePath='/articles'
+          />
+          <QuestionBanner />
+        </div>
+
+        {/* Desktop layout (side by side) */}
+        <div className='hidden md:flex gap-8'>
+          <div className='flex-1'>
+            <ArticleGrid />
+          </div>
+          <div className='w-1/3 flex flex-col gap-8'>
+            <HomeJobForm />
+            <RecentBlogPosts
+              posts={articleData}
+              title='Recent Articles'
+              maxPosts={4}
+              basePath='/articles'
+            />
+            <QuestionBanner />
+          </div>
+        </div>
       </main>
     </section>
   );

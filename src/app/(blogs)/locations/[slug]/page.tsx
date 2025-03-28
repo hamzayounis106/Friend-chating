@@ -3,8 +3,7 @@ import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import locationData from '@/components/locations/LocationData';
 import HomeJobForm from '@/components/home/HomeJobForm';
-import RecentLocationPost from '@/components/locations/RecentLocationPost';
-import QuestionBanner from '../../QuestionBanner';
+import RecentBlogPosts from '../../RecentPost';
 
 const SingleLocationPage = () => {
   const params = useParams();
@@ -40,7 +39,7 @@ const SingleLocationPage = () => {
         <div className='relative w-full min-h-[80vh]'>
           <div className='absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 text-white'>
             <p className=' text-2xl sm:text-3xl font-medium '>Category</p>
-            <h1 className='text-3xl font-semibold sm:text-5xl'>Procedures</h1>
+            <h1 className='text-3xl font-semibold sm:text-5xl'>Locations</h1>
           </div>
         </div>
       </div>
@@ -71,10 +70,14 @@ const SingleLocationPage = () => {
             </div>
           </div>
 
-          {/* Right Column - Sidebar */}
           <div className='md:w-1/3 flex flex-col gap-8'>
             <HomeJobForm />
-            <RecentLocationPost />
+            <RecentBlogPosts
+              posts={locationData}
+              title='Recent Locations'
+              maxPosts={4}
+              basePath='/locations'
+            />{' '}
           </div>
         </div>
       </main>

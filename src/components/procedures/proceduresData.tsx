@@ -7,7 +7,7 @@ const proceduresData = [
     featureImage: '/procedures/BreastImplant.png',
     imageTwo: '/procedures/comfortable.png',
     postPara1:
-      "The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction.",
+      "The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction.",
     postPara2:
       'These specialists, often based in major cities like Beverly Hills, New York, and Miami, are highly sought after for their precision in achieving natural-looking results. Many have pioneered advanced surgical techniques and contributed to medical research.',
   },
