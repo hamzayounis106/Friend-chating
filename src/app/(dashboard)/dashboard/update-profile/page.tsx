@@ -1,5 +1,20 @@
 'use client';
 
+import {
+  FileText,
+  Phone,
+  MapPin,
+  Globe,
+  Home,
+  User,
+  Image as ImageIcon,
+  AlertCircle,
+  Loader2,
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
 import { useState, useEffect } from 'react';
@@ -15,7 +30,8 @@ const profileSchema = z.object({
   phone: z
     .string()
     .min(10, 'Phone number must be at least 10 digits')
-    .max(15, 'Phone number is too long'),
+    .max(15, 'Phone number is too long')
+    .regex(/^[0-9]+$/, 'Phone number must contain only numbers'),
   city: z.string().min(1, 'City is required'),
   country: z.string().min(1, 'Country is required'),
   description: z.string().min(10, 'Description must be at least 10 characters'),
@@ -23,9 +39,9 @@ const profileSchema = z.object({
   image: z.string().url('Invalid image URL').min(1, 'Image is required'),
 });
 
-export interface OptionalTypes {
+export interface ProfileFormValues {
   name: string;
-  phone: string;
+  phone: string; // Changed from number to string
   city: string;
   country: string;
   description: string;
@@ -38,18 +54,16 @@ export default function ProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
-  // Integrate Zod with react-hook-form
   const {
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
-  } = useForm<OptionalTypes>({
+  } = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
   });
 
-  // Watch for image updates
   const imageUrl = watch('image');
 
   useEffect(() => {
@@ -64,7 +78,7 @@ export default function ProfilePage() {
     }
   }, [session, setValue]);
 
-  const onSubmit = async (data: OptionalTypes) => {
+  const onSubmit = async (data: ProfileFormValues) => {
     setLoading(true);
     try {
       const response = await fetch('/api/update-profile', {
@@ -75,8 +89,6 @@ export default function ProfilePage() {
 
       if (response.ok) {
         const updatedUser = await response.json();
-        console.log('Updated user:', updatedUser);
-
         await update({
           ...session,
           user: {
@@ -84,111 +96,140 @@ export default function ProfilePage() {
             ...updatedUser,
           },
         });
-
         router.refresh();
-        setTimeout(() => {
-          router.push('/dashboard');
-        }, 500);
-      } else {
-        console.error('Failed to update profile');
+        setTimeout(() => router.push('/dashboard'), 500);
       }
     } catch (error) {
       console.error('Error updating profile:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
     <div className='max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md'>
-      <h2 className='text-xl font-semibold mb-6'>Update Profile</h2>
+      <h2 className='text-xl font-semibold mb-6 flex items-center gap-2'>
+        <User className='w-5 h-5' />
+        Update Profile
+      </h2>
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Grid Container for Two Columns on Desktop */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Name Field */}
-          <div className='mb-4'>
-            <label className='block font-medium'>Name</label>
-            <input
-              {...register('name')}
-              className='w-full p-2 border rounded'
-              disabled
-            />
+          <div className='space-y-2'>
+            <Label htmlFor='name' className='flex items-center gap-2'>
+              <User className='w-4 h-4' />
+              Name
+            </Label>
+            <Input id='name' {...register('name')} disabled className='pl-9' />
             {errors.name && (
-              <p className='text-red-500 text-sm mt-1'>{errors.name.message}</p>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
+                {errors.name.message}
+              </p>
             )}
           </div>
 
           {/* Phone Field */}
-          <div className='mb-4'>
-            <label className='block font-medium'>Phone</label>
-            <input
-              {...register('phone')}
-              className='w-full p-2 border rounded'
-            />
+          <div className='space-y-2'>
+            <Label htmlFor='phone' className='flex items-center gap-2'>
+              <Phone className='w-4 h-4' />
+              Phone
+            </Label>
+            <div className='relative'>
+              <Phone className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+              <Input
+                id='phone'
+                type='tel'
+                {...register('phone')}
+                className='pl-9'
+                placeholder='1234567890'
+              />
+            </div>
             {errors.phone && (
-              <p className='text-red-500 text-sm mt-1'>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
                 {errors.phone.message}
               </p>
             )}
           </div>
 
+          {/* Other fields remain the same... */}
           {/* City Field */}
-          <div className='mb-4'>
-            <label className='block font-medium'>City</label>
-            <input
-              {...register('city')}
-              className='w-full p-2 border rounded'
-            />
+          <div className='space-y-2'>
+            <Label htmlFor='city' className='flex items-center gap-2'>
+              <MapPin className='w-4 h-4' />
+              City
+            </Label>
+            <div className='relative'>
+              <MapPin className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+              <Input id='city' {...register('city')} className='pl-9' />
+            </div>
             {errors.city && (
-              <p className='text-red-500 text-sm mt-1'>{errors.city.message}</p>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
+                {errors.city.message}
+              </p>
             )}
           </div>
 
           {/* Country Field */}
-          <div className='mb-4'>
-            <label className='block font-medium'>Country</label>
-            <input
-              {...register('country')}
-              className='w-full p-2 border rounded'
-            />
+          <div className='space-y-2'>
+            <Label htmlFor='country' className='flex items-center gap-2'>
+              <Globe className='w-4 h-4' />
+              Country
+            </Label>
+            <div className='relative'>
+              <Globe className='absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground' />
+              <Input id='country' {...register('country')} className='pl-9' />
+            </div>
             {errors.country && (
-              <p className='text-red-500 text-sm mt-1'>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
                 {errors.country.message}
               </p>
             )}
           </div>
 
           {/* Description Field */}
-          <div className='mb-4 md:col-span-2'>
-            <label className='block font-medium'>Description</label>
-            <textarea
-              {...register('description')}
-              className='w-full p-2 border rounded'
-              rows={4}
-            />
+          <div className='space-y-2 md:col-span-2'>
+            <Label htmlFor='description' className='flex items-center gap-2'>
+              <FileText className='w-4 h-4' />
+              Description
+            </Label>
+            <Textarea id='description' {...register('description')} rows={4} />
             {errors.description && (
-              <p className='text-red-500 text-sm mt-1'>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
                 {errors.description.message}
               </p>
             )}
           </div>
 
           {/* Address Field */}
-          <div className='mb-4 md:col-span-2'>
-            <label className='block font-medium'>Address</label>
-            <input
-              {...register('address')}
-              className='w-full p-2 border rounded'
-            />
+          <div className='space-y-2 md:col-span-2'>
+            <Label htmlFor='address' className='flex items-center gap-2'>
+              <Home className='w-4 h-4' />
+              Address
+            </Label>
+            <div className='relative'>
+              <Home className='absolute left-3 top-3 h-4 w-4 text-muted-foreground' />
+              <Input id='address' {...register('address')} className='pl-9' />
+            </div>
             {errors.address && (
-              <p className='text-red-500 text-sm mt-1'>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
                 {errors.address.message}
               </p>
             )}
           </div>
 
           {/* Image Field */}
-          <div className='mb-4 md:col-span-2'>
-            <label className='block font-medium'>Profile Image</label>
+          <div className='space-y-2 md:col-span-2'>
+            <Label className='flex items-center gap-2'>
+              <ImageIcon className='w-4 h-4' />
+              Profile Image
+            </Label>
             {imageUrl && (
               <div className='w-48 relative group cursor-pointer mb-4'>
                 <div className='w-64 h-64 rounded-full overflow-hidden'>
@@ -204,25 +245,32 @@ export default function ProfilePage() {
             )}
             <SingleCloudinaryUpload
               onUpload={(url) => {
-                setValue('image', url); // Set only a single image
+                setValue('image', url);
               }}
             />
             {errors.image && (
-              <p className='text-red-500 text-sm mt-1'>
+              <p className='text-sm text-destructive flex items-center gap-1'>
+                <AlertCircle className='w-4 h-4' />
                 {errors.image.message}
               </p>
             )}
           </div>
         </div>
 
-        {/* Submit Button */}
-        <button
+        <Button
           type='submit'
-          className='bg-blue-500 text-white px-4 py-2 rounded mt-6 w-full md:w-auto'
+          className='mt-6 w-full md:w-auto'
           disabled={loading}
         >
-          {loading ? 'Updating...' : 'Update Profile'}
-        </button>
+          {loading ? (
+            <>
+              <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+              Updating...
+            </>
+          ) : (
+            'Update Profile'
+          )}
+        </Button>
       </form>
     </div>
   );

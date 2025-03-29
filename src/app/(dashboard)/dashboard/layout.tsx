@@ -50,7 +50,7 @@ const Layout = async ({ children }: LayoutProps) => {
       id: 1,
       name: 'Dashboard',
       href: '/dashboard',
-      Icon: 'Home',
+      Icon: 'LayoutDashboard',
     },
     {
       id: 2,
@@ -63,7 +63,19 @@ const Layout = async ({ children }: LayoutProps) => {
       id: 5,
       name: 'Update Profile',
       href: '/dashboard/update-profile',
-      Icon: 'HelpCircle',
+      Icon: 'UserCog',
+    },
+    {
+      id: 3,
+      name: 'Back Home',
+      href: '/',
+      Icon: 'Home',
+    },
+    {
+      id: 4,
+      name: 'Contact Us',
+      href: '/contact',
+      Icon: 'PhoneOutgoing',
     },
   ];
 
@@ -182,6 +194,20 @@ const Layout = async ({ children }: LayoutProps) => {
                 </ul>
               </div>
 
+              {/* Special components */}
+              {userRole === 'surgeon' && (
+                <div>
+                  <h3 className='px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
+                    Notifications
+                  </h3>
+                  <div className='mt-2'>
+                    <JobNotificationsSidebar
+                      initialUnseenJobCount={unseenJobCount}
+                      sessionEmail={session?.user?.email as string}
+                    />
+                  </div>
+                </div>
+              )}
               {/* General */}
               <div>
                 <h3 className='px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
@@ -205,28 +231,13 @@ const Layout = async ({ children }: LayoutProps) => {
                   ))}
                 </ul>
               </div>
-
-              {/* Special components */}
-              {userRole === 'surgeon' && (
-                <div>
-                  <h3 className='px-2 text-xs font-semibold text-gray-500 uppercase tracking-wider'>
-                    Notifications
-                  </h3>
-                  <div className='mt-2'>
-                    <JobNotificationsSidebar
-                      initialUnseenJobCount={unseenJobCount}
-                      sessionEmail={session?.user?.email as string}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           </nav>
 
           {/* Profile & SignOut */}
           <div className='mt-auto border-t border-gray-200 p-4'>
-            <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg'>
-              <div className='flex items-center gap-3'>
+            <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg max-w-full overflow-hidden'>
+              <div className='flex items-center gap-3 overflow-hidden'>
                 <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
                   <Image
                     fill
@@ -237,16 +248,16 @@ const Layout = async ({ children }: LayoutProps) => {
                     sizes='(max-width: 48px) 100vw'
                   />
                 </div>
-                <div className='flex flex-col'>
+                <div className='flex flex-col overflow-hidden'>
                   <span className='text-sm font-semibold text-gray-800 truncate'>
                     {session.user.name}
                   </span>
-                  <span className='text-xs text-gray-500 truncate max-w-[150px]'>
+                  <span className='text-xs text-gray-500 truncate w-[150px] overflow-hidden text-ellipsis whitespace-nowrap'>
                     {session.user.email}
                   </span>
                 </div>
               </div>
-              <SignOutButton className='ml-2' />
+              <SignOutButton className='ml-2 flex-shrink-0' />
             </div>
           </div>
         </div>

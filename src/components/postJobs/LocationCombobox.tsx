@@ -1,4 +1,3 @@
-'use client';
 import { useState } from 'react';
 import { Check, ChevronsUpDown, X, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -20,13 +19,13 @@ import locationsTypeSelect from './LocationTypeSelect';
 
 interface LocationComboboxProps {
   value: string[];
-  onChange: (value: string[]) => void;
+  onChangeValueData: (value: string[]) => void;
   error?: string;
 }
 
 export const LocationCombobox = ({
   value = [],
-  onChange,
+  onChangeValueData,
   error,
 }: LocationComboboxProps) => {
   const [open, setOpen] = useState(false);
@@ -38,7 +37,7 @@ export const LocationCombobox = ({
 
   const handleSelect = (selectedLabel: string) => {
     if (!value.includes(selectedLabel)) {
-      onChange([...value, selectedLabel]);
+      onChangeValueData([...value, selectedLabel]);
     }
     setSearchValue('');
     setOpen(false);
@@ -47,7 +46,7 @@ export const LocationCombobox = ({
   const handleRemove = (index: number) => {
     const newValues = [...value];
     newValues.splice(index, 1);
-    onChange(newValues);
+    onChangeValueData(newValues);
   };
 
   return (

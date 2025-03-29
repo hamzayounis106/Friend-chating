@@ -12,6 +12,9 @@ import {
   ClipboardList,
   Inbox,
   Briefcase,
+  PhoneOutgoing,
+  LayoutDashboard,
+  UserCog,
 } from 'lucide-react';
 
 interface ActiveLinkProps {
@@ -31,6 +34,9 @@ const iconMap: Record<string, React.ElementType> = {
   ClipboardList,
   Inbox,
   Briefcase,
+  PhoneOutgoing,
+  LayoutDashboard,
+  UserCog,
 };
 
 const ActiveLink = ({

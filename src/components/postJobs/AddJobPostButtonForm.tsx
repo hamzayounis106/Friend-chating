@@ -256,7 +256,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           <div className='space-y-2 lg:col-span-2'>
             <LocationCombobox
               value={watch('location') as string[]}
-              onChange={(locations) => setValue('location', locations)}
+              onChangeValueData={(locations) => setValue('location', locations)}
               error={errors?.location?.message}
             />
           </div>
