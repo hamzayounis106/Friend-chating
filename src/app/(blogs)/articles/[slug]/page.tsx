@@ -21,25 +21,32 @@ const SingleArticlePage = () => {
 
   return (
     <section>
-      <div className='relative w-full min-h-[80vh]'>
-        <div className='absolute inset-0 z-0'>
-          <Image
+      <div className='relative w-full min-h-[30vh]'>
+        <div
+          className='absolute inset-0 z-0'
+          style={{
+            backgroundImage: `url(${article.featureImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: '-5px 470px',
+          }}
+        >
+          {/* <Image
             src={article.featureImage}
             alt={article.postTitle}
             fill
-            className='object-cover'
+            className='object-cover top-[30px] absolute'
             priority
             quality={100}
             sizes='100vw'
             placeholder='blur'
             blurDataURL='data:image/svg+xml;base64'
-          />
-          <div className='absolute inset-0 bg-primary opacity-40' />
+          /> */}
+          <div className='absolute  inset-0 bg-[#005eb7] opacity-40' />
         </div>
 
-        <div className='relative w-full min-h-[80vh]'>
+        <div className='relative w-full min-h-[30vh]'>
           <div className='absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 text-white'>
-            <p className='text-2xl sm:text-3xl font-medium'>Category</p>
+            {/* <p className='text-2xl sm:text-3xl font-medium'>Category</p> */}
             <h1 className='text-3xl font-semibold sm:text-5xl'>Articles</h1>
           </div>
         </div>

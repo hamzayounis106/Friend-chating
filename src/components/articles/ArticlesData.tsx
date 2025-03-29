@@ -16,7 +16,7 @@ const articleData = [
     postTitle: 'Understanding the Risks of Non-Medical Injections',
     postSlug: 'risks-non-medical-injections',
     postDate: 'October 2, 2024',
-    featureImage: '/articles/illegalInjection.png',
+    featureImage: '/articles/test.jpg',
     imageTwo: '/articles/medical-surgery.png',
     postPara1:
       'The growing trend of non-medical cosmetic injections poses significant health risks that consumers should understand.',

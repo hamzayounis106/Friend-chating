@@ -22,9 +22,17 @@ const SingleProcedurePage = () => {
   return (
     <section>
       {/* Hero Section */}
-      <div className='relative w-full min-h-[80vh]'>
-        <div className='absolute inset-0 z-0'>
-          <Image
+      <div className='relative w-full min-h-[30vh]'>
+        <div
+          className='absolute inset-0 z-0'
+          style={{
+            backgroundImage: `url(${procedure.featureImage})`,
+            backgroundSize: 'cover', 
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: '10px -305px',
+          }}
+        >
+          {/* <Image
             src={procedure.featureImage}
             alt={procedure.postTitle}
             fill
@@ -34,13 +42,13 @@ const SingleProcedurePage = () => {
             sizes='100vw'
             placeholder='blur'
             blurDataURL='data:image/svg+xml;base64'
-          />
+          /> */}
           <div className='absolute inset-0 bg-primary opacity-40' />
         </div>
 
-        <div className='relative w-full min-h-[80vh]'>
+        <div className='relative w-full min-h-[30vh]'>
           <div className='absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 text-white'>
-            <p className='text-2xl sm:text-3xl font-medium'>Category</p>
+            {/* <p className='text-2xl sm:text-3xl font-medium'>Category</p> */}
             <h1 className='text-3xl font-semibold sm:text-5xl'>Procedures</h1>
           </div>
         </div>

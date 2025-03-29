@@ -21,25 +21,32 @@ const SingleLocationPage = () => {
 
   return (
     <section>
-      <div className='relative w-full min-h-[80vh]'>
-        <div className='absolute inset-0 z-0'>
-          <Image
-            src={location.featureImage}
-            alt={location.postTitle}
-            fill
-            className='object-cover'
-            priority
-            quality={100}
-            sizes='100vw'
-            placeholder='blur'
-            blurDataURL='data:image/svg+xml;base64' // Optional
-          />
+      <div className='relative w-full min-h-[30vh]'>
+        <div
+          className='absolute inset-0 z-0'
+          style={{
+            backgroundImage: `url(${location.featureImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center center',
+          }}
+        >
+          {/* <Image
+          //   src={location.featureImage}
+          //   alt={location.postTitle}
+          //   fill
+          //   className='object-cover'
+          //   priority
+          //   quality={100}
+          //   sizes='100vw'
+          //   placeholder='blur'
+          //   blurDataURL='data:image/svg+xml;base64' // Optional
+          // /> */}
           <div className='absolute inset-0 bg-primary opacity-40' />
         </div>
 
-        <div className='relative w-full min-h-[80vh]'>
+        <div className='relative w-full min-h-[30vh]'>
           <div className='absolute inset-0 z-50 flex flex-col items-center justify-center gap-3 text-white'>
-            <p className=' text-2xl sm:text-3xl font-medium '>Category</p>
+            {/* <p className=' text-2xl sm:text-3xl font-medium '>Category</p> */}
             <h1 className='text-3xl font-semibold sm:text-5xl'>Locations</h1>
           </div>
         </div>

@@ -34,25 +34,7 @@ export const packages: PackageType[] = [
       'No hidden costs',
     ],
   },
-  {
-    id: 'silver',
-    title: 'Silver',
-    subtitle: 'Save 35%', // Added from pricingPlansData
-    description:
-      'Unlock two procedures and save 35% instantly. A perfect start for subtle enhancements with expert care at a great price!', // Added
-    icon: <Shield className='w-10 h-10 text-slate-500' />,
-    credits: 2,
-    price: 125,
-    color: 'bg-slate-100 border-slate-300',
-    textColor: 'text-slate-700',
-    features: [
-      'Unlock replies for 2 different procedures anytime',
-      'Invite Unlimited Surgeons to Quote',
-      'Secure surgery payment with escrow protection',
-      'Ensure a Safer & More Transparent surgery process',
-      'No hidden costs',
-    ],
-  },
+
   {
     id: 'gold',
     title: 'Gold',
@@ -67,6 +49,24 @@ export const packages: PackageType[] = [
     features: [
       'Unlock replies for 3 different procedures anytime',
       'Invite Unlimited surgeons to Quote',
+      'Secure surgery payment with escrow protection',
+      'Ensure a Safer & More Transparent surgery process',
+      'No hidden costs',
+    ],
+  },  {
+    id: 'silver',
+    title: 'Silver',
+    subtitle: 'Save 35%', // Added from pricingPlansData
+    description:
+      'Unlock two procedures and save 35% instantly. A perfect start for subtle enhancements with expert care at a great price!', // Added
+    icon: <Shield className='w-10 h-10 text-slate-500' />,
+    credits: 2,
+    price: 125,
+    color: 'bg-slate-100 border-slate-300',
+    textColor: 'text-slate-700',
+    features: [
+      'Unlock replies for 2 different procedures anytime',
+      'Invite Unlimited Surgeons to Quote',
       'Secure surgery payment with escrow protection',
       'Ensure a Safer & More Transparent surgery process',
       'No hidden costs',

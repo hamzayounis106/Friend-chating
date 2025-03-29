@@ -63,7 +63,7 @@ export const LocationCombobox = ({
             aria-expanded={open}
             className='w-full justify-between font-normal'
           >
-            <span className='truncate'>{'Select location near you'}</span>
+            <span className='truncate'>{'Select locations you are happy to consider'}</span>
             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
           </Button>
         </PopoverTrigger>

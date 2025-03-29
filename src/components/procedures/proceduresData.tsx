@@ -4,7 +4,7 @@ const proceduresData = [
     postTitle: 'Most Popular Breast Implant Surgeon in United States',
     postSlug: 'most-popular-breast-implant-surgeon-us',
     postDate: 'September 4, 2024',
-    featureImage: '/procedures/BreastImplant.png',
+    featureImage: '/procedures/test.jpg',
     imageTwo: '/procedures/comfortable.png',
     postPara1:
       "The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction. The United States is home to some of the world's most renowned breast implant surgeons, known for their expertise, innovation, and dedication to patient satisfaction.",

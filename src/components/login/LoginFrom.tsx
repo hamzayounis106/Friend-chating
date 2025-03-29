@@ -234,6 +234,13 @@ const Page: FC = () => {
       <h1 className='font-bold text-5xl mb-8 text-center hidden  lg:block'>
         Sign In
       </h1>
+      <div className='flex flex-col items-center justify-center border-b-2 border-gray-300 py-8 rounded bg-[#f8f8f8] shadow-md'>
+        <p className='font-normal text-xl text-center mb-8 text-yellow-500'>
+          We have saved your progress. Please sign in to invite surgeons to your
+          account.
+        </p>{' '}
+      </div>
+      <br></br>
       <div className='flex flex-col gap-4'>
         <Suspense fallback={<p>Loading...</p>}>
           <LoginForm

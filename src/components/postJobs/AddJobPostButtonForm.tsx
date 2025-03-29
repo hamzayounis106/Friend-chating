@@ -270,7 +270,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
             {...register('description')}
             rows={4}
             className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all'
-            placeholder="'Describe the procedure you're looking for, any specific requirements, and other relevant details."
+            placeholder='Let surgeons know what you are looking for...'
           />
           {errors.description && (
             <p className='text-sm text-red-600 flex items-start'>
@@ -284,14 +284,14 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
         <div className='space-y-2'>
           <label className='flex items-center text-sm font-medium text-gray-700'>
             <Users className='w-4 h-4 mr-2 text-indigo-600' />
-            Surgeon Emails
+              Invite unlimited surgeons via email
           </label>
           <div className='relative flex items-center'>
             <input
               type='text'
               id='surgeonEmailInput'
               className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all'
-              placeholder='Enter surgeon email'
+              placeholder='Write email and click Add button'
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault(); // Prevent form submission

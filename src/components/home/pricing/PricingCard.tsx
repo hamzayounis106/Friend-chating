@@ -40,16 +40,14 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
 
   return (
     <div
-      className={`relative rounded-lg overflow-hidden shadow-md py-6 px-4 transition-transform duration-300 hover:scale-[1.03] group ${
+      className={`relative rounded-lg overflow-hidden shadow-md py-6 px-4 transition-transform duration-300 group ${
         isBronze ? 'bg-[#1B192A] text-white' : 'bg-white text-gray-900'
       } cursor-pointer`}
       onClick={() => handlePlanSelect(plan)}
     >
       <div
         className={`absolute inset-0 transition-all duration-500 ${
-          isBronze
-            ? 'group-hover:bg-white group-hover:text-primary'
-            : 'group-hover:bg-[#1B192A] group-hover:text-white'
+          isBronze ? ' ' : ' '
         }`}
       ></div>
 
@@ -58,17 +56,15 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
           <h2
             className={`text-center text-xl font-bold p-2 rounded-full transition-colors duration-300 ${
               isBronze
-                ? 'text-primary bg-white group-hover:text-white group-hover:bg-primary'
-                : 'bg-primary text-white group-hover:bg-white group-hover:text-primary'
+                ? 'text-primary bg-white '
+                : 'bg-primary text-white '
             }`}
           >
             {subtitle}
           </h2>
           <h3
             className={`text-2xl font-semibold mt-8 transition-colors duration-300 ${
-              isBronze
-                ? 'text-white group-hover:text-black'
-                : 'text-gray-900 group-hover:text-white'
+              isBronze ? 'text-white ' : 'text-gray-900 '
             }`}
           >
             {title}
@@ -77,9 +73,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
 
         <p
           className={`text-sm mb-6 transition-colors duration-300 ${
-            isBronze
-              ? 'text-white group-hover:text-black'
-              : 'text-[#949494] group-hover:text-white'
+            isBronze ? 'text-white ' : 'text-[#949494] '
           }`}
         >
           {description}
@@ -87,9 +81,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
 
         <div
           className={`border-t-2 pt-6 transition-colors duration-300 ${
-            isBronze
-              ? 'border-white group-hover:border-primary'
-              : 'border-[#7B7992] group-hover:border-white'
+            isBronze ? 'border-white' : 'border-[#7B7992] '
           }`}
         >
           <ul className='space-y-3'>
@@ -97,16 +89,12 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
               <li key={index} className='flex items-start'>
                 <CheckCircle
                   className={`h-5 w-5 mr-2 transition-colors duration-300 ${
-                    isBronze
-                      ? 'text-white group-hover:text-primary'
-                      : 'text-primary group-hover:text-white'
+                    isBronze ? 'text-white' : 'text-primary '
                   }`}
                 />
                 <span
                   className={`text-sm transition-colors duration-300 ${
-                    isBronze
-                      ? 'text-white group-hover:text-black'
-                      : 'text-gray-700 group-hover:text-white'
+                    isBronze ? 'text-white ' : 'text-gray-700 '
                   }`}
                 >
                   {feature}
@@ -119,9 +107,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
         <div className='mt-8 text-center'>
           <Button
             className={`w-full font-medium py-2 px-4 rounded-full transition-all duration-300 ${
-              isBronze
-                ? 'bg-white text-primary hover:bg-gray-200 group-hover:bg-primary group-hover:text-white'
-                : 'bg-primary text-white group-hover:bg-white group-hover:text-primary'
+              isBronze ? 'bg-white text-primary ' : 'bg-primary text-white '
             }`}
           >
             Get It Now For {price}
