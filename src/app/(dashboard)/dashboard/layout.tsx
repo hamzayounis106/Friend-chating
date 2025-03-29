@@ -238,7 +238,7 @@ const Layout = async ({ children }: LayoutProps) => {
           <div className='mt-auto border-t border-gray-200 p-4'>
             <div className='flex items-center justify-between bg-gray-50 p-3 rounded-lg max-w-full overflow-hidden'>
               <div className='flex items-center gap-3 overflow-hidden'>
-                <div className='relative h-10 w-10 rounded-full overflow-hidden border-2 border-white shadow-sm'>
+                <div className='relative h-10 w-14 rounded-full overflow-hidden  shadow-sm'>
                   <Image
                     fill
                     referrerPolicy='no-referrer'
