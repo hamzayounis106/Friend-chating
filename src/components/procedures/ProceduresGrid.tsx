@@ -1,8 +1,8 @@
 'use client';
-import BlogCard from '@/app/(blogs)/BlogCard';
-import SearchInput from '@/app/(blogs)/SearchInput';
 import { useState, useMemo } from 'react';
-import proceduresData from './proceduresData';
+import proceduresData from '@/components/procedures/proceduresData';
+import SearchInput from '@/app/(blogs)/SearchInput';
+import BlogCard from '@/app/(blogs)/BlogCard';
 
 const ProcedureGrid = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -11,9 +11,8 @@ const ProcedureGrid = () => {
     if (!searchTerm.trim()) return proceduresData;
 
     return proceduresData.filter((procedure) => {
-      console.log('Filtering procedure:', procedure);
       const searchContent =
-        `${procedure?.postTitle} ${procedure?.postPara1} ${procedure?.postPara2}`.toLowerCase();
+        `${procedure.postTitle} ${procedure.postPara1} `.toLowerCase();
       return searchContent.includes(searchTerm.toLowerCase());
     });
   }, [searchTerm]);
@@ -22,14 +21,13 @@ const ProcedureGrid = () => {
     <>
       <div className='mb-8'>
         <SearchInput
-          placeholder='Search procedures by title or content...'
+          placeholder='Search procedures by name or description...'
           onSearch={setSearchTerm}
         />
       </div>
 
       <p className='text-sm text-gray-500 mb-4'>
-        Showing {filteredProcedures.length} of {proceduresData.length}{' '}
-        procedures
+        Showing {filteredProcedures.length} of {proceduresData.length} procedures
       </p>
 
       <div className='grid sm:grid-cols-2 gap-6'>

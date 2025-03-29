@@ -17,7 +17,7 @@ interface NavLinksProps {
 
 export const NavLinks = ({ onLinkClick }: NavLinksProps) => {
   const baseLinks: NavLink[] = [
-    { id: 41, title: 'Home', link: '/' },
+    { id: 41, title: 'How it works', link: '/#how-it-works' },
     {
       id: 60,
       title: 'Locations',

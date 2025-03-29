@@ -13,7 +13,7 @@ const ArticleGrid = () => {
     return articleData.filter((article) => {
       console.log('comming article', article);
       const searchContent =
-        `${article?.postTitle} ${article?.postPara1} ${article?.postPara2}`.toLowerCase();
+        `${article?.postTitle} ${article?.postPara1} `.toLowerCase();
       return searchContent.includes(searchTerm.toLowerCase());
     });
   }, [searchTerm]);

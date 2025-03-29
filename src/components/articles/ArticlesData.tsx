@@ -1,99 +1,116 @@
-const articleData = [
+interface ContentBlock {
+  type: `paragraph` | `image-paragraph`;
+  text?: string;
+  image?: string;
+  imageAlt?: string;
+  imageCaption?: string;
+}
+
+interface LocationItem {
+  id: number;
+  postTitle: string;
+  postSlug: string;
+  postDate: string;
+  featureImage: string;
+  imageTwo?: string;
+  postPara1: string; // Introduction paragraph
+  content: ContentBlock[]; // Flexible content blocks
+  metaDescription?: string;
+}
+
+const articleData: LocationItem[] = [
   {
     id: 1,
-    postTitle: 'The Evolution of Cosmetic Surgery Techniques',
-    postSlug: 'evolution-cosmetic-surgery-techniques',
-    postDate: 'October 1, 2024',
-    featureImage: '/articles/surgery.png',
-    imageTwo: '/articles/plastic.png',
-    postPara1:
-      'Cosmetic surgery has undergone remarkable transformations in the past decade, with minimally invasive techniques leading the charge.',
-    postPara2:
-      'New technologies like 3D imaging and laser-assisted procedures are revolutionizing patient outcomes and recovery times. Surgeons worldwide are adopting these advanced methods to deliver more natural-looking results with fewer complications.',
+    postTitle: `Top Breast Implant Surgeons in Beverly Hills`,
+    postSlug: `breast-implant-beverly-hills`,
+    postDate: `October 1, 2024`,
+    featureImage: `/locations/test.jpg`,
+    metaDescription: `Discover the best breast implant surgeons in Beverly Hills with our comprehensive guide to top specialists and clinics.`,
+    postPara1: `Beverly Hills is renowned for its world-class breast implant surgeons who combine artistic vision with surgical precision.`,
+    content: [
+      {
+        type: `paragraph`,
+        text: `These specialists have pioneered natural-looking results with advanced techniques. Many offer personalized consultations to ensure optimal outcomes for each patient.`,
+      },
+      {
+        type: `image-paragraph`,
+        image: `/locations/comfortable.png`,
+        imageAlt: `Modern clinic in Beverly Hills`,
+        imageCaption: `State-of-the-art facilities are a hallmark of Beverly Hills clinics`,
+        text: `The clinics in Beverly Hills feature cutting-edge technology and luxurious recovery spaces designed for optimal patient comfort and care. Many surgeons here have developed proprietary techniques that minimize recovery time while maximizing aesthetic results.`,
+      },
+      {
+        type: `paragraph`,
+        text: `Board certification is standard among these elite surgeons, with many holding additional credentials in specialized areas of cosmetic surgery. Patient satisfaction rates are consistently high, with review platforms showing 4.8+ star averages for the top practitioners.`,
+      },
+      {
+        type: `paragraph`,
+        text: `When choosing a breast implant surgeon in Beverly Hills, consider their specialization, before-and-after portfolio, and whether their aesthetic vision aligns with your goals. Most offer virtual consultations for out-of-town patients considering Beverly Hills for their procedure.`,
+      },
+    ],
   },
   {
     id: 2,
-    postTitle: 'Understanding the Risks of Non-Medical Injections',
-    postSlug: 'risks-non-medical-injections',
-    postDate: 'October 2, 2024',
-    featureImage: '/articles/test.jpg',
-    imageTwo: '/articles/medical-surgery.png',
-    postPara1:
-      'The growing trend of non-medical cosmetic injections poses significant health risks that consumers should understand.',
-    postPara2:
-      'Unregulated substances and untrained practitioners can lead to severe complications including tissue necrosis and blindness. This article explores how to identify safe practitioners and recognize warning signs of dangerous procedures.',
+    postTitle: `Safe Injection Clinics in New York`,
+    postSlug: `safe-injection-new-york`,
+    postDate: `October 2, 2024`,
+    featureImage: `/locations/illegalInjection.png`,
+    metaDescription: `Find reputable and safe injection clinics in New York with proper licensing and FDA-approved products.`,
+    postPara1: `New York hosts some of the most reputable and regulated injection clinics in the country.`,
+    content: [
+      {
+        type: `paragraph`,
+        text: `All licensed practitioners undergo rigorous training and only use FDA-approved substances. We review the top-rated clinics with the highest safety standards.`,
+      },
+      {
+        type: `image-paragraph`,
+        image: `/locations/medical-surgery.png`,
+        imageAlt: `Safe medical injections being performed`,
+        imageCaption: `Proper technique is essential for safe and effective injectable treatments`,
+        text: `.New Yorks premier injection clinics prioritize safety through stringent protocols, medical-grade facilities, and continuous staff training. The best practices maintain hospital-grade sterilization standards and employ only board-certified physicians or licensed nurse injectors`,
+      },
+      {
+        type: `paragraph`,
+        text: `When researching injection clinics in New York, verify credentials and ask about the specific products used. Legitimate clinics will always schedule a consultation before treatment and discuss potential risks and realistic outcomes.`,
+      },
+    ],
   },
   {
     id: 3,
-    postTitle: 'Post-Surgery Recovery: What You Need to Know',
-    postSlug: 'post-surgery-recovery-guide',
-    postDate: 'October 3, 2024',
-    featureImage: '/articles/comfortable.png',
-    imageTwo: '/articles/throat.png',
-    postPara1:
-      'Proper recovery is just as important as the surgical procedure itself for achieving optimal results.',
-    postPara2:
-      'We break down the essential steps for post-operative care, from wound management to activity restrictions. Learn about the latest recovery aids and techniques that can speed up your healing process.',
-  },
-  {
-    id: 4,
-    postTitle: 'Choosing the Right Surgeon: A Comprehensive Guide',
-    postSlug: 'choosing-right-surgeon',
-    postDate: 'October 4, 2024',
-    featureImage: '/articles/BreastImplant.png',
-    imageTwo: '/articles/hair.png',
-    postPara1:
-      'Selecting a qualified surgeon is the most critical decision in your cosmetic procedure journey.',
-    postPara2:
-      'This guide covers board certification verification, portfolio evaluation, and essential questions to ask during consultations. We also discuss red flags to watch for when researching potential surgeons.',
-  },
-  {
-    id: 5,
-    postTitle: 'The Psychological Aspects of Cosmetic Procedures',
-    postSlug: 'psychological-aspects-cosmetic-surgery',
-    postDate: 'October 5, 2024',
-    featureImage: '/articles/medical-surgery.png',
-    imageTwo: '/articles/surgery.png',
-    postPara1:
-      'Cosmetic procedures often have significant psychological impacts that patients should consider.',
-    postPara2:
-      'We examine body dysmorphia, realistic expectations, and the emotional rollercoaster of surgical transformations. The article includes insights from psychologists specializing in cosmetic surgery patients.',
-  },
-  {
-    id: 6,
-    postTitle: 'Emerging Trends in Hair Restoration for 2024',
-    postSlug: 'hair-restoration-trends-2024',
-    postDate: 'October 6, 2024',
-    featureImage: '/articles/hair.png',
-    imageTwo: '/articles/plastic.png',
-    postPara1:
-      'Hair restoration technology is advancing at an unprecedented pace with exciting new options.',
-    postPara2:
-      'From robotic FUE transplants to stem cell therapies, we explore the most promising developments. Learn which treatments are worth considering and which might be too good to be true.',
-  },
-  {
-    id: 7,
-    postTitle: 'Ethical Considerations in Cosmetic Surgery',
-    postSlug: 'ethical-considerations-cosmetic-surgery',
-    postDate: 'October 7, 2024',
-    featureImage: '/articles/illegalInjection.png',
-    imageTwo: '/articles/BreastImplant.png',
-    postPara1:
-      'The cosmetic surgery industry faces important ethical questions that affect patient care.',
-    postPara2:
-      'We discuss issues like patient selection, marketing practices, and the responsibility to decline inappropriate procedures. The article features perspectives from leading ethical surgeons in the field.',
-  },
-  {
-    id: 8,
-    postTitle: 'Combining Procedures: Benefits and Risks',
-    postSlug: 'combining-procedures-risks-benefits',
-    postDate: 'October 8, 2024',
-    featureImage: '/articles/comfortable.png',
-    imageTwo: '/articles/surgery.png',
-    postPara1:
-      'Many patients consider combining multiple cosmetic procedures for convenience and cost savings.',
-    postPara2:
-      'While there are benefits, there are also increased risks that must be carefully weighed. This comprehensive guide helps patients understand when combination procedures make sense and when they should be avoided.',
+    postTitle: `Advanced Surgical Centers in Miami`,
+    postSlug: `surgical-centers-miami`,
+    postDate: `October 3, 2024`,
+    featureImage: `/locations/surgery.png`,
+    metaDescription: `Explore Miami's advanced surgical centers with state-of-the-art technology and board-certified surgeons.`,
+    postPara1: `Miami has become a hub for cutting-edge surgical centers specializing in cosmetic procedures.`,
+    content: [
+      {
+        type: `paragraph`,
+        text: `These centers feature state-of-the-art technology and board-certified surgeons. Many offer comprehensive pre- and post-operative care programs.`,
+      },
+      {
+        type: `image-paragraph`,
+        image: `/locations/plastic.png`,
+        imageAlt: `Advanced surgical facility in Miami`,
+        imageCaption: `Miami surgical centers feature the latest medical technology`,
+        text: `Miami's surgical centers are known for combining tropical recovery settings with world-class medical facilities. Many centers cater specifically to out-of-town patients with all-inclusive packages that cover transportation, accommodation, and follow-up care.`,
+      },
+      {
+        type: `paragraph`,
+        text: `These centers feature state-of-the-art technology and board-certified surgeons. Many offer comprehensive pre- and post-operative care programs.`,
+      },
+      {
+        type: `paragraph`,
+        text: `The competitive landscape in Miami has driven innovation, with many centers offering specialized procedures not widely available elsewhere. Virtual reality surgical planning and 3D-printed surgical guides are becoming increasingly common in these advanced facilities.`,
+      },
+      {
+        type: `image-paragraph`,
+        image: `/locations/plastic.png`,
+        imageAlt: `Advanced surgical facility in Miami`,
+        imageCaption: `Miami surgical centers feature the latest medical technology`,
+        text: `Miami's surgical centers are known for combining tropical recovery settings with world-class medical facilities. Many centers cater specifically to out-of-town patients with all-inclusive packages that cover transportation, accommodation, and follow-up care.`,
+      },
+    ],
   },
 ];
 

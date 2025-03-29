@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Button from '../ui/button';
 import { Eye, EyeOff } from 'lucide-react';
+import SavedProgressNotification from '../SavedProgressNotification';
 
 const signupSchema = z.object({
   username: z
@@ -69,6 +70,7 @@ const SignupForm = () => {
       <h1 className='font-bold text-5xl mb-8 text-center hidden  lg:block'>
         Sign Up
       </h1>{' '}
+      <SavedProgressNotification />
       <div className='space-y-2'>
         <Label
           htmlFor='username'

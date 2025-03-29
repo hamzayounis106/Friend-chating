@@ -11,7 +11,7 @@ const LocationGrid = () => {
 
     return locationData.filter((location) => {
       const searchContent =
-        `${location.postTitle} ${location.postPara1} ${location.postPara2}`.toLowerCase();
+        `${location.postTitle} ${location.postPara1} `.toLowerCase();
       return searchContent.includes(searchTerm.toLowerCase());
     });
   }, [searchTerm]);
