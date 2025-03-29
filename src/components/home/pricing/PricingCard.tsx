@@ -41,7 +41,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
   return (
     <div
       className={`relative rounded-lg overflow-hidden shadow-md py-6 px-4 transition-transform duration-300 hover:scale-[1.03] group ${
-        isBronze ? 'bg-primary text-white' : 'bg-white text-gray-900'
+        isBronze ? 'bg-[#1B192A] text-white' : 'bg-white text-gray-900'
       } cursor-pointer`}
       onClick={() => handlePlanSelect(plan)}
     >
@@ -49,7 +49,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
         className={`absolute inset-0 transition-all duration-500 ${
           isBronze
             ? 'group-hover:bg-white group-hover:text-primary'
-            : 'group-hover:bg-primary group-hover:text-white'
+            : 'group-hover:bg-[#1B192A] group-hover:text-white'
         }`}
       ></div>
 
@@ -67,7 +67,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
           <h3
             className={`text-2xl font-semibold mt-8 transition-colors duration-300 ${
               isBronze
-                ? 'text-white group-hover:text-primary'
+                ? 'text-white group-hover:text-black'
                 : 'text-gray-900 group-hover:text-white'
             }`}
           >
@@ -78,7 +78,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
         <p
           className={`text-sm mb-6 transition-colors duration-300 ${
             isBronze
-              ? 'text-white group-hover:text-primary'
+              ? 'text-white group-hover:text-black'
               : 'text-[#949494] group-hover:text-white'
           }`}
         >
@@ -105,7 +105,7 @@ const PricingCard = ({ plan }: { plan: PackageType }) => {
                 <span
                   className={`text-sm transition-colors duration-300 ${
                     isBronze
-                      ? 'text-white group-hover:text-primary'
+                      ? 'text-white group-hover:text-black'
                       : 'text-gray-700 group-hover:text-white'
                   }`}
                 >

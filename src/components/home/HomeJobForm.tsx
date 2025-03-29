@@ -11,6 +11,7 @@ import { JobTypeCombobox } from './JobTypeCombobox';
 import Button from '../ui/button';
 import { ArrowRight } from 'lucide-react';
 import { Textarea } from '../ui/textarea';
+import JobTypeSelect from './JobTypeSelect';
 
 const homeJobFormSchema = z.object({
   type: z.string().min(1, 'Type is required'),
@@ -74,6 +75,10 @@ const HomeJobForm = () => {
               value={selectedType}
               onChangeAction={(value) => setValue('type', value)}
               error={errors.type?.message}
+              options={JobTypeSelect}
+              placeholder='Select surgery type...'
+              searchPlaceholder='Search surgery types...'
+              emptyText='No surgery types found.'
             />
           </div>
 

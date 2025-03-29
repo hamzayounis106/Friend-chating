@@ -18,19 +18,33 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { useState } from 'react';
-import JobTypeSelect from './JobTypeSelect';
+
+interface ComboboxItem {
+  value: string;
+  label: string;
+}
+
+interface JobTypeComboboxProps {
+  value: string;
+  onChangeAction: (value: string) => void;
+  error?: string;
+  options: ComboboxItem[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+}
 
 export function JobTypeCombobox({
   value,
   onChangeAction,
   error,
-}: {
-  value: string;
-  onChangeAction: (value: string) => void;
-  error?: string;
-}) {
+  options = [],
+  placeholder = 'Select an option...',
+  searchPlaceholder = 'Search...',
+  emptyText = 'No results found.',
+}: JobTypeComboboxProps) {
   const [open, setOpen] = useState(false);
-  console.log('JobTypeSelect.length', JobTypeSelect.length);
+
   return (
     <div className='space-y-2 w-full'>
       <Popover open={open} onOpenChange={setOpen}>
@@ -39,11 +53,11 @@ export function JobTypeCombobox({
             variant='outline'
             role='combobox'
             aria-expanded={open}
-            className='w-full justify-between font-normal'
+            className='w-full justify-between font-normal overflow-hidden'
           >
             {value
-              ? JobTypeSelect.find((job) => job.value === value)?.label
-              : 'Select surgery type...'}
+              ? options.find((option) => option.value === value)?.label
+              : placeholder}
             <ChevronsUpDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
           </Button>
         </PopoverTrigger>
@@ -52,29 +66,26 @@ export function JobTypeCombobox({
           style={{ width: 'var(--radix-popover-trigger-width)' }}
         >
           <Command className='w-[100%]'>
-            <CommandInput
-              placeholder='Search surgery type...'
-              className='my-3'
-            />
+            <CommandInput placeholder={searchPlaceholder} className='my-3' />
             <CommandList>
-              <CommandEmpty>No surgery type found.</CommandEmpty>
+              <CommandEmpty>{emptyText}</CommandEmpty>
               <CommandGroup>
-                {JobTypeSelect.map((job) => (
+                {options.map((option) => (
                   <CommandItem
-                    key={job.value}
-                    value={job.value}
+                    key={option.value}
+                    value={option.value}
                     onSelect={() => {
-                      onChangeAction(job.value);
+                      onChangeAction(option.value);
                       setOpen(false);
                     }}
                   >
                     <Check
                       className={cn(
                         'mr-2 h-4 w-4',
-                        value === job.value ? 'opacity-100' : 'opacity-0'
+                        value === option.value ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    {job.label}
+                    {option.label}
                   </CommandItem>
                 ))}
               </CommandGroup>

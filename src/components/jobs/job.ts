@@ -33,6 +33,7 @@ export interface JobHeaderProps {
 export interface JobContentProps {
   description: string;
   attachments?: string[];
+  locations: string[];
 }
 
 export interface PatientInfoProps {

@@ -2,14 +2,14 @@
 
 import axios, { AxiosError } from 'axios';
 import { FC, useEffect, useState } from 'react';
-import Button from './custom-ui/Button';
+import Button from '../custom-ui/Button';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { addJobValidator } from '@/lib/validations/add-Job';
 import { useSession } from 'next-auth/react';
 import { toast } from 'react-hot-toast';
-import CloudinaryUpload from './cloudinary/CloudinaryUpload';
+import CloudinaryUpload from '../cloudinary/CloudinaryUpload';
 import {
   CalendarIcon,
   Upload,
@@ -22,7 +22,9 @@ import {
   LocateIcon,
 } from 'lucide-react';
 import Image from 'next/image';
-import { JobTypeCombobox } from './home/JobTypeCombobox';
+import { JobTypeCombobox } from '../home/JobTypeCombobox';
+import JobTypeSelect from '../home/JobTypeSelect';
+import { LocationCombobox } from './LocationCombobox';
 
 interface AddJobButtonProps {}
 
@@ -211,31 +213,8 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
 
       <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
         {/* Form Grid Layout */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {/* Type */}
-          {/* <div className='space-y-2'>
-            <label className='flex items-center text-sm font-medium text-gray-700'>
-              <FileText className='w-4 h-4 mr-2 text-indigo-600' />
-              Job Type
-            </label>
-            <select
-              {...register('type')}
-              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-            >
-              {jobTypes.map((job, index) => (
-                <option key={index} value={job}>
-                  {job}
-                </option>
-              ))}
-            </select>
-            {errors.type && (
-              <p className='text-sm text-red-600 flex items-start'>
-                <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
-                {errors.type.message}
-              </p>
-            )}
-          </div> */}
-
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+          {/* First Column - Job Type */}
           <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <FileText className='w-4 h-4 mr-2 text-indigo-600' />
@@ -245,9 +224,14 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               value={watch('type')}
               onChangeAction={(value) => setValue('type', value)}
               error={errors.type?.message}
+              options={JobTypeSelect}
+              placeholder='Select surgery type...'
+              searchPlaceholder='Search surgery types...'
+              emptyText='No surgery types found.'
             />
           </div>
-          {/* Date */}
+
+          {/* Second Column - Date */}
           <div className='space-y-2'>
             <label className='flex items-center text-sm font-medium text-gray-700'>
               <CalendarIcon className='w-4 h-4 mr-2 text-indigo-600' />
@@ -257,7 +241,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               <input
                 {...register('date')}
                 type='date'
-                className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+                className='w-full px-4 py-[6px] border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all'
               />
             </div>
             {errors.date && (
@@ -268,109 +252,15 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
             )}
           </div>
 
-          {/* Budget */}
-          {/* <div className='space-y-2'>
-            <label className='flex items-center text-sm font-medium text-gray-700'>
-              <DollarSign className='w-4 h-4 mr-2 text-indigo-600' />
-              Budget (USD - optional)
-            </label>
-            <div className='relative'>
-              <span className='absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500'>
-                $
-              </span>
-              <input
-                {...register('budget', {
-                  setValueAs: (v) => (v === '' ? undefined : Number(v)),
-                })}
-                type='number'
-                step='0.01'
-                className='w-full pl-8 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-                placeholder='Enter amount (optional)'
-              />
-            </div>
-            {errors.budget && (
-              <p className='text-sm text-red-600 flex items-start'>
-                <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
-                {errors.budget.message}
-              </p>
-            )}
-          </div> */}
-          {/* Location */}
-          <div className='space-y-2 col-span-2'>
-            <label className='flex items-center text-sm font-medium text-gray-700'>
-              <LocateIcon className='w-4 h-4 mr-2 text-indigo-600' />
-              Locations
-            </label>
-            <div className='relative flex items-center'>
-              <input
-                type='text'
-                id='locationInput'
-                className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
-                placeholder='Enter and add all locations you’d consider'
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault(); // Prevent form submission
-                    const input = e.target as HTMLInputElement;
-                    const location = input.value.trim();
-                    if (location) {
-                      handleAddLocation(location);
-                    }
-                  }
-                }}
-              />
-              <button
-                type='button'
-                onClick={() => {
-                  const input = document.getElementById(
-                    'locationInput'
-                  ) as HTMLInputElement;
-                  const location = input.value.trim();
-                  if (location) {
-                    handleAddLocation(location);
-                  }
-                }}
-                className='ml-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors'
-              >
-                Add
-              </button>
-            </div>
-            <div className='flex flex-wrap gap-2 mt-2'>
-              {getValues('location')?.map(
-                (loc: string, index: number) =>
-                  loc && (
-                    <div
-                      key={index}
-                      className='flex items-center bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm'
-                    >
-                      {loc}
-                      <button
-                        type='button'
-                        onClick={() => {
-                          const locations = getValues('location').filter(
-                            (_, i) => i !== index
-                          );
-                          setValue('location', locations, {
-                            shouldValidate: true,
-                          });
-                        }}
-                        className='ml-2 text-indigo-500 hover:text-indigo-700'
-                      >
-                        &times;
-                      </button>
-                    </div>
-                  )
-              )}
-            </div>
-            {errors.location && (
-              <p className='text-sm text-red-600 flex items-start'>
-                <AlertCircle className='w-4 h-4 mr-1 mt-0.5 flex-shrink-0' />
-                {errors.location.message}
-              </p>
-            )}
+          {/* Third Item - Locations (spans full width on lg screens) */}
+          <div className='space-y-2 lg:col-span-2'>
+            <LocationCombobox
+              value={watch('location') as string[]}
+              onChange={(locations) => setValue('location', locations)}
+              error={errors?.location?.message}
+            />
           </div>
         </div>
-
-        {/* Description - Full Width */}
         <div className='space-y-2'>
           <label className='flex items-center text-sm font-medium text-gray-700'>
             <FileText className='w-4 h-4 mr-2 text-indigo-600' />
@@ -379,7 +269,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
           <textarea
             {...register('description')}
             rows={4}
-            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+            className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all'
             placeholder="'Describe the procedure you're looking for, any specific requirements, and other relevant details."
           />
           {errors.description && (
@@ -400,7 +290,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
             <input
               type='text'
               id='surgeonEmailInput'
-              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all'
+              className='w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all'
               placeholder='Enter surgeon email'
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
@@ -540,7 +430,7 @@ const AddJobPostButtonForm: FC<AddJobButtonProps> = () => {
               {...register('agreeToTerms')}
               type='checkbox'
               id='terms'
-              className='h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded'
+              className='h-4 w-4 text-indigo-600 focus:ring-blue-600 border-gray-300 rounded'
             />
             <label htmlFor='terms' className='ml-2 block text-sm text-gray-700'>
               I agree to the terms and conditions

@@ -1,4 +1,4 @@
-import AddJobPostButtonForm from '@/components/AddJobPostButtonForm';
+import AddJobPostButtonForm from '@/components/postJobs/AddJobPostButtonForm';
 import { FC } from 'react';
 
 const page: FC = () => {

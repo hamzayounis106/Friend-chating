@@ -110,6 +110,7 @@ export default function SingleJobPost({ jobData }: { jobData: JobData }) {
           createdAt={jobData.createdAt}
         />
         <JobContent
+          locations={jobData.location}
           description={jobData.description}
           attachments={jobData.AttachmentUrls}
         />
